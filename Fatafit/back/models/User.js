@@ -22,6 +22,13 @@ const userSchema = new mongoose.Schema({
         enum: ['user', 'admin'],
         default: 'user'
     },
+    
+    isApproved: {
+    type: Boolean,
+    default: false  // المستفيد يحتاج موافقة من الإدمن قبل أن يصبح مستخدمًا
+  },
+  
+
 
 }, { timestamps: true });
 
