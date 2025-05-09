@@ -28,7 +28,7 @@ mongoose
 //************************************************************************************************** */
 
 app.use("/api/users", userRoute);
-
+app.use("/api/services", serviceRoutes);
 
 
 
