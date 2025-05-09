@@ -4,9 +4,17 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 require("dotenv").config();
 
+
+
+const userRoute = require("./routes/userRoutes");
 /****************************************************************** */
 app.use(express.json());
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:5173", // أو النطاق الخاص بك
+    credentials: true,
+  })
+);
 /****************************************************************** */
 
 //************************************************************************************************** */
@@ -18,6 +26,11 @@ mongoose
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.log("MongoDB connection error:", err));
 //************************************************************************************************** */
+
+app.use("/api/users", userRoute);
+
+
+
 
 /*******************************************************************/
 const PORT = process.env.PORT || 5000;
