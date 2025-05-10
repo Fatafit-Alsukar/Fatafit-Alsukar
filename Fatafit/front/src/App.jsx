@@ -1,24 +1,34 @@
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
-import "./App.css";
-import Dashboard from "./Dashboard/Dashboard";
+import React from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+} from "react-router-dom";
+// import Navbar from "./components/Navbar";
+// import Footer from "./components/Footer";
+
+import Register from "./Pages/Register/Register";
+import Login from "./Pages/Login/Login";
+function Layout() {
+  const location = useLocation();
+  const hideNavbarPages = ["/register"];
+  return (
+    <>
+    {/* {!hideNavbarPages.includes(location.pathname) && <Navbar />} */}
+    <Routes> 
+    <Route path="/register" element={<Register/>} />
+    <Route path="/login" element={<Login/>}/>
+    </Routes>
+    {/* {!hideNavbarPages.includes(location.pathname) && <Footer />} */}
+    </>
+  );
+}
 
 function App() {
-  const [count, setCount] = useState(0);
-
   return (
     <Router>
-      <div>
-        <nav>
-          <Link to="/">Home</Link> | <Link to="/dashboard">Dashboard</Link>
-        </nav>
-
-        <Routes>
-          <Route path="/dashboard" element={<Dashboard />} />
-        </Routes>
-      </div>
+      <Layout />
     </Router>
   );
 }
