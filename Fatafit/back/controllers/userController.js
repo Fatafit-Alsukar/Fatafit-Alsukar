@@ -13,30 +13,32 @@ exports.checkAuth = (req, res) => {
     });
 };
 // تسجيل مستخدم جديد
-exports.register = async (req, res) => {
-    try {
-        const { fullName, email, password, phonenumber } = req.body;
+// exports.register = async (req, res) => {
+//     try {
+//         const { fullName, email, password, phonenumber } = req.body;
 
-        // التحقق من وجود المستخدم مسبقًا
-        const userExists = await User.findOne({ email });
-        if (userExists)
-            return res.status(400).json({ message: "User already exists" });
+//         // التحقق من وجود المستخدم مسبقًا
+//         const userExists = await User.findOne({ email });
+//         if (userExists)
+//             return res.status(400).json({ message: "User already exists" });
 
-        // إنشاء مستخدم جديد
-        const user = await User.create({ fullName, email, password, phonenumber });
+//         // إنشاء مستخدم جديد
+//         const user = await User.create({ fullName, email, password, phonenumber });
 
-        // إنشاء توكن
-        const token = generateToken(user._id);
-        console.log("Generated Token:", token);
-        // إرسال التوكن في الكوكيز
-        res
-            .cookie("token", token, { httpOnly: true })
-            .status(201)
-            .json({ message: "User registered successfully" });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-};
+//         // إنشاء توكن
+//         const token = generateToken(user._id);
+//         console.log("Generated Token:", token);
+//         // إرسال التوكن في الكوكيز
+//         res
+//             .cookie("token", token, { httpOnly: true })
+//             .status(201)
+//             .json({ message: "User registered successfully" });
+//     } catch (error) {
+//         res.status(500).json({ message: error.message });
+//     }
+// };
+
+// تسجيل الدخول
 
 // تسجيل الدخول
 exports.login = async (req, res) => {
@@ -47,7 +49,14 @@ exports.login = async (req, res) => {
         if (!user) {
             return res
                 .status(400)
-                .json({ message: "البريد الإلكتروني أو كلمة المرور غير صحيحة" });
+                .json({ message: "المستخدم غير مسجل في الموقع"});
+        }
+
+        // ❗️ التحقق من موافقة الأدمن
+        if (!user.isApproved) {
+            return res
+                .status(403)
+                .json({ message: "لم يتم الموافقة على حسابك بعد من قبل الإدارة" });
         }
 
         const isMatch = await user.matchPassword(password);
@@ -57,20 +66,46 @@ exports.login = async (req, res) => {
                 .json({ message: "البريد الإلكتروني أو كلمة المرور غير صحيحة" });
         }
 
-        const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-            expiresIn: "1d",
-        });
+        const token = generateToken(user._id);
 
         // إرسال الـ Token في الكوكيز
         res.cookie("token", token, {
             httpOnly: true,
         });
-        console.log("Generated Token:", token);
-        res.status(200).json({ message: "تم تسجيل الدخول بنجاح" });
+
+        res.status(200).json({ message: "تم تسجيل الدخول بنجاح",
+            mustChangePassword: user.mustChangePassword
+         });
+        
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
+
+
+
+exports.changePassword = async (req, res) => {
+  const userId = req.user._id;
+  const { password, newPassword } = req.body;
+
+  try {
+    const user = await User.findById(userId);
+    const isMatch = await user.matchPassword(password);
+    if (!isMatch) {
+      return res.status(400).json({ message: "كلمة المرور الحالية غير صحيحة" });
+    }
+
+    user.password = newPassword;
+    user.mustChangePassword = false;
+    await user.save();
+
+    res.status(200).json({ message: "تم تغيير كلمة المرور بنجاح" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+
 
 exports.logout = (req, res) => {
     try {

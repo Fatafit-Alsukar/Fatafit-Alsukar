@@ -1,5 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom"; // تأكد من أنك تستخدم React Router
 
 export default function Login() {
   const [formData, setFormData] = useState({
@@ -7,6 +8,7 @@ export default function Login() {
     password: "",
   });
   const [message, setMessage] = useState("");
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -19,7 +21,15 @@ export default function Login() {
       const res = await axios.post("http://localhost:5000/api/users/login", formData, {
         withCredentials: true,
       });
-      setMessage(res.data.message);
+
+      if (res.data.mustChangePassword) {
+        setMessage("يرجى تغيير كلمة المرور المؤقتة.");
+        navigate("/changepassword"); // أو أي صفحة إعداد كلمة مرور جديدة
+      } else {
+        setMessage(res.data.message);
+        // navigate("/"); // أو الصفحة الرئيسية للمستخدم
+      }
+
     } catch (err) {
       setMessage(err.response?.data?.message || "حدث خطأ ما");
     }

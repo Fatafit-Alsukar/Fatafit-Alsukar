@@ -26,7 +26,7 @@ module.exports = async (req, res, next) => {
             });
         }
 
-        // 4. إضافة المستخدم إلى request object
+         // 4. إضافة المستخدم إلى request object
         req.user = user;
         next();
     } catch (error) {

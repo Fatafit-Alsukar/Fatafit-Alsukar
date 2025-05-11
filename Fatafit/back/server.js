@@ -2,13 +2,17 @@ const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
 require("dotenv").config();
 
 
 
-const userRoute = require("./routes/userRoutes");
+const userRoutes = require("./routes/userRoutes");
+const requestRoutes = require("./routes/requestRoutes");
+const serviceRoutes = require("./routes/serviceRoutes")
 /****************************************************************** */
 app.use(express.json());
+app.use(cookieParser());
 app.use(
   cors({
     origin: "http://localhost:5173", // أو النطاق الخاص بك
@@ -26,8 +30,9 @@ mongoose
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.log("MongoDB connection error:", err));
 //************************************************************************************************** */
-
-app.use("/api/users", userRoute);
+app.use('/uploads', express.static('uploads'));
+app.use("/api/users", userRoutes);
+app.use("/api/requests", requestRoutes);
 app.use("/api/services", serviceRoutes);
 
 

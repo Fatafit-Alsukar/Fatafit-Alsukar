@@ -5,22 +5,22 @@ import {
   Route,
   useLocation,
 } from "react-router-dom";
-// import Navbar from "./components/Navbar";
-// import Footer from "./components/Footer";
 
-import Register from "./Pages/Register/Register";
+import PatientRequest from "./Pages/PatientRequest/PatientRequest";
 import Login from "./Pages/Login/Login";
+import ChangePassword from "./Pages/ChangePassword/ChangePassword";
+import VolunteerRequest from "./Pages/VolunteerRequest/VolunteerRequest";
+import MembershipRequest from "./Pages/MembershipRequest/MembershipRequest";
 function Layout() {
-  const location = useLocation();
-  const hideNavbarPages = ["/register"];
   return (
     <>
-    {/* {!hideNavbarPages.includes(location.pathname) && <Navbar />} */}
     <Routes> 
-    <Route path="/register" element={<Register/>} />
+    <Route path="/patientrequest" element={<PatientRequest/>} />
     <Route path="/login" element={<Login/>}/>
+    <Route path="/changepassword" element={<ChangePassword/>} />
+    <Route path="/volunteerrequest" element={<VolunteerRequest/>} />
+    <Route path="/membershiprequest" element={<MembershipRequest/>} />
     </Routes>
-    {/* {!hideNavbarPages.includes(location.pathname) && <Footer />} */}
     </>
   );
 }

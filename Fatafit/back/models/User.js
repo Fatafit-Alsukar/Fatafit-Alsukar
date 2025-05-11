@@ -22,14 +22,14 @@ const userSchema = new mongoose.Schema({
         enum: ['user', 'admin'],
         default: 'user'
     },
-    
     isApproved: {
-    type: Boolean,
-    default: false  // المستفيد يحتاج موافقة من الإدمن قبل أن يصبح مستخدمًا
-  },
-  
-
-
+        type: Boolean,
+        default: false  // المستفيد يحتاج موافقة من الإدمن قبل أن يصبح مستخدمًا
+    },
+    mustChangePassword: {
+        type: Boolean,
+        default: true
+    },
 }, { timestamps: true });
 
 userSchema.pre("save", async function (next) {
