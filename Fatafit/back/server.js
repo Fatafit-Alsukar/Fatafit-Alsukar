@@ -36,6 +36,7 @@ mongoose
 
 app.use('/uploads', express.static('uploads'));
 app.use("/api/users", userRoutes);
+app.use("/api/requests", requestRoutes);
 app.use("/api/services", serviceRoutes);
 app.use("/api", activityRoutes);
 
