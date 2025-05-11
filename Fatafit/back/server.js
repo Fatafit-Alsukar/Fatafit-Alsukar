@@ -2,18 +2,20 @@ const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 const cors = require("cors");
-require("dotenv").config();
-const serviceRoutes = require("./routes/serviceRoutes");
 const cookieParser = require("cookie-parser");
+require("dotenv").config();
+
+
+
+
+const userRoutes = require("./routes/userRoutes");
+const requestRoutes = require("./routes/requestRoutes");
+const serviceRoutes = require("./routes/serviceRoutes")
 const activityRoutes = require("./routes/activityRoutes");
-
-
-
-const userRoute = require("./routes/userRoutes");
 /****************************************************************** */
-app.use(cookieParser()); // مهم لتحليل الكوكيز
 
 app.use(express.json());
+app.use(cookieParser());
 app.use(
   cors({
     origin: "http://localhost:5173", // أو النطاق الخاص بك
@@ -32,9 +34,8 @@ mongoose
   .catch((err) => console.log("MongoDB connection error:", err));
 //************************************************************************************************** */
 
-app.use("/api/users", userRoute);
-
-// app.use("/api/services", serviceRoutes);
+app.use('/uploads', express.static('uploads'));
+app.use("/api/users", userRoutes);
 app.use("/api/services", serviceRoutes);
 app.use("/api", activityRoutes);
 
