@@ -10,19 +10,20 @@ import {
 
 import Register from "./Pages/Register/Register";
 import Login from "./Pages/Login/Login";  
-
+import Activities from "./Pages/Activities/Activities";  
 import Dashboard from './Dashboard/Dashboard';
 function Layout() {
   const location = useLocation();
   const hideNavbarPages = ["/register"];
   return (
     <>
-    {/* {!hideNavbarPages.includes(location.pathname) && <Navbar />} */}
-    <Routes> 
-    <Route path="/register" element={<Register/>} />
-    <Route path="/login" element={<Login/>}/>
-    <Route path="/dashboard" element={<Dashboard/>} />
-    </Routes>
+      {/* {!hideNavbarPages.includes(location.pathname) && <Navbar />} */}
+      <Routes>
+        <Route path="/register" element={<Register />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/Activities" element={<Activities />} />
+      </Routes>
     </>
   );
 }
