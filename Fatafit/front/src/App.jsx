@@ -5,6 +5,7 @@ import {
   Route,
   useLocation,
 } from "react-router-dom";
+import ServicesPage from "./Pages/OurServices/OurServices";
 // import Navbar from "./components/Navbar";
 // import Footer from "./components/Footer";
 
@@ -15,12 +16,13 @@ function Layout() {
   const hideNavbarPages = ["/register"];
   return (
     <>
-    {/* {!hideNavbarPages.includes(location.pathname) && <Navbar />} */}
-    <Routes> 
-    <Route path="/register" element={<Register/>} />
-    <Route path="/login" element={<Login/>}/>
-    </Routes>
-    {/* {!hideNavbarPages.includes(location.pathname) && <Footer />} */}
+      {/* {!hideNavbarPages.includes(location.pathname) && <Navbar />} */}
+      <Routes>
+        <Route path="/register" element={<Register />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/Services" element={<ServicesPage />} />
+      </Routes>
+      {/* {!hideNavbarPages.includes(location.pathname) && <Footer />} */}
     </>
   );
 }
