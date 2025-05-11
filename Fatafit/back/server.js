@@ -5,6 +5,7 @@ const cors = require("cors");
 require("dotenv").config();
 const serviceRoutes = require("./routes/serviceRoutes");
 const cookieParser = require("cookie-parser");
+const activityRoutes = require("./routes/activityRoutes");
 
 
 
@@ -35,6 +36,7 @@ app.use("/api/users", userRoute);
 
 // app.use("/api/services", serviceRoutes);
 app.use("/api/services", serviceRoutes);
+app.use("/api", activityRoutes);
 
 
 
