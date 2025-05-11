@@ -4,10 +4,15 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 require("dotenv").config();
 const serviceRoutes = require("./routes/serviceRoutes");
+const cookieParser = require("cookie-parser");
+const activityRoutes = require("./routes/activityRoutes");
+
 
 
 const userRoute = require("./routes/userRoutes");
 /****************************************************************** */
+app.use(cookieParser()); // مهم لتحليل الكوكيز
+
 app.use(express.json());
 app.use(
   cors({
@@ -28,7 +33,10 @@ mongoose
 //************************************************************************************************** */
 
 app.use("/api/users", userRoute);
+
+// app.use("/api/services", serviceRoutes);
 app.use("/api/services", serviceRoutes);
+app.use("/api", activityRoutes);
 
 
 

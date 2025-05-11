@@ -11,6 +11,8 @@ import ServicesPage from "./Pages/OurServices/OurServices";
 
 import Register from "./Pages/Register/Register";
 import Login from "./Pages/Login/Login";
+import Activities from "./Pages/Activities/Activities";
+import Dashboard from "./Dashboard/Dashboard";
 function Layout() {
   const location = useLocation();
   const hideNavbarPages = ["/register"];
@@ -21,6 +23,8 @@ function Layout() {
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
         <Route path="/Services" element={<ServicesPage />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/Activities" element={<Activities />} />
       </Routes>
       {/* {!hideNavbarPages.includes(location.pathname) && <Footer />} */}
     </>
