@@ -2,11 +2,26 @@ const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
 require("dotenv").config();
 
+
+
+
+const userRoutes = require("./routes/userRoutes");
+const requestRoutes = require("./routes/requestRoutes");
+const serviceRoutes = require("./routes/serviceRoutes")
+const activityRoutes = require("./routes/activityRoutes");
 /****************************************************************** */
+
 app.use(express.json());
-app.use(cors());
+app.use(cookieParser());
+app.use(
+  cors({
+    origin: "http://localhost:5173", // أو النطاق الخاص بك
+    credentials: true,
+  })
+);
 /****************************************************************** */
 
 //************************************************************************************************** */
@@ -18,6 +33,14 @@ mongoose
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.log("MongoDB connection error:", err));
 //************************************************************************************************** */
+
+app.use('/uploads', express.static('uploads'));
+app.use("/api/users", userRoutes);
+app.use("/api/requests", requestRoutes);
+app.use("/api/services", serviceRoutes);
+app.use("/api", activityRoutes);
+
+
 
 /*******************************************************************/
 const PORT = process.env.PORT || 5000;
