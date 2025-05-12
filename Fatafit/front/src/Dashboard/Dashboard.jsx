@@ -29,6 +29,9 @@ import {
   getAllUsers,
 } from "./serviceAPI";
 
+import Events from "./Events"; // أو المسار الصحيح
+
+
 // ألوان الواجهة
 const colors = {
   skyBlue: "#87CEEB",
@@ -196,6 +199,10 @@ export default function Dashboard() {
     setNewUser({ name: "", age: "", status: "نشط" });
     setShowAddUserForm(false);
   };
+
+
+
+  
 
   const handleAddEvent = (e) => {
     e.preventDefault();
@@ -769,124 +776,7 @@ export default function Dashboard() {
             </div>
           )}
 
-          {activeTab === "events" && (
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-lg font-semibold">الفعاليات القادمة</h2>
-                <button
-                  className="bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-blue-600 transition"
-                  onClick={() => setShowAddEventForm(true)}
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>إضافة فعالية</span>
-                </button>
-              </div>
-
-              {showAddEventForm && (
-                <div className="mb-6 p-4 border border-gray-200 rounded-lg bg-gray-50">
-                  <h3 className="text-lg font-medium mb-4">
-                    إضافة فعالية جديدة
-                  </h3>
-                  <form onSubmit={handleAddEvent}>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="md:col-span-2">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          عنوان الفعالية
-                        </label>
-                        <input
-                          type="text"
-                          required
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                          value={newEvent.title}
-                          onChange={(e) =>
-                            setNewEvent({ ...newEvent, title: e.target.value })
-                          }
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          التاريخ
-                        </label>
-                        <input
-                          type="date"
-                          required
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                          value={newEvent.date}
-                          onChange={(e) =>
-                            setNewEvent({ ...newEvent, date: e.target.value })
-                          }
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          الموقع
-                        </label>
-                        <input
-                          type="text"
-                          required
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                          value={newEvent.location}
-                          onChange={(e) =>
-                            setNewEvent({
-                              ...newEvent,
-                              location: e.target.value,
-                            })
-                          }
-                        />
-                      </div>
-                    </div>
-                    <div className="flex justify-end space-x-3 mt-4">
-                      <button
-                        type="button"
-                        className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-                        onClick={() => setShowAddEventForm(false)}
-                      >
-                        إلغاء
-                      </button>
-                      <button
-                        type="submit"
-                        className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-                      >
-                        إضافة فعالية
-                      </button>
-                    </div>
-                  </form>
-                </div>
-              )}
-
-              <div className="space-y-4">
-                {events.map((event) => (
-                  <div
-                    key={event.id}
-                    className="flex items-start space-x-4 p-4 border border-gray-200 rounded-lg hover:bg-gray-50"
-                  >
-                    <div className="w-16 h-16 flex flex-col items-center justify-center bg-blue-100 rounded-lg">
-                      <span className="text-xs font-medium text-blue-800">
-                        {new Date(event.date).toLocaleString("ar-SA", {
-                          month: "short",
-                        })}
-                      </span>
-                      <span className="text-xl font-bold text-blue-800">
-                        {new Date(event.date).getDate()}
-                      </span>
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-medium text-lg">{event.title}</h3>
-                      <p className="text-gray-500">{event.location}</p>
-                    </div>
-                    <div className="flex space-x-2">
-                      <button className="p-2 text-blue-500 hover:bg-blue-50 rounded-full">
-                        <Edit className="w-4 h-4" />
-                      </button>
-                      <button className="p-2 text-red-500 hover:bg-red-50 rounded-full">
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+          {activeTab === "events" && <Events />}
 
           {activeTab === "donations" && (
             <div className="bg-white rounded-lg shadow-sm p-6">
