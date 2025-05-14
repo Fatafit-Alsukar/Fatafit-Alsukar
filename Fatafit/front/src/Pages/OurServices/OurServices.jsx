@@ -20,7 +20,13 @@ export default function ServicesPage() {
           throw new Error("فشل في جلب البيانات من الخادم");
         }
         const data = await response.json();
+<<<<<<< HEAD
+        console.log("البيانات المستلمة:", data);
+
+setServices(data.data);
+=======
         setServices(data.data);
+>>>>>>> 46be20523c7124b8e7a77775ec9c8d2e002ade67
         setLoading(false);
       } catch (err) {
         console.error("Error fetching services:", err);

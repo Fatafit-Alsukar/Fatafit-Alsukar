@@ -129,3 +129,15 @@ exports.getAllUsers = async (req, res) => {
       .json({ message: "Failed to fetch users", error: error.message });
   }
 };
+
+
+
+// GET /api/users/count
+exports.getUserCount = async (req, res) => {
+  try {
+    const count = await User.countDocuments();
+    res.json({ count });
+  } catch (err) {
+    res.status(500).json({ message: "فشل في جلب عدد المستخدمين", error: err });
+  }
+};

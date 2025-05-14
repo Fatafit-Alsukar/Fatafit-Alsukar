@@ -4,6 +4,9 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 require("dotenv").config();
+const membershipRoutes = require("./routes/membershipRequests");
+const patientRequestRoutes = require("./routes/patientRequests");
+const volunteerRequestRoutes = require("./routes/volunteerRequests");
 
 
 
@@ -39,7 +42,9 @@ app.use("/api/users", userRoutes);
 app.use("/api/requests", requestRoutes);
 app.use("/api/services", serviceRoutes);
 app.use("/api", activityRoutes);
-
+app.use("/api/requests", membershipRoutes);
+app.use("/api/requests", patientRequestRoutes);
+app.use("/api/requests", volunteerRequestRoutes);
 
 
 /*******************************************************************/
