@@ -17,7 +17,8 @@ import MembershipRequest from "./Pages/MembershipRequest/MembershipRequest";
 import Activities from "./Pages/Activities/Activities";
 import Dashboard from "./Dashboard/Dashboard";
 import ServicesPage from "./Pages/OurServices/OurServices";
-  import Events from "./Dashboard/Events";
+import DonatePage from "./Pages/Donation/Donation";
+
 function Layout() {
   return (
     <>
@@ -31,8 +32,8 @@ function Layout() {
         <Route path="/Services" element={<ServicesPage />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/Activities" element={<Activities />} />
-        <Route path="/events" element={<Events />} />
-        {/* Add more routes as needed */}
+        <Route path="/donation" element={<DonatePage />} />
+
       </Routes>
       {/* {!hideNavbarPages.includes(location.pathname) && <Footer />} */}
     </>
