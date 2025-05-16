@@ -45,6 +45,7 @@ app.use("/api", activityRoutes);
 app.use("/api/requests", membershipRoutes);
 app.use("/api/requests", patientRequestRoutes);
 app.use("/api/requests", volunteerRequestRoutes);
+app.use("/api/requests/patient", patientRequestRoutes);
 
 
 /*******************************************************************/
