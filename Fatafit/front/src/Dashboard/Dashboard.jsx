@@ -46,7 +46,7 @@ import {
   createService,
   deleteService,
   getAllUsers,
-  getAllEvents,
+ 
 } from "./serviceAPI";
 
 import Events from "./Events";
@@ -69,15 +69,13 @@ export default function Dashboard() {
   const [totalVolunteers, setTotalVolunteers] = useState(0);
   const [upcomingEvents, setUpcomingEvents] = useState(0);
   const [completedEvents, setCompletedEvents] = useState(0);
+  const [patientRequestsByType, setPatientRequestsByType] = useState([]);
+  const [selectedServiceType, setSelectedServiceType] = useState(null);
+  const [requestsByType, setRequestsByType] = useState([]);
+  const [groupedRequests, setGroupedRequests] = useState([]);
 
   // بيانات الرسم البياني (يمكن استبدالها ببيانات ديناميكية لاحقًا)
-  const [monthlyRegistrations, setMonthlyRegistrations] = useState([
-    { name: "يناير", patients: 12, volunteers: 5 },
-    { name: "فبراير", patients: 19, volunteers: 7 },
-    { name: "مارس", patients: 15, volunteers: 9 },
-    { name: "أبريل", patients: 25, volunteers: 12 },
-    { name: "مايو", patients: 22, volunteers: 8 },
-  ]);
+  const [monthlyRegistrations, setMonthlyRegistrations] = useState([]);
 
   const [ageDistribution, setAgeDistribution] = useState([
     { name: "0-5", value: 45 },
@@ -149,7 +147,24 @@ export default function Dashboard() {
       icon: <Activity className="w-6 h-6 text-purple-500" />,
     },
   ];
-
+  const dashboardStatsData = [
+    {
+      name: "طلبات الانتساب",
+      value: membershipCount,
+    },
+    {
+      name: "طلبات المرضى",
+      value: patientRequestCount,
+    },
+    {
+      name: "طلبات التطوع",
+      value: volunteerRequestCount,
+    },
+    {
+      name: "المستخدمون النشطون",
+      value: userCount,
+    },
+  ];
   // ألوان الواجهة
   const colors = {
     skyBlue: "#87CEEB",
@@ -220,21 +235,56 @@ export default function Dashboard() {
   const [donationAmount, setDonationAmount] = useState("");
   const fetchEvents = async () => {
     try {
-      const data = await getAllEvents();
-      setEvents(data);
+      const res = await axios.get("http://localhost:5000/api/activities");
+      setEvents(res.data);
 
-      // تحديث الإحصائيات
+      // إحصائيات
       setUpcomingEvents(
-        data.filter((e) => new Date(e.date) >= new Date()).length
+        res.data.filter((e) => new Date(e.date) >= new Date()).length
       );
       setCompletedEvents(
-        data.filter((e) => new Date(e.date) < new Date()).length
+        res.data.filter((e) => new Date(e.date) < new Date()).length
       );
     } catch (err) {
       console.error("فشل في جلب الفعاليات:", err);
     }
   };
+  
+  const fetchPatientRequestsGrouped = async () => {
+    try {
+      const res = await axios.get(
+        "http://localhost:5000/api/requests/patient/grouped"
+      );
+      setPatientRequestsByType(res.data); // شكل البيانات: [{ serviceType: "إرشاد", count: 3 }, ...]
+    } catch (error) {
+      console.error("فشل في جلب طلبات المرضى حسب النوع:", error);
+    }
+  };
 
+
+  const fetchRequestsByType = async (type) => {
+    try {
+      const res = await axios.get(
+        `http://localhost:5000/api/requests/patient/by-type/${type}`
+      );
+      setRequestsByType(res.data);
+      setSelectedServiceType(type);
+    } catch (error) {
+      console.error("فشل في جلب تفاصيل الطلبات:", error);
+    }
+  };
+  const updateStatus = async (id, newStatus) => {
+    try {
+      await axios.put(`http://localhost:5000/api/requests/patient/${id}`, {
+        status: newStatus,
+      });
+      // إعادة تحميل الطلبات بعد التحديث
+      fetchRequestsByType(selectedServiceType);
+    } catch (error) {
+      console.error("فشل في تحديث الحالة:", error);
+    }
+  };
+  
   // جلب البيانات عند تحميل المكون
   useEffect(() => {
     fetchServices();
@@ -244,6 +294,9 @@ export default function Dashboard() {
     fetchVolunteerRequestCount();
     fetchUserCount();
     fetchEvents(); // ✅ أضف هذا
+    fetchMonthlyCounts(); // 👈
+    fetchPatientRequestsGrouped(); // ✅
+    
 
     // يمكنك إضافة المزيد من استدعاءات API هنا للحصول على البيانات الأخرى
   }, []);
@@ -283,7 +336,47 @@ export default function Dashboard() {
       console.error("فشل في جلب عدد طلبات التطوع:", error);
     }
   };
+  const fetchMonthlyCounts = async () => {
+    try {
+      const [patientRes, volunteerRes, membershipRes, usersRes] =
+        await Promise.all([
+          axios.get("http://localhost:5000/api/requests/patient/count"),
+          axios.get("http://localhost:5000/api/requests/volunteer/count"),
+          axios.get("http://localhost:5000/api/requests/membership/count"),
+          axios.get("http://localhost:5000/api/users/count"),
+        ]);
 
+      const patientCount = patientRes.data.count;
+      const volunteerCount = volunteerRes.data.count;
+      const membershipCount = membershipRes.data.count;
+      const userCount = usersRes.data.count;
+
+      setPatientRequestCount(patientCount);
+      setVolunteerRequestCount(volunteerCount);
+      setMembershipCount(membershipCount);
+      setUserCount(userCount);
+
+      // تحديد الشهر الحالي تلقائيًا
+      const currentMonth = new Date().toLocaleString("ar-EG", {
+        month: "long",
+      });
+
+      // تحديث بيانات الرسم البياني
+      setMonthlyRegistrations([
+        {
+          name: currentMonth,
+          patients: patientCount,
+          volunteers: volunteerCount,
+          memberships: membershipCount,
+          users: userCount,
+        },
+      ]);
+    } catch (error) {
+      console.error("فشل في جلب بيانات الإحصائيات الشهرية:", error);
+    }
+  };
+  
+  
   // جلب عدد المستخدمين
   const fetchUserCount = async () => {
     try {
@@ -456,8 +549,7 @@ export default function Dashboard() {
       {/* الشريط الجانبي */}
       <div className="w-64 bg-white border-l border-gray-200 shadow-sm">
         <div className="p-4 text-xl font-bold text-center text-teal-600">
-          جمعية سكري الأطفال
-        </div>
+جمعية فتافيت السكر        </div>
         <div className="p-2">
           <div className="flex flex-col space-y-1">
             <SidebarItem
@@ -486,9 +578,9 @@ export default function Dashboard() {
             />
             <SidebarItem
               icon={<Newspaper />}
-              text="الأخبار"
-              active={activeTab === "news"}
-              onClick={() => setActiveTab("news")}
+              text="المقالات"
+              active={activeTab === "Articles"}
+              onClick={() => setActiveTab("Articles")}
             />
             <SidebarItem
               icon={<PieChart />}
@@ -573,7 +665,7 @@ export default function Dashboard() {
               {/* نظرة عامة - نص ترحيبي */}
               <div className="bg-white rounded-lg shadow-sm p-6">
                 <h2 className="text-xl font-bold text-teal-700 mb-2">
-                  مرحباً بك في لوحة تحكم جمعية سكري الأطفال
+                  مرحباً بك في لوحة تحكم جمعية فتافيت السكر
                 </h2>
                 <p className="text-gray-600">
                   هذه النظرة العامة توفر لك معلومات حول نشاطات الجمعية
@@ -641,7 +733,17 @@ export default function Dashboard() {
                         <Bar
                           dataKey="volunteers"
                           name="المتطوعين"
+                          fill={colors.lightYellow}
+                        />
+                        <Bar
+                          dataKey="memberships"
+                          name="طلبات الانتساب"
                           fill={colors.mintGreen}
+                        />
+                        <Bar
+                          dataKey="users"
+                          name="المستخدمون النشطون"
+                          fill={colors.lavender}
                         />
                       </BarChart>
                     </ResponsiveContainer>
@@ -649,63 +751,287 @@ export default function Dashboard() {
                 </div>
 
                 {/* توزيع حسب العمر */}
+                {/* آخر طلبات المرضى */}
+                {/* أكثر الخدمات طلباً */}
                 <div className="bg-white rounded-lg shadow-sm p-4">
                   <h2 className="text-lg font-semibold mb-2">
-                    توزيع المرضى حسب العمر
+                    أكثر الخدمات طلباً
                   </h2>
                   <p className="text-sm text-gray-500 mb-3">
-                    الفئات العمرية للمرضى المسجلين في النظام
+                    ترتيب أكثر الخدمات المطلوبة من قبل المرضى
                   </p>
-                  <div className="h-64">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <RPieChart>
-                        <Pie
-                          data={ageDistribution}
-                          cx="50%"
-                          cy="50%"
-                          labelLine={false}
-                          outerRadius={80}
-                          fill="#8884d8"
-                          dataKey="value"
-                          nameKey="name"
-                          label={({ name, percent }) =>
-                            `${name}: ${(percent * 100).toFixed(0)}%`
-                          }
+                  <ul className="space-y-3">
+                    {patientRequestsByType
+                      .sort((a, b) => b.count - a.count)
+                      .slice(0, 5)
+                      .map((item, index) => (
+                        <li
+                          key={index}
+                          className="flex justify-between items-center border-b pb-2"
                         >
-                          {ageDistribution.map((entry, index) => (
-                            <Cell
-                              key={`cell-${index}`}
-                              fill={pieColors[index % pieColors.length]}
-                            />
-                          ))}
-                        </Pie>
-                        <Legend
-                          layout="horizontal"
-                          verticalAlign="bottom"
-                          align="center"
-                        />
-                      </RPieChart>
-                    </ResponsiveContainer>
-                  </div>
+                          <div className="flex items-center">
+                            <span className="text-sm font-medium text-gray-800">
+                              {item.serviceType}
+                            </span>
+                          </div>
+                          <span className="text-sm font-semibold text-teal-600">
+                            {item.count} طلب
+                          </span>
+                        </li>
+                      ))}
+                    {patientRequestsByType.length === 0 && (
+                      <p className="text-gray-500 text-sm text-center py-3">
+                        لا توجد بيانات حالياً
+                      </p>
+                    )}
+                  </ul>
                 </div>
               </div>
 
-              {/* القسم الثالث: معلومات المرضى والمتطوعين */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* معلومات المرضى */}
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                  <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-lg font-semibold">معلومات المرضى</h2>
+              {/* قسم طلبات المرضى حسب نوع الخدمة */}
+              <div className="bg-white rounded-lg shadow-md p-6 mb-6 border border-gray-100">
+                <div className="flex justify-between items-center mb-5">
+                  <h2 className="text-xl font-bold text-teal-700">
+                    طلبات المرضى حسب نوع الخدمة
+                  </h2>
+                  <div className="text-sm text-gray-500">
+                    {patientRequestsByType.length} أنواع خدمات
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {patientRequestsByType.map((item, index) => (
+                    <div
+                      key={index}
+                      className="bg-gray-50 p-4 rounded-lg border border-gray-100 hover:shadow-md transition-all duration-300"
+                    >
+                      <div className="flex justify-between items-center mb-3">
+                        <h3 className="font-bold text-gray-800">
+                          {item.serviceType}
+                        </h3>
+                        <span className="bg-teal-100 text-teal-800 text-xs px-2 py-1 rounded-full font-medium">
+                          {item.count}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <p className="text-sm text-gray-600">
+                          {new Date().toLocaleDateString("ar-SA")}
+                        </p>
+                        <button
+                          className="bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-700 transition-colors text-sm font-medium flex items-center"
+                          onClick={() => fetchRequestsByType(item.serviceType)}
+                        >
+                          <span>عرض التفاصيل</span>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-4 w-4 mr-1"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M15 19l-7-7 7-7"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {selectedServiceType && (
+                <div className="mt-6 bg-white rounded-lg shadow-md p-6 border border-gray-100">
+                  <div className="flex justify-between items-center mb-5">
+                    <h2 className="text-xl font-bold text-gray-800">
+                      تفاصيل طلبات "{selectedServiceType}"
+                    </h2>
                     <button
-                      className="bg-blue-50 text-blue-600 px-3 py-1 rounded-lg text-sm hover:bg-blue-100"
+                      onClick={() => setSelectedServiceType(null)}
+                      className="text-gray-500 hover:text-gray-700"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full text-right border-collapse">
+                      <thead>
+                        <tr className="bg-gray-50 border-b border-gray-200">
+                          <th className="py-3 px-4 font-semibold text-sm text-gray-700">
+                            الاسم
+                          </th>
+                          <th className="py-3 px-4 font-semibold text-sm text-gray-700">
+                            البريد
+                          </th>
+                          <th className="py-3 px-4 font-semibold text-sm text-gray-700">
+                            الهاتف
+                          </th>
+                          <th className="py-3 px-4 font-semibold text-sm text-gray-700">
+                            المرفق
+                          </th>
+                          <th className="py-3 px-4 font-semibold text-sm text-gray-700">
+                            معلومات إضافية
+                          </th>
+                          <th className="py-3 px-4 font-semibold text-sm text-gray-700">
+                            الحالة
+                          </th>
+                          <th className="py-3 px-4 font-semibold text-sm text-gray-700">
+                            تعديل
+                          </th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        {requestsByType.length > 0 ? (
+                          requestsByType.map((req) => (
+                            <tr
+                              key={req._id}
+                              className="border-b border-gray-100 hover:bg-gray-50"
+                            >
+                              <td className="py-3 px-4 text-sm">
+                                {req.fullName}
+                              </td>
+                              <td className="py-3 px-4 text-sm">{req.email}</td>
+                              <td className="py-3 px-4 text-sm">
+                                {req.phonenumber}
+                              </td>
+                              <td className="py-3 px-4 text-sm">
+                                {req.attachment ? (
+                                  <a
+                                    href={req.attachment}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-teal-600 hover:text-teal-800 flex items-center"
+                                  >
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      className="h-4 w-4 ml-1"
+                                      fill="none"
+                                      viewBox="0 0 24 24"
+                                      stroke="currentColor"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                                      />
+                                    </svg>
+                                    تحميل
+                                  </a>
+                                ) : (
+                                  <span className="text-gray-400">لا يوجد</span>
+                                )}
+                              </td>
+                              <td className="py-3 px-4 text-sm">
+                                {req.additionalInfo ? (
+                                  <div className="max-w-xs truncate">
+                                    {req.additionalInfo}
+                                  </div>
+                                ) : (
+                                  <span className="text-gray-400">-</span>
+                                )}
+                              </td>
+                              <td className="py-3 px-4 text-sm">
+                                <span
+                                  className={`px-3 py-1 rounded-full text-xs font-medium ${
+                                    req.status === "approved"
+                                      ? "bg-green-100 text-green-800"
+                                      : "bg-yellow-100 text-yellow-800"
+                                  }`}
+                                >
+                                  {req.status === "approved"
+                                    ? "تمت الموافقة"
+                                    : "قيد المراجعة"}
+                                </span>
+                              </td>
+                              <td className="py-3 px-4 text-sm">
+                                <button
+                                  className={`px-3 py-1 rounded text-xs font-medium ${
+                                    req.status === "approved"
+                                      ? "bg-gray-100 text-gray-800 hover:bg-gray-200"
+                                      : "bg-teal-100 text-teal-800 hover:bg-teal-200"
+                                  }`}
+                                  onClick={() =>
+                                    updateStatus(
+                                      req._id,
+                                      req.status === "approved"
+                                        ? "pending"
+                                        : "approved"
+                                    )
+                                  }
+                                >
+                                  {req.status === "approved"
+                                    ? "تعيين كـ قيد المراجعة"
+                                    : "الموافقة"}
+                                </button>
+                              </td>
+                            </tr>
+                          ))
+                        ) : (
+                          <tr>
+                            <td
+                              colSpan="7"
+                              className="py-8 px-4 text-center text-gray-500"
+                            >
+                              لا توجد طلبات لعرضها
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {/* القسم الثالث: معلومات المرضى والمتطوعين */}
+              <div className="grid grid-cols-1 gap-6 mt-6">
+                {/* معلومات المرضى */}
+                <div className="bg-white rounded-lg shadow-md p-6 border border-gray-100">
+                  <div className="flex justify-between items-center mb-5">
+                    <h2 className="text-xl font-bold text-gray-800">
+                      معلومات المرضى
+                    </h2>
+                    <button
+                      className="flex items-center text-teal-600 hover:text-teal-800 text-sm font-medium"
                       onClick={() => setActiveTab("users")}
                     >
                       عرض الكل
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-4 w-4 mr-1"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 5l7 7-7 7"
+                        />
+                      </svg>
                     </button>
                   </div>
+
                   <div className="overflow-x-auto">
                     <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gray-50">
+                      <thead>
                         <tr>
                           <th
                             scope="col"
@@ -733,18 +1059,37 @@ export default function Dashboard() {
                           </th>
                         </tr>
                       </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
-                        {users.slice(0, 3).map((user) => (
-                          <tr key={user.id}>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                              {user.name}
+                      <tbody>
+                        {users.slice(0, 3).map((user, index) => (
+                          <tr
+                            key={user.id}
+                            className={
+                              index !== users.slice(0, 3).length - 1
+                                ? "border-b border-gray-100"
+                                : ""
+                            }
+                          >
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="flex items-center">
+                                <div className="flex-shrink-0 h-8 w-8 bg-teal-100 rounded-full flex items-center justify-center text-teal-800 font-medium">
+                                  {user.name.charAt(0)}
+                                </div>
+                                <div className="mr-3">
+                                  <div className="text-sm font-medium text-gray-900">
+                                    {user.name}
+                                  </div>
+                                  <div className="text-xs text-gray-500">
+                                    #{user._id.substring(0, 8)}
+                                  </div>
+                                </div>
+                              </div>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              {user.age}
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                              {user.age} سنة
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <td className="px-6 py-4 whitespace-nowrap">
                               <span
-                                className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                className={`px-3 py-1 inline-flex text-xs leading-5 font-medium rounded-full ${
                                   user.status === "نشط"
                                     ? "bg-green-100 text-green-800"
                                     : "bg-gray-100 text-gray-800"
@@ -762,202 +1107,77 @@ export default function Dashboard() {
                     </table>
                   </div>
                 </div>
-
-                {/* معلومات المتطوعين */}
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                  <h2 className="text-lg font-semibold mb-4">
-                    معلومات المتطوعين
-                  </h2>
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="text-center">
-                      <div className="text-3xl font-bold text-blue-600">
-                        {totalVolunteers}
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        إجمالي المتطوعين
-                      </div>
-                    </div>
-                    <div className="h-16 border-l border-gray-200"></div>
-                    <div className="text-center">
-                      <div className="text-3xl font-bold text-green-600">5</div>
-                      <div className="text-sm text-gray-500">
-                        متطوعين جدد هذا الشهر
-                      </div>
-                    </div>
-                    <div className="h-16 border-l border-gray-200"></div>
-                    <div className="text-center">
-                      <div className="text-3xl font-bold text-purple-600">
-                        757
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        مجموع ساعات التطوع
-                      </div>
-                    </div>
-                  </div>
-                  <h3 className="text-md font-medium mb-3">
-                    توزيع المتطوعين حسب المجال
-                  </h3>
-                  <div className="h-48">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie
-                          data={volunteersByCategory}
-                          cx="50%"
-                          cy="50%"
-                          outerRadius={80}
-                          fill="#8884d8"
-                          dataKey="value"
-                          nameKey="name"
-                          label={({ name, value }) => `${name}: ${value}`}
-                        >
-                          {volunteersByCategory.map((entry, index) => (
-                            <Cell
-                              key={`cell-${index}`}
-                              fill={pieColors[index % pieColors.length]}
-                            />
-                          ))}
-                        </Pie>
-                        <Legend
-                          layout="horizontal"
-                          verticalAlign="bottom"
-                          align="center"
-                        />
-                        <Tooltip />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </div>
-                </div>
               </div>
 
               {/* القسم الرابع: النشاطات الأخيرة والفعاليات */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* النشاطات الأخيرة */}
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                  <h2 className="text-lg font-semibold mb-4">
-                    النشاطات الأخيرة
-                  </h2>
-                  <div className="space-y-4">
-                    {recentActivities.map((activity) => (
-                      <ActivityItem
-                        key={activity.id}
-                        icon={activity.icon}
-                        title={activity.title}
-                        description={activity.description}
-                        time={activity.time}
-                      />
-                    ))}
-                  </div>
+              <div className="bg-white rounded-lg shadow-sm p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-lg font-semibold">الفعاليات القادمة</h2>
+                  <button
+                    className="bg-blue-50 text-blue-600 px-3 py-1 rounded-lg text-sm hover:bg-blue-100"
+                    onClick={() => setActiveTab("events")}
+                  >
+                    عرض الكل
+                  </button>
                 </div>
 
-                {/* الفعاليات القادمة */}
+                <div className="space-y-4">
+                  {events
+                    .filter((event) => new Date(event.date) >= new Date())
+                    .slice(0, 3)
+                    .map((event) => (
+                      <div
+                        key={event._id}
+                        className="flex items-center border border-gray-100 rounded-lg p-3 hover:bg-gray-50 transition-all"
+                      >
+                        {/* الصورة */}
+                        <img
+                          src={
+                            event.image || "https://via.placeholder.com/80x80"
+                          }
+                          alt={event.name}
+                          className="w-20 h-20 rounded-md object-cover ml-4"
+                          onError={(e) => {
+                            e.target.src = "https://via.placeholder.com/80x80";
+                          }}
+                        />
 
-                {/* الفعاليات القادمة */}
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                  <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-lg font-semibold">الفعاليات القادمة</h2>
-                    <button
-                      className="bg-blue-50 text-blue-600 px-3 py-1 rounded-lg text-sm hover:bg-blue-100"
-                      onClick={() => setActiveTab("events")}
-                    >
-                      عرض الكل
-                    </button>
-                  </div>
-                  <div className="space-y-3">
-                    {events
-                      .filter((event) => new Date(event.date) >= new Date()) // ✅ فقط الفعاليات القادمة
-                      .slice(0, 3) // ✅ نعرض فقط 3 فعاليات
-                      .map((event) => (
-                        <div
-                          key={event._id || event.id}
-                          className="flex items-start p-3 border border-gray-100 rounded-lg hover:bg-gray-50"
-                        >
-                          <div className="p-2 bg-yellow-100 rounded-lg ml-3">
-                            <Calendar className="w-5 h-5 text-yellow-600" />
-                          </div>
-                          <div>
-                            <h3 className="font-medium">{event.title}</h3>
-                            <div className="flex items-center text-sm text-gray-500 mt-1">
-                              <Clock className="w-4 h-4 ml-1" />
-                              <span>
-                                {new Date(event.date).toLocaleDateString(
-                                  "ar-EG"
-                                )}
+                        {/* التفاصيل */}
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-gray-800">
+                            {event.name}
+                          </h3>
+                          <p className="text-sm text-gray-500">
+                            <span className="font-medium text-gray-700">
+                              التاريخ:{" "}
+                            </span>
+                            {new Date(event.date).toLocaleDateString("ar-EG")}
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            <span className="font-medium text-gray-700">
+                              التصنيف:{" "}
+                            </span>
+                            {event.category}
+                          </p>
+                          {event.beneficiaries?.length > 0 && (
+                            <p className="text-sm text-gray-500">
+                              <span className="font-medium text-gray-700">
+                                المستفيدون:{" "}
                               </span>
-                              <span className="mx-2">|</span>
-                              <span>{event.location}</span>
-                            </div>
-                          </div>
+                              {event.beneficiaries.join("، ")}
+                            </p>
+                          )}
                         </div>
-                      ))}
-                    {events.filter(
-                      (event) => new Date(event.date) >= new Date()
-                    ).length === 0 && (
-                      <div className="text-center py-4 text-gray-500">
-                        لا توجد فعاليات قادمة حالياً
                       </div>
-                    )}
-                  </div>
-                </div>
-              </div>
+                    ))}
 
-              {/* القسم الخامس: مؤشرات أداء إضافية */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* ساعات التطوع */}
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                  <h2 className="text-lg font-semibold mb-3">
-                    ساعات التطوع الشهرية
-                  </h2>
-                  <p className="text-sm text-gray-500 mb-4">
-                    إجمالي ساعات التطوع المسجلة شهرياً
-                  </p>
-                  <div className="h-64">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <RLineChart
-                        data={volunteerHoursByMonth}
-                        margin={{ top: 5, right: 20, bottom: 5, left: 0 }}
-                      >
-                        <XAxis dataKey="name" />
-                        <YAxis />
-                        <Tooltip />
-                        <Line
-                          type="monotone"
-                          dataKey="hours"
-                          name="ساعات التطوع"
-                          stroke="#8884d8"
-                          strokeWidth={2}
-                        />
-                      </RLineChart>
-                    </ResponsiveContainer>
-                  </div>
-                </div>
-
-                {/* التبرعات */}
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                  <h2 className="text-lg font-semibold mb-3">
-                    التبرعات الشهرية
-                  </h2>
-                  <p className="text-sm text-gray-500 mb-4">
-                    إجمالي التبرعات المستلمة شهرياً (بالريال)
-                  </p>
-                  <div className="h-64">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <RLineChart
-                        data={donationsByMonth}
-                        margin={{ top: 5, right: 20, bottom: 5, left: 0 }}
-                      >
-                        <XAxis dataKey="name" />
-                        <YAxis />
-                        <Tooltip />
-                        <Line
-                          type="monotone"
-                          dataKey="donations"
-                          name="التبرعات"
-                          stroke="#82ca9d"
-                          strokeWidth={2}
-                        />
-                      </RLineChart>
-                    </ResponsiveContainer>
-                  </div>
+                  {/* في حال لا يوجد فعاليات */}
+                  {events.filter((e) => new Date(e.date) >= new Date())
+                    .length === 0 && (
+                    <div className="text-center py-4 text-gray-500">
+                      لا توجد فعاليات قادمة حالياً
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -1301,89 +1521,80 @@ export default function Dashboard() {
           {activeTab === "statistics" && (
             <div className="space-y-6">
               <div className="bg-white rounded-lg shadow-sm p-6">
-                <h2 className="text-xl font-semibold mb-4">
-                  الإحصائيات والبيانات
+                <h2 className="text-xl font-semibold mb-6 text-gray-800">
+                  الإحصائيات العامة
                 </h2>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                  {statisticData.map((item, index) => (
-                    <StatCard
-                      key={index}
-                      icon={item.icon}
-                      title={item.name}
-                      value={item.value}
-                      color={item.color}
-                    />
-                  ))}
+                {/* البطاقات الأربع */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                  <StatCard
+                    icon={<UserPlus className="w-6 h-6 text-teal-500" />}
+                    title="طلبات الانتساب"
+                    value={membershipCount}
+                    color="#E0F7FA"
+                  />
+                  <StatCard
+                    icon={<Heart className="w-6 h-6 text-pink-500" />}
+                    title="طلبات المرضى"
+                    value={patientRequestCount}
+                    color="#FCE4EC"
+                  />
+                  <StatCard
+                    icon={<ThumbsUp className="w-6 h-6 text-orange-500" />}
+                    title="طلبات التطوع"
+                    value={volunteerRequestCount}
+                    color="#FFF3E0"
+                  />
+                  <StatCard
+                    icon={<Users className="w-6 h-6 text-indigo-500" />}
+                    title="المستخدمون النشطون"
+                    value={userCount}
+                    color="#E8EAF6"
+                  />
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {/* توزيع المرضى حسب المناطق */}
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <h3 className="text-lg font-semibold mb-3">
-                      توزيع المرضى حسب المناطق
-                    </h3>
-                    <div className="h-64">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <PieChart>
-                          <Pie
-                            data={patientsByRegion}
-                            cx="50%"
-                            cy="50%"
-                            outerRadius={80}
-                            fill="#8884d8"
-                            dataKey="value"
-                            nameKey="name"
-                            label={({ name, value }) => `${name}: ${value}`}
-                          >
-                            {patientsByRegion.map((entry, index) => (
-                              <Cell
-                                key={`cell-${index}`}
-                                fill={pieColors[index % pieColors.length]}
-                              />
-                            ))}
-                          </Pie>
-                          <Legend
-                            layout="horizontal"
-                            verticalAlign="bottom"
-                            align="center"
-                          />
-                          <Tooltip />
-                        </PieChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </div>
-
-                  {/* توزيع المرضى حسب الجنس */}
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <h3 className="text-lg font-semibold mb-3">
-                      توزيع المرضى حسب الجنس
-                    </h3>
-                    <div className="h-64">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <PieChart>
-                          <Pie
-                            data={genderDistribution}
-                            cx="50%"
-                            cy="50%"
-                            outerRadius={80}
-                            fill="#8884d8"
-                            dataKey="value"
-                            nameKey="name"
-                            label={({ name, value }) => `${name}: ${value}`}
-                          >
-                            <Cell fill="#FF8BB0" />
-                            <Cell fill="#A8E6CF" />
-                          </Pie>
-                          <Legend
-                            layout="horizontal"
-                            verticalAlign="bottom"
-                            align="center"
-                          />
-                          <Tooltip />
-                        </PieChart>
-                      </ResponsiveContainer>
-                    </div>
+                {/* مخطط شريطي أفقي */}
+                {/* اتجاهات التسجيل */}
+                <div className="bg-white rounded-lg shadow-sm p-4 col-span-2">
+                  <h2 className="text-lg font-semibold mb-2">
+                    اتجاهات التسجيل
+                  </h2>
+                  <p className="text-sm text-gray-500 mb-3">
+                    إحصائيات التسجيل للمرضى والمتطوعين خلال الأشهر الخمسة
+                    الماضية
+                  </p>
+                  <div className="h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart
+                        data={monthlyRegistrations}
+                        margin={{ top: 20, right: 30, left: 0, bottom: 5 }}
+                      >
+                        <XAxis dataKey="name" />
+                        <YAxis />
+                        <Tooltip />
+                        <Legend />
+                        <Bar
+                          dataKey="patients"
+                          name="المرضى"
+                          fill={colors.softPink}
+                        />
+                        <Bar
+                          dataKey="volunteers"
+                          name="المتطوعين"
+                          fill={colors.lightYellow}
+                        />
+                        <Bar
+                          dataKey="memberships"
+                          name="طلبات الانتساب"
+                          fill={colors.mintGreen}
+                        />
+                        <Bar
+                          dataKey="users"
+                          name="المستخدمون النشطون"
+                          fill={colors.lavender}
+                        />
+                      </BarChart>
+                    </ResponsiveContainer>
                   </div>
                 </div>
               </div>
