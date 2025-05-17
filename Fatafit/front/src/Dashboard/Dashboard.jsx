@@ -73,6 +73,8 @@ export default function Dashboard() {
   const [selectedServiceType, setSelectedServiceType] = useState(null);
   const [requestsByType, setRequestsByType] = useState([]);
   const [groupedRequests, setGroupedRequests] = useState([]);
+  const [membershipRequests, setMembershipRequests] = useState([]);
+  const [volunteerRequests, setVolunteerRequests] = useState([]);
 
   // بيانات الرسم البياني (يمكن استبدالها ببيانات ديناميكية لاحقًا)
   const [monthlyRegistrations, setMonthlyRegistrations] = useState([]);
@@ -284,7 +286,54 @@ export default function Dashboard() {
       console.error("فشل في تحديث الحالة:", error);
     }
   };
-  
+  const fetchMembershipRequests = async () => {
+    try {
+      const res = await axios.get(
+        "http://localhost:5000/api/requests/membership"
+      );
+      setMembershipRequests(res.data);
+    } catch (err) {
+      console.error("فشل في جلب طلبات الانتساب:", err);
+    }
+  };
+  const updateMembershipStatus = async (id, newStatus) => {
+    try {
+      await axios.put(`http://localhost:5000/api/requests/membership/${id}`, {
+        status: newStatus,
+      });
+      fetchMembershipRequests(); // إعادة التحميل بعد التحديث
+    } catch (err) {
+      console.error("فشل في تحديث حالة طلب الانتساب:", err);
+    }
+  };
+    
+const fetchVolunteerRequests = async () => {
+  try {
+   const res =        await axios.get("http://localhost:5000/api/requests/volunteer");
+setVolunteerRequests(res.data);}
+catch (err) { 
+    console.error("فشل في جلب طلبات التطوع:", err);
+
+  }
+};
+
+
+
+
+const updateVolunteerStatus = async (id, newStatus) => {
+  try {
+    await axios.put(`http://localhost:5000/api/requests/volunteer/${id}`, {
+      status: newStatus,
+    });
+    fetchVolunteerRequests(); // إعادة التحميل بعد التحديث
+  } catch (err) {
+    console.error("فشل في تحديث حالة المتطوع:", err);
+  }
+};
+
+
+
+
   // جلب البيانات عند تحميل المكون
   useEffect(() => {
     fetchServices();
@@ -296,7 +345,8 @@ export default function Dashboard() {
     fetchEvents(); // ✅ أضف هذا
     fetchMonthlyCounts(); // 👈
     fetchPatientRequestsGrouped(); // ✅
-    
+    fetchMembershipRequests(); // ✅ أضف هذا
+    fetchVolunteerRequests(); // ✅ أضف هذا
 
     // يمكنك إضافة المزيد من استدعاءات API هنا للحصول على البيانات الأخرى
   }, []);
@@ -549,7 +599,8 @@ export default function Dashboard() {
       {/* الشريط الجانبي */}
       <div className="w-64 bg-white border-l border-gray-200 shadow-sm">
         <div className="p-4 text-xl font-bold text-center text-teal-600">
-جمعية فتافيت السكر        </div>
+          جمعية فتافيت السكر{" "}
+        </div>
         <div className="p-2">
           <div className="flex flex-col space-y-1">
             <SidebarItem
@@ -564,6 +615,26 @@ export default function Dashboard() {
               active={activeTab === "users"}
               onClick={() => setActiveTab("users")}
             />
+
+            <SidebarItem
+              icon={<UserPlus />}
+              text="طلبات الانتساب"
+              active={activeTab === "membership"}
+              onClick={() => setActiveTab("membership")}
+            />
+            <SidebarItem
+              icon={<ThumbsUp />}
+              text="طلبات التطوع"
+              active={activeTab === "volunteers"}
+              onClick={() => setActiveTab("volunteers")}
+            />
+            <SidebarItem
+              icon={<AlertCircle />}
+              text="طلبات المرضى حسب الخدمة"
+              active={activeTab === "patientsByService"}
+              onClick={() => setActiveTab("patientsByService")}
+            />
+
             <SidebarItem
               icon={<Activity />}
               text="الخدمات"
@@ -594,6 +665,7 @@ export default function Dashboard() {
               active={activeTab === "donations"}
               onClick={() => setActiveTab("donations")}
             />
+
             <div className="pt-8 mt-6 border-t border-gray-200">
               <SidebarItem icon={<Settings />} text="الإعدادات" />
               <SidebarItem icon={<LogOut />} text="تسجيل الخروج" />
@@ -750,8 +822,6 @@ export default function Dashboard() {
                   </div>
                 </div>
 
-                {/* توزيع حسب العمر */}
-                {/* آخر طلبات المرضى */}
                 {/* أكثر الخدمات طلباً */}
                 <div className="bg-white rounded-lg shadow-sm p-4">
                   <h2 className="text-lg font-semibold mb-2">
@@ -1512,6 +1582,373 @@ export default function Dashboard() {
                     </div>
                   ))}
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/*********************************************************/}
+          {activeTab === "patientsByService" && (
+            <div className="space-y-6 p-6">
+              <h2 className="text-xl font-bold mb-4">
+                طلبات المرضى حسب نوع الخدمة
+              </h2>
+              <div className="bg-white rounded-lg shadow-md p-6 mb-6 border border-gray-100">
+                <div className="flex justify-between items-center mb-5">
+                  <h2 className="text-xl font-bold text-teal-700">
+                    طلبات المرضى حسب نوع الخدمة
+                  </h2>
+                  <div className="text-sm text-gray-500">
+                    {patientRequestsByType.length} أنواع خدمات
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {patientRequestsByType.map((item, index) => (
+                    <div
+                      key={index}
+                      className="bg-gray-50 p-4 rounded-lg border border-gray-100 hover:shadow-md transition-all duration-300"
+                    >
+                      <div className="flex justify-between items-center mb-3">
+                        <h3 className="font-bold text-gray-800">
+                          {item.serviceType}
+                        </h3>
+                        <span className="bg-teal-100 text-teal-800 text-xs px-2 py-1 rounded-full font-medium">
+                          {item.count}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <p className="text-sm text-gray-600">
+                          {new Date().toLocaleDateString("ar-SA")}
+                        </p>
+                        <button
+                          className="bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-700 transition-colors text-sm font-medium flex items-center"
+                          onClick={() => fetchRequestsByType(item.serviceType)}
+                        >
+                          <span>عرض التفاصيل</span>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-4 w-4 mr-1"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M15 19l-7-7 7-7"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+               {selectedServiceType && (
+                <div className="mt-6 bg-white rounded-lg shadow-md p-6 border border-gray-100">
+                  <div className="flex justify-between items-center mb-5">
+                    <h2 className="text-xl font-bold text-gray-800">
+                      تفاصيل طلبات "{selectedServiceType}"
+                    </h2>
+                    <button
+                      onClick={() => setSelectedServiceType(null)}
+                      className="text-gray-500 hover:text-gray-700"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full text-right border-collapse">
+                      <thead>
+                        <tr className="bg-gray-50 border-b border-gray-200">
+                          <th className="py-3 px-4 font-semibold text-sm text-gray-700">
+                            الاسم
+                          </th>
+                          <th className="py-3 px-4 font-semibold text-sm text-gray-700">
+                            البريد
+                          </th>
+                          <th className="py-3 px-4 font-semibold text-sm text-gray-700">
+                            الهاتف
+                          </th>
+                          <th className="py-3 px-4 font-semibold text-sm text-gray-700">
+                            المرفق
+                          </th>
+                          <th className="py-3 px-4 font-semibold text-sm text-gray-700">
+                            معلومات إضافية
+                          </th>
+                          <th className="py-3 px-4 font-semibold text-sm text-gray-700">
+                            الحالة
+                          </th>
+                          <th className="py-3 px-4 font-semibold text-sm text-gray-700">
+                            تعديل
+                          </th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        {requestsByType.length > 0 ? (
+                          requestsByType.map((req) => (
+                            <tr
+                              key={req._id}
+                              className="border-b border-gray-100 hover:bg-gray-50"
+                            >
+                              <td className="py-3 px-4 text-sm">
+                                {req.fullName}
+                              </td>
+                              <td className="py-3 px-4 text-sm">{req.email}</td>
+                              <td className="py-3 px-4 text-sm">
+                                {req.phonenumber}
+                              </td>
+                              <td className="py-3 px-4 text-sm">
+                                {req.attachment ? (
+                                  <a
+                                    href={req.attachment}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-teal-600 hover:text-teal-800 flex items-center"
+                                  >
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      className="h-4 w-4 ml-1"
+                                      fill="none"
+                                      viewBox="0 0 24 24"
+                                      stroke="currentColor"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                                      />
+                                    </svg>
+                                    تحميل
+                                  </a>
+                                ) : (
+                                  <span className="text-gray-400">لا يوجد</span>
+                                )}
+                              </td>
+                              <td className="py-3 px-4 text-sm">
+                                {req.additionalInfo ? (
+                                  <div className="max-w-xs truncate">
+                                    {req.additionalInfo}
+                                  </div>
+                                ) : (
+                                  <span className="text-gray-400">-</span>
+                                )}
+                              </td>
+                              <td className="py-3 px-4 text-sm">
+                                <span
+                                  className={`px-3 py-1 rounded-full text-xs font-medium ${
+                                    req.status === "approved"
+                                      ? "bg-green-100 text-green-800"
+                                      : "bg-yellow-100 text-yellow-800"
+                                  }`}
+                                >
+                                  {req.status === "approved"
+                                    ? "تمت الموافقة"
+                                    : "قيد المراجعة"}
+                                </span>
+                              </td>
+                              <td className="py-3 px-4 text-sm">
+                                <button
+                                  className={`px-3 py-1 rounded text-xs font-medium ${
+                                    req.status === "approved"
+                                      ? "bg-gray-100 text-gray-800 hover:bg-gray-200"
+                                      : "bg-teal-100 text-teal-800 hover:bg-teal-200"
+                                  }`}
+                                  onClick={() =>
+                                    updateStatus(
+                                      req._id,
+                                      req.status === "approved"
+                                        ? "pending"
+                                        : "approved"
+                                    )
+                                  }
+                                >
+                                  {req.status === "approved"
+                                    ? "تعيين كـ قيد المراجعة"
+                                    : "الموافقة"}
+                                </button>
+                              </td>
+                            </tr>
+                          ))
+                        ) : (
+                          <tr>
+                            <td
+                              colSpan="7"
+                              className="py-8 px-4 text-center text-gray-500"
+                            >
+                              لا توجد طلبات لعرضها
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+              {/************************************************************ */}
+
+             
+            </div>
+          )}
+
+          {/* صفحة طلبات التطوع */}
+          {activeTab === "volunteers" && (
+            <div className="space-y-6 p-6">
+              <h2 className="text-xl font-bold mb-4">طلبات التطوع</h2>
+              <div className="overflow-x-auto bg-white p-4 rounded shadow">
+                <table className="min-w-full text-right border-collapse">
+                  <thead>
+                    <tr className="bg-gray-50 border-b">
+                      <th className="py-2 px-4">الاسم</th>
+                      <th className="py-2 px-4">البريد</th>
+                      <th className="py-2 px-4">الهاتف</th>
+                      <th className="py-2 px-4">تاريخ الميلاد</th>
+                      <th className="py-2 px-4">المهارات</th>
+                      <th className="py-2 px-4">معلومات إضافية</th>
+                      <th className="py-2 px-4">الحالة</th>
+                      <th className="py-2 px-4">إجراءات</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {volunteerRequests.map((req) => (
+                      <tr key={req._id} className="border-b hover:bg-gray-50">
+                        <td className="py-2 px-4">{req.fullName}</td>
+                        <td className="py-2 px-4">{req.email}</td>
+                        <td className="py-2 px-4">{req.phonenumber}</td>
+                        <td className="py-2 px-4">{req.birthDate}</td>
+                        <td className="py-2 px-4">{req.skills || "-"}</td>
+                        <td className="py-2 px-4 max-w-xs truncate">
+                          {req.additionalInfo || "-"}
+                        </td>
+                        <td className="py-2 px-4">
+                          <span
+                            className={`px-3 py-1 rounded-full text-xs font-medium ${
+                              req.status === "approved"
+                                ? "bg-green-100 text-green-800"
+                                : "bg-yellow-100 text-yellow-800"
+                            }`}
+                          >
+                            {req.status === "approved"
+                              ? "تمت الموافقة"
+                              : "قيد المراجعة"}
+                          </span>
+                        </td>
+                        <td className="py-2 px-4">
+                          <button
+                            className="text-sm text-white bg-teal-600 hover:bg-teal-700 px-3 py-1 rounded"
+                            onClick={() =>
+                              updateVolunteerStatus(
+                                req._id,
+                                req.status === "approved"
+                                  ? "pending"
+                                  : "approved"
+                              )
+                            }
+                          >
+                            {req.status === "approved" ? "تعليق" : "الموافقة"}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                    {volunteerRequests.length === 0 && (
+                      <tr>
+                        <td
+                          colSpan="8"
+                          className="text-center py-4 text-gray-500"
+                        >
+                          لا توجد طلبات حالياً.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "membership" && (
+            <div className="space-y-6 p-6">
+              <h2 className="text-xl font-bold mb-4">طلبات الانتساب</h2>
+              <div className="overflow-x-auto bg-white p-4 rounded shadow">
+                <table className="min-w-full text-right border-collapse">
+                  <thead>
+                    <tr className="bg-gray-50 border-b">
+                      <th className="py-2 px-4">الاسم</th>
+                      <th className="py-2 px-4">البريد</th>
+                      <th className="py-2 px-4">الهاتف</th>
+                      <th className="py-2 px-4">تاريخ الميلاد</th>
+                      <th className="py-2 px-4">معلومات إضافية</th>
+                      <th className="py-2 px-4">الحالة</th>
+                      <th className="py-2 px-4">إجراءات</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {membershipRequests.map((req) => (
+                      <tr key={req._id} className="border-b hover:bg-gray-50">
+                        <td className="py-2 px-4">{req.fullName}</td>
+                        <td className="py-2 px-4">{req.email}</td>
+                        <td className="py-2 px-4">{req.phonenumber}</td>
+                        <td className="py-2 px-4">{req.birthDate}</td>
+                        <td className="py-2 px-4 max-w-xs truncate">
+                          {req.additionalInfo || "-"}
+                        </td>
+                        <td className="py-2 px-4">
+                          <span
+                            className={`px-3 py-1 rounded-full text-xs font-medium ${
+                              req.status === "approved"
+                                ? "bg-green-100 text-green-800"
+                                : "bg-yellow-100 text-yellow-800"
+                            }`}
+                          >
+                            {req.status === "approved"
+                              ? "تمت الموافقة"
+                              : "قيد المراجعة"}
+                          </span>
+                        </td>
+                        <td className="py-2 px-4">
+                          <button
+                            className="text-sm text-white bg-teal-600 hover:bg-teal-700 px-3 py-1 rounded"
+                            onClick={() =>
+                              updateMembershipStatus(
+                                req._id,
+                                req.status === "approved"
+                                  ? "pending"
+                                  : "approved"
+                              )
+                            }
+                          >
+                            {req.status === "approved" ? "تعليق" : "الموافقة"}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                    {membershipRequests.length === 0 && (
+                      <tr>
+                        <td
+                          colSpan="7"
+                          className="text-center py-4 text-gray-500"
+                        >
+                          لا توجد طلبات حالياً.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
               </div>
             </div>
           )}
