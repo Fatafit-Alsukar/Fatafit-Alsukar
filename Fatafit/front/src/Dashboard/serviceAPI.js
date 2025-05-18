@@ -84,6 +84,11 @@ export const getAllUsers = async () => {
   }
 };
 
+// serviceAPI.js
+// export const getAllEvents = async () => {
+//   const res = await axios.get("http://localhost:5000/api/events");
+//   return res.data;
+// };
 
 
 
@@ -95,4 +100,5 @@ export default {
   deleteService,
   requestService,
   getAllUsers,
+  // getAllEvents,
 };
