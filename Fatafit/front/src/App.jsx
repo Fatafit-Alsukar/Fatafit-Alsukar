@@ -11,7 +11,7 @@ import Navbar from "./Shared/Navbar";
 import Footer from "./Shared/Footer";
 import Home from "./Pages/Home/Home";
 import PatientRequest from "./Pages/PatientRequest/PatientRequest";
-import Login from "./Pages/Login/Login";  
+import Login from "./Pages/Login/Login";
 import ChangePassword from "./Pages/ChangePassword/ChangePassword";
 import VolunteerRequest from "./Pages/VolunteerRequest/VolunteerRequest";
 import MembershipRequest from "./Pages/MembershipRequest/MembershipRequest";
@@ -24,11 +24,15 @@ import Articles from "./Pages/Articles/Articles";
 import ArticleDetails from "./Pages/Articles/ArticleDetails";
 import ArticlesManagement from "./Dashboard/ArticlesManagement";
 
+import ContactMessage from "./Dashboard/ContactMessages";
 function Layout() {
+  const location = useLocation();
+  const hideNavbarPages = ["/dashboard"];
+
   return (
     <>
-      {/* {!hideNavbarPages.includes(location.pathname) && <Navbar />} */}
-      <Navbar />
+      {!hideNavbarPages.includes(location.pathname) && <Navbar />}
+
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/patientrequest" element={<PatientRequest />} />
@@ -44,9 +48,11 @@ function Layout() {
         <Route path="/contact" element={<ContactUsPage />} />
         <Route path="/articles" element={<Articles />} />
         <Route path="/articles/:id" element={<ArticleDetails />} />
+        <Route path="/contactmessage" element={<ContactMessage />} />
+        {/* Add more routes as needed */}
       </Routes>
-      <Footer />
-      {/* {!hideNavbarPages.includes(location.pathname) && <Footer />} */}
+
+      {!hideNavbarPages.includes(location.pathname) && <Footer />}
     </>
   );
 }
