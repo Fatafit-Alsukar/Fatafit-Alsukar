@@ -8,7 +8,7 @@ exports.getPatientRequestCount = async (req, res) => {
   } catch (err) {
     res
       .status(500)
-      .json({ message: "فشل في جلب عدد طلبات المرضى", error: err });
+      .json({ message: "فشل في جلب عدد طلبات المستفيدين", error: err });
   }
 };
 

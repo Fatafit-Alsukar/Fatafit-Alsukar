@@ -46,7 +46,6 @@ import {
   createService,
   deleteService,
   getAllUsers,
- 
 } from "./serviceAPI";
 
 import Events from "./Events";
@@ -125,7 +124,7 @@ export default function Dashboard() {
 
   const statisticData = [
     {
-      name: "مرضى نشطين",
+      name: "مستفيدين نشطين",
       value: activePatients,
       color: "#A8E6CF",
       icon: <Users className="w-6 h-6 text-teal-500" />,
@@ -155,7 +154,7 @@ export default function Dashboard() {
       value: membershipCount,
     },
     {
-      name: "طلبات المرضى",
+      name: "طلبات المستفيدين",
       value: patientRequestCount,
     },
     {
@@ -251,7 +250,7 @@ export default function Dashboard() {
       console.error("فشل في جلب الفعاليات:", err);
     }
   };
-  
+
   const fetchPatientRequestsGrouped = async () => {
     try {
       const res = await axios.get(
@@ -259,10 +258,9 @@ export default function Dashboard() {
       );
       setPatientRequestsByType(res.data); // شكل البيانات: [{ serviceType: "إرشاد", count: 3 }, ...]
     } catch (error) {
-      console.error("فشل في جلب طلبات المرضى حسب النوع:", error);
+      console.error("فشل في جلب طلبات المستفيدين حسب النوع:", error);
     }
   };
-
 
   const fetchRequestsByType = async (type) => {
     try {
@@ -306,33 +304,28 @@ export default function Dashboard() {
       console.error("فشل في تحديث حالة طلب الانتساب:", err);
     }
   };
-    
-const fetchVolunteerRequests = async () => {
-  try {
-   const res =        await axios.get("http://localhost:5000/api/requests/volunteer");
-setVolunteerRequests(res.data);}
-catch (err) { 
-    console.error("فشل في جلب طلبات التطوع:", err);
 
-  }
-};
+  const fetchVolunteerRequests = async () => {
+    try {
+      const res = await axios.get(
+        "http://localhost:5000/api/requests/volunteer"
+      );
+      setVolunteerRequests(res.data);
+    } catch (err) {
+      console.error("فشل في جلب طلبات التطوع:", err);
+    }
+  };
 
-
-
-
-const updateVolunteerStatus = async (id, newStatus) => {
-  try {
-    await axios.put(`http://localhost:5000/api/requests/volunteer/${id}`, {
-      status: newStatus,
-    });
-    fetchVolunteerRequests(); // إعادة التحميل بعد التحديث
-  } catch (err) {
-    console.error("فشل في تحديث حالة المتطوع:", err);
-  }
-};
-
-
-
+  const updateVolunteerStatus = async (id, newStatus) => {
+    try {
+      await axios.put(`http://localhost:5000/api/requests/volunteer/${id}`, {
+        status: newStatus,
+      });
+      fetchVolunteerRequests(); // إعادة التحميل بعد التحديث
+    } catch (err) {
+      console.error("فشل في تحديث حالة المتطوع:", err);
+    }
+  };
 
   // جلب البيانات عند تحميل المكون
   useEffect(() => {
@@ -363,7 +356,7 @@ const updateVolunteerStatus = async (id, newStatus) => {
     }
   };
 
-  // جلب عدد طلبات المرضى
+  // جلب عدد طلبات المستفيدين
   const fetchPatientRequestCount = async () => {
     try {
       const res = await axios.get(
@@ -371,7 +364,7 @@ const updateVolunteerStatus = async (id, newStatus) => {
       );
       setPatientRequestCount(res.data.count);
     } catch (error) {
-      console.error("فشل في جلب عدد طلبات المرضى:", error);
+      console.error("فشل في جلب عدد طلبات المستفيدين:", error);
     }
   };
 
@@ -425,8 +418,7 @@ const updateVolunteerStatus = async (id, newStatus) => {
       console.error("فشل في جلب بيانات الإحصائيات الشهرية:", error);
     }
   };
-  
-  
+
   // جلب عدد المستخدمين
   const fetchUserCount = async () => {
     try {
@@ -599,7 +591,7 @@ const updateVolunteerStatus = async (id, newStatus) => {
       {/* الشريط الجانبي */}
       <div className="w-64 bg-white border-l border-gray-200 shadow-sm">
         <div className="p-4 text-xl font-bold text-center text-teal-600">
-          جمعية فتافيت السكر{" "}
+          جمعية كتاكيت السكر{" "}
         </div>
         <div className="p-2">
           <div className="flex flex-col space-y-1">
@@ -630,7 +622,7 @@ const updateVolunteerStatus = async (id, newStatus) => {
             />
             <SidebarItem
               icon={<AlertCircle />}
-              text="طلبات المرضى حسب الخدمة"
+              text="طلبات المستفيدين حسب الخدمة"
               active={activeTab === "patientsByService"}
               onClick={() => setActiveTab("patientsByService")}
             />
@@ -737,7 +729,7 @@ const updateVolunteerStatus = async (id, newStatus) => {
               {/* نظرة عامة - نص ترحيبي */}
               <div className="bg-white rounded-lg shadow-sm p-6">
                 <h2 className="text-xl font-bold text-teal-700 mb-2">
-                  مرحباً بك في لوحة تحكم جمعية فتافيت السكر
+                  مرحباً بك في لوحة تحكم جمعية كتاكيت السكر
                 </h2>
                 <p className="text-gray-600">
                   هذه النظرة العامة توفر لك معلومات حول نشاطات الجمعية
@@ -756,7 +748,7 @@ const updateVolunteerStatus = async (id, newStatus) => {
 
                 <StatCard
                   icon={<Heart className="w-6 h-6 text-red-500" />}
-                  title="طلبات المرضى"
+                  title="طلبات المستفيدين"
                   value={patientRequestCount}
                   color={colors.softPink}
                 />
@@ -784,7 +776,7 @@ const updateVolunteerStatus = async (id, newStatus) => {
                     اتجاهات التسجيل
                   </h2>
                   <p className="text-sm text-gray-500 mb-3">
-                    إحصائيات التسجيل للمرضى والمتطوعين خلال الأشهر الخمسة
+                    إحصائيات التسجيل للمستفيدين والمتطوعين خلال الأشهر الخمسة
                     الماضية
                   </p>
                   <div className="h-64">
@@ -799,7 +791,7 @@ const updateVolunteerStatus = async (id, newStatus) => {
                         <Legend />
                         <Bar
                           dataKey="patients"
-                          name="المرضى"
+                          name="المستفيدين"
                           fill={colors.softPink}
                         />
                         <Bar
@@ -828,7 +820,7 @@ const updateVolunteerStatus = async (id, newStatus) => {
                     أكثر الخدمات طلباً
                   </h2>
                   <p className="text-sm text-gray-500 mb-3">
-                    ترتيب أكثر الخدمات المطلوبة من قبل المرضى
+                    ترتيب أكثر الخدمات المطلوبة من قبل المستفيدين
                   </p>
                   <ul className="space-y-3">
                     {patientRequestsByType
@@ -858,11 +850,11 @@ const updateVolunteerStatus = async (id, newStatus) => {
                 </div>
               </div>
 
-              {/* قسم طلبات المرضى حسب نوع الخدمة */}
+              {/* قسم طلبات المستفيدين حسب نوع الخدمة */}
               <div className="bg-white rounded-lg shadow-md p-6 mb-6 border border-gray-100">
                 <div className="flex justify-between items-center mb-5">
                   <h2 className="text-xl font-bold text-teal-700">
-                    طلبات المرضى حسب نوع الخدمة
+                    طلبات المستفيدين حسب نوع الخدمة
                   </h2>
                   <div className="text-sm text-gray-500">
                     {patientRequestsByType.length} أنواع خدمات
@@ -1069,13 +1061,13 @@ const updateVolunteerStatus = async (id, newStatus) => {
                 </div>
               )}
 
-              {/* القسم الثالث: معلومات المرضى والمتطوعين */}
+              {/* القسم الثالث: معلومات المستفيدين والمتطوعين */}
               <div className="grid grid-cols-1 gap-6 mt-6">
-                {/* معلومات المرضى */}
+                {/* معلومات المستفيدين */}
                 <div className="bg-white rounded-lg shadow-md p-6 border border-gray-100">
                   <div className="flex justify-between items-center mb-5">
                     <h2 className="text-xl font-bold text-gray-800">
-                      معلومات المرضى
+                      معلومات المستفيدين
                     </h2>
                     <button
                       className="flex items-center text-teal-600 hover:text-teal-800 text-sm font-medium"
@@ -1590,12 +1582,12 @@ const updateVolunteerStatus = async (id, newStatus) => {
           {activeTab === "patientsByService" && (
             <div className="space-y-6 p-6">
               <h2 className="text-xl font-bold mb-4">
-                طلبات المرضى حسب نوع الخدمة
+                طلبات المستفيدين حسب نوع الخدمة
               </h2>
               <div className="bg-white rounded-lg shadow-md p-6 mb-6 border border-gray-100">
                 <div className="flex justify-between items-center mb-5">
                   <h2 className="text-xl font-bold text-teal-700">
-                    طلبات المرضى حسب نوع الخدمة
+                    طلبات المستفيدين حسب نوع الخدمة
                   </h2>
                   <div className="text-sm text-gray-500">
                     {patientRequestsByType.length} أنواع خدمات
@@ -1645,7 +1637,7 @@ const updateVolunteerStatus = async (id, newStatus) => {
                   ))}
                 </div>
               </div>
-               {selectedServiceType && (
+              {selectedServiceType && (
                 <div className="mt-6 bg-white rounded-lg shadow-md p-6 border border-gray-100">
                   <div className="flex justify-between items-center mb-5">
                     <h2 className="text-xl font-bold text-gray-800">
@@ -1801,8 +1793,6 @@ const updateVolunteerStatus = async (id, newStatus) => {
                 </div>
               )}
               {/************************************************************ */}
-
-             
             </div>
           )}
 
@@ -1972,7 +1962,7 @@ const updateVolunteerStatus = async (id, newStatus) => {
                   />
                   <StatCard
                     icon={<Heart className="w-6 h-6 text-pink-500" />}
-                    title="طلبات المرضى"
+                    title="طلبات المستفيدين"
                     value={patientRequestCount}
                     color="#FCE4EC"
                   />
@@ -1997,7 +1987,7 @@ const updateVolunteerStatus = async (id, newStatus) => {
                     اتجاهات التسجيل
                   </h2>
                   <p className="text-sm text-gray-500 mb-3">
-                    إحصائيات التسجيل للمرضى والمتطوعين خلال الأشهر الخمسة
+                    إحصائيات التسجيل للمستفيدين والمتطوعين خلال الأشهر الخمسة
                     الماضية
                   </p>
                   <div className="h-64">
@@ -2012,7 +2002,7 @@ const updateVolunteerStatus = async (id, newStatus) => {
                         <Legend />
                         <Bar
                           dataKey="patients"
-                          name="المرضى"
+                          name="المستفيدين"
                           fill={colors.softPink}
                         />
                         <Bar
@@ -2093,7 +2083,7 @@ const updateVolunteerStatus = async (id, newStatus) => {
                         تبرع الآن
                       </button>
                       <div className="mt-4 text-center text-sm text-gray-500">
-                        جميع التبرعات تذهب مباشرة لدعم أطفال مرضى السكري
+                        جميع التبرعات تذهب مباشرة لدعم أطفال مستفيدين السكري
                       </div>
                     </form>
                   </div>
@@ -2213,7 +2203,9 @@ const updateVolunteerStatus = async (id, newStatus) => {
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                       <div className="bg-green-50 p-3 rounded-lg">
-                        <p className="text-sm text-gray-600">إجمالي المرضى</p>
+                        <p className="text-sm text-gray-600">
+                          إجمالي المستفيدين
+                        </p>
                         <p className="text-2xl font-bold text-green-700">
                           1,845
                         </p>
@@ -2247,7 +2239,9 @@ const updateVolunteerStatus = async (id, newStatus) => {
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                       <div className="bg-green-50 p-3 rounded-lg">
-                        <p className="text-sm text-gray-600">إجمالي المرضى</p>
+                        <p className="text-sm text-gray-600">
+                          إجمالي المستفيدين
+                        </p>
                         <p className="text-2xl font-bold text-green-700">
                           1,789
                         </p>
@@ -2298,7 +2292,7 @@ const updateVolunteerStatus = async (id, newStatus) => {
                         <input
                           type="text"
                           className="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
-                          value="الجمعية السعودية لرعاية مرضى السكري"
+                          value="الجمعية السعودية لرعاية مستفيدين السكري"
                           onChange={() => {}}
                         />
                       </div>

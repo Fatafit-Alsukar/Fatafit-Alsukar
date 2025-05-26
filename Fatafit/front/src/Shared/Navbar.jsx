@@ -8,6 +8,11 @@ export default function KidFriendlyNavbarArabic() {
   const [scrollPosition, setScrollPosition] = useState(0);
   const [activeItem, setActiveItem] = useState("الصفحة الرئيسية");
   const [hoveredItem, setHoveredItem] = useState(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [mobileDropdownOpen, setMobileDropdownOpen] = useState(false);
+  const [activitiesDropdownOpen, setActivitiesDropdownOpen] = useState(false);
+  const [mobileActivitiesDropdownOpen, setMobileActivitiesDropdownOpen] =
+    useState(false);
   const location = useLocation();
 
   useEffect(() => {
@@ -28,7 +33,7 @@ export default function KidFriendlyNavbarArabic() {
       "/": "الصفحة الرئيسية",
       "/Activities": "الفعاليات والنشاطات",
       "/donation": "تبرع لحبة سكر",
-      "/Services": "خدماتنا واستراتيجيتنا",
+      "/Services": "خدماتنا",
       "/contact": "تواصل معنا",
       "/login": "سجل معنا",
     };
@@ -48,7 +53,7 @@ export default function KidFriendlyNavbarArabic() {
       icon: <Heart className="w-5 h-5" />,
     },
     {
-      name: "خدماتنا واستراتيجيتنا",
+      name: "خدماتنا",
       path: "/Services",
       icon: <Sun className="w-5 h-5" />,
     },
@@ -62,6 +67,21 @@ export default function KidFriendlyNavbarArabic() {
       path: "/login",
       icon: <Sparkles className="w-5 h-5" />,
     },
+  ];
+
+  // Dropdown options for 'سجل معنا'
+  const signupOptions = [
+    { label: "تسجيل مستفيد جديد", to: "/patientrequest" },
+    { label: "تسجيل متطوع", to: "/volunteerrequest" },
+    { label: "تسجيل عضوية", to: "/membershiprequest" },
+  ];
+
+  // Dropdown options for 'الفعاليات والنشاطات'
+  const activitiesOptions = [
+    { label: "النشاطات", to: "/Activities" },
+    { label: "البروشورات", to: "/brochures" },
+    { label: "ألبومات الصور", to: "/albums" },
+    { label: "الفيديوهات", to: "/videos" },
   ];
 
   // Create emoji bubbles that float up randomly
@@ -105,7 +125,7 @@ export default function KidFriendlyNavbarArabic() {
         return <Star className="w-5 h-5" />;
       case "تبرع لحبة سكر":
         return <Heart className="w-5 h-5" />;
-      case "خدماتنا واستراتيجيتنا":
+      case "خدماتنا":
         return <Sun className="w-5 h-5" />;
       case "تواصل معنا":
         return <Cloud className="w-5 h-5" />;
@@ -134,7 +154,7 @@ export default function KidFriendlyNavbarArabic() {
         {/* Background floating elements */}
         <EmojiBubbles />
 
-        <div className="flex items-center justify-between">
+        <div className="flex flex-row-reverse items-center justify-between w-full">
           {/* Logo section */}
           <Link
             to="/"
@@ -151,7 +171,7 @@ export default function KidFriendlyNavbarArabic() {
             >
               <img
                 src={logoImg}
-                alt="فتافيت السكر Logo"
+                alt="كتاكيت السكر Logo"
                 className="object-contain"
                 style={{
                   height: "110px",
@@ -190,56 +210,152 @@ export default function KidFriendlyNavbarArabic() {
               className="flex items-center justify-center gap-2 lg:gap-4 px-2"
               dir="rtl"
             >
-              {navItems.map((item) => (
-                <Link
-                  key={item.name}
-                  to={item.path}
-                  onMouseEnter={() => setHoveredItem(item.name)}
-                  onMouseLeave={() => setHoveredItem(null)}
-                  className={`
-                    text-base lg:text-lg font-medium px-2 lg:px-3 py-2 
-                    rounded-full transition-all duration-300 
-                    relative group
-                    whitespace-nowrap
-                    ${
-                      activeItem === item.name
-                        ? "text-white bg-blue-500 shadow-md animate-pulse-subtle"
-                        : "text-blue-500 hover:text-blue-700 hover:bg-blue-50"
-                    }
-                  `}
-                >
-                  <div className="flex items-center gap-1 lg:gap-2 justify-center">
-                    {getIcon(item.name)}
-                    <span className="whitespace-nowrap">{item.name}</span>
-                  </div>
-
-                  {/* Floating bubbles on hover */}
-                  {hoveredItem === item.name && !activeItem === item.name && (
-                    <div className="absolute inset-0 pointer-events-none">
-                      <div className="absolute -bottom-2 left-1/4 w-2 h-2 bg-blue-300 rounded-full animate-float-fast"></div>
-                      <div
-                        className="absolute -bottom-2 left-2/4 w-1 h-1 bg-blue-200 rounded-full animate-float-fast"
-                        style={{ animationDelay: "0.3s" }}
-                      ></div>
-                      <div
-                        className="absolute -bottom-2 left-3/4 w-1.5 h-1.5 bg-blue-400 rounded-full animate-float-fast"
-                        style={{ animationDelay: "0.6s" }}
-                      ></div>
+              {navItems.map((item) =>
+                item.name === "سجل معنا" ? (
+                  <div
+                    key={item.name}
+                    className="relative group"
+                    onMouseEnter={() => setDropdownOpen(true)}
+                    onMouseLeave={() => setDropdownOpen(false)}
+                  >
+                    <button
+                      type="button"
+                      className={`
+                        text-base lg:text-lg font-medium px-2 lg:px-3 py-2 
+                        rounded-full transition-all duration-300 
+                        relative group whitespace-nowrap
+                        ${
+                          activeItem === item.name
+                            ? "text-white bg-blue-500 shadow-md animate-pulse-subtle"
+                            : "text-blue-500 hover:text-blue-700 hover:bg-blue-50"
+                        }
+                      `}
+                    >
+                      <div className="flex items-center gap-1 lg:gap-2 justify-center">
+                        {getIcon(item.name)}
+                        <span className="whitespace-nowrap">{item.name}</span>
+                      </div>
+                    </button>
+                    {/* Dropdown menu */}
+                    <div
+                      className={`absolute right-0 w-48 bg-white rounded-lg shadow-lg border border-blue-100 transition-all duration-300 z-50 overflow-hidden
+                        ${
+                          dropdownOpen
+                            ? "opacity-100 translate-y-0 pointer-events-auto"
+                            : "opacity-0 -translate-y-2 pointer-events-none"
+                        }
+                      `}
+                      style={{ transitionProperty: "opacity, transform" }}
+                    >
+                      {signupOptions.map((opt) => (
+                        <Link
+                          key={opt.to}
+                          to={opt.to}
+                          className="block px-4 py-3 text-blue-600 hover:bg-blue-50 hover:text-[#2B6CB0] transition-all text-base"
+                          onClick={() => setDropdownOpen(false)}
+                        >
+                          {opt.label}
+                        </Link>
+                      ))}
                     </div>
-                  )}
-
-                  {/* Active item sparkles */}
-                  {activeItem === item.name && (
-                    <>
-                      <span className="absolute top-0 left-0 w-2 h-2 bg-yellow-200 rounded-full animate-ping"></span>
-                      <span
-                        className="absolute bottom-0 right-0 w-2 h-2 bg-yellow-200 rounded-full animate-ping"
-                        style={{ animationDelay: "0.5s" }}
-                      ></span>
-                    </>
-                  )}
-                </Link>
-              ))}
+                  </div>
+                ) : item.name === "الفعاليات والنشاطات" ? (
+                  <div
+                    key={item.name}
+                    className="relative group"
+                    onMouseEnter={() => setActivitiesDropdownOpen(true)}
+                    onMouseLeave={() => setActivitiesDropdownOpen(false)}
+                  >
+                    <button
+                      type="button"
+                      className={`
+                        text-base lg:text-lg font-medium px-2 lg:px-3 py-2 
+                        rounded-full transition-all duration-300 
+                        relative group whitespace-nowrap
+                        ${
+                          activeItem === item.name
+                            ? "text-white bg-blue-500 shadow-md animate-pulse-subtle"
+                            : "text-blue-500 hover:text-blue-700 hover:bg-blue-50"
+                        }
+                      `}
+                    >
+                      <div className="flex items-center gap-1 lg:gap-2 justify-center">
+                        {getIcon(item.name)}
+                        <span className="whitespace-nowrap">{item.name}</span>
+                      </div>
+                    </button>
+                    {/* Dropdown menu */}
+                    <div
+                      className={`absolute right-0 w-48 bg-white rounded-lg shadow-lg border border-blue-100 transition-all duration-300 z-50 overflow-hidden
+                        ${
+                          activitiesDropdownOpen
+                            ? "opacity-100 translate-y-0 pointer-events-auto"
+                            : "opacity-0 -translate-y-2 pointer-events-none"
+                        }
+                      `}
+                      style={{ transitionProperty: "opacity, transform" }}
+                    >
+                      {activitiesOptions.map((opt) => (
+                        <Link
+                          key={opt.to}
+                          to={opt.to}
+                          className="block px-4 py-3 text-blue-600 hover:bg-blue-50 hover:text-[#2B6CB0] transition-all text-base"
+                          onClick={() => setActivitiesDropdownOpen(false)}
+                        >
+                          {opt.label}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <Link
+                    key={item.name}
+                    to={item.path}
+                    onMouseEnter={() => setHoveredItem(item.name)}
+                    onMouseLeave={() => setHoveredItem(null)}
+                    className={`
+                      text-base lg:text-lg font-medium px-2 lg:px-3 py-2 
+                      rounded-full transition-all duration-300 
+                      relative group
+                      whitespace-nowrap
+                      ${
+                        activeItem === item.name
+                          ? "text-white bg-blue-500 shadow-md animate-pulse-subtle"
+                          : "text-blue-500 hover:text-blue-700 hover:bg-blue-50"
+                      }
+                    `}
+                  >
+                    <div className="flex items-center gap-1 lg:gap-2 justify-center">
+                      {getIcon(item.name)}
+                      <span className="whitespace-nowrap">{item.name}</span>
+                    </div>
+                    {/* Floating bubbles on hover */}
+                    {hoveredItem === item.name && !activeItem === item.name && (
+                      <div className="absolute inset-0 pointer-events-none">
+                        <div className="absolute -bottom-2 left-1/4 w-2 h-2 bg-blue-300 rounded-full animate-float-fast"></div>
+                        <div
+                          className="absolute -bottom-2 left-2/4 w-1 h-1 bg-blue-200 rounded-full animate-float-fast"
+                          style={{ animationDelay: "0.3s" }}
+                        ></div>
+                        <div
+                          className="absolute -bottom-2 left-3/4 w-1.5 h-1.5 bg-blue-400 rounded-full animate-float-fast"
+                          style={{ animationDelay: "0.6s" }}
+                        ></div>
+                      </div>
+                    )}
+                    {/* Active item sparkles */}
+                    {activeItem === item.name && (
+                      <>
+                        <span className="absolute top-0 left-0 w-2 h-2 bg-yellow-200 rounded-full animate-ping"></span>
+                        <span
+                          className="absolute bottom-0 right-0 w-2 h-2 bg-yellow-200 rounded-full animate-ping"
+                          style={{ animationDelay: "0.5s" }}
+                        ></span>
+                      </>
+                    )}
+                  </Link>
+                )
+              )}
             </div>
           </div>
         </div>
@@ -253,31 +369,128 @@ export default function KidFriendlyNavbarArabic() {
         >
           <div className="pt-20 pb-6 px-4">
             <div className="flex flex-col space-y-4">
-              {navItems.map((item) => (
-                <Link
-                  key={item.name}
-                  to={item.path}
-                  onClick={() => {
-                    setIsOpen(false);
-                    setActiveItem(item.name);
-                  }}
-                  className={`
-                    text-lg font-medium px-4 py-3 
-                    rounded-full transition-all duration-300 
-                    relative group
-                    ${
-                      activeItem === item.name
-                        ? "text-white bg-blue-500 shadow-md"
-                        : "text-blue-500 hover:text-blue-700 hover:bg-blue-50"
-                    }
-                  `}
-                >
-                  <div className="flex items-center gap-3">
-                    {getIcon(item.name)}
-                    <span>{item.name}</span>
+              {navItems.map((item) =>
+                item.name === "سجل معنا" ? (
+                  <div key={item.name} className="relative">
+                    <button
+                      type="button"
+                      onClick={() => setMobileDropdownOpen((v) => !v)}
+                      className={`
+                        text-lg font-medium px-4 py-3 
+                        rounded-full transition-all duration-300 
+                        relative group w-full text-right
+                        ${
+                          activeItem === item.name
+                            ? "text-white bg-blue-500 shadow-md"
+                            : "text-blue-500 hover:text-blue-700 hover:bg-blue-50"
+                        }
+                      `}
+                    >
+                      <div className="flex items-center gap-3 justify-end">
+                        {getIcon(item.name)}
+                        <span>{item.name}</span>
+                      </div>
+                    </button>
+                    {/* Dropdown menu */}
+                    <div
+                      className={`transition-all duration-300 overflow-hidden bg-white rounded-lg shadow-lg border border-blue-100 mt-2 z-50
+                        ${
+                          mobileDropdownOpen
+                            ? "max-h-60 opacity-100"
+                            : "max-h-0 opacity-0"
+                        }
+                      `}
+                      style={{ transitionProperty: "max-height, opacity" }}
+                    >
+                      {signupOptions.map((opt) => (
+                        <Link
+                          key={opt.to}
+                          to={opt.to}
+                          className="block px-4 py-3 text-blue-600 hover:bg-blue-50 hover:text-[#2B6CB0] transition-all text-base"
+                          onClick={() => {
+                            setIsOpen(false);
+                            setMobileDropdownOpen(false);
+                          }}
+                        >
+                          {opt.label}
+                        </Link>
+                      ))}
+                    </div>
                   </div>
-                </Link>
-              ))}
+                ) : item.name === "الفعاليات والنشاطات" ? (
+                  <div key={item.name} className="relative">
+                    <button
+                      type="button"
+                      onClick={() => setMobileActivitiesDropdownOpen((v) => !v)}
+                      className={`
+                        text-lg font-medium px-4 py-3 
+                        rounded-full transition-all duration-300 
+                        relative group w-full text-right
+                        ${
+                          activeItem === item.name
+                            ? "text-white bg-blue-500 shadow-md"
+                            : "text-blue-500 hover:text-blue-700 hover:bg-blue-50"
+                        }
+                      `}
+                    >
+                      <div className="flex items-center gap-3 justify-end">
+                        {getIcon(item.name)}
+                        <span>{item.name}</span>
+                      </div>
+                    </button>
+                    {/* Dropdown menu */}
+                    <div
+                      className={`transition-all duration-300 overflow-hidden bg-white rounded-lg shadow-lg border border-blue-100 z-50
+                        ${
+                          mobileActivitiesDropdownOpen
+                            ? "max-h-60 opacity-100"
+                            : "max-h-0 opacity-0"
+                        }
+                      `}
+                      style={{ transitionProperty: "max-height, opacity" }}
+                    >
+                      {activitiesOptions.map((opt) => (
+                        <Link
+                          key={opt.to}
+                          to={opt.to}
+                          className="block px-4 py-3 text-blue-600 hover:bg-blue-50 hover:text-[#2B6CB0] transition-all text-base"
+                          onClick={() => {
+                            setIsOpen(false);
+                            setMobileActivitiesDropdownOpen(false);
+                          }}
+                        >
+                          {opt.label}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <Link
+                    key={item.name}
+                    to={item.path}
+                    onClick={() => {
+                      setIsOpen(false);
+                      setActiveItem(item.name);
+                      setMobileDropdownOpen(false);
+                    }}
+                    className={`
+                      text-lg font-medium px-4 py-3 
+                      rounded-full transition-all duration-300 
+                      relative group
+                      ${
+                        activeItem === item.name
+                          ? "text-white bg-blue-500 shadow-md"
+                          : "text-blue-500 hover:text-blue-700 hover:bg-blue-50"
+                      }
+                    `}
+                  >
+                    <div className="flex items-center gap-3">
+                      {getIcon(item.name)}
+                      <span>{item.name}</span>
+                    </div>
+                  </Link>
+                )
+              )}
             </div>
           </div>
         </div>

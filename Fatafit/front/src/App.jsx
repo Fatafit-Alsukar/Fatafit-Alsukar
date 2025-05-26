@@ -7,8 +7,8 @@ import {
 } from "react-router-dom";
 
 // import Navbar from "./components/Navbar";
-// import Footer from "./components/Footer";
 import Navbar from "./Shared/Navbar";
+import Footer from "./Shared/Footer";
 import Home from "./Pages/Home/Home";
 import PatientRequest from "./Pages/PatientRequest/PatientRequest";
 import Login from "./Pages/Login/Login";  
@@ -19,6 +19,7 @@ import Activities from "./Pages/Activities/Activities";
 import Dashboard from "./Dashboard/Dashboard";
 import ServicesPage from "./Pages/OurServices/OurServices";
 import DonatePage from "./Pages/Donation/Donation";
+import ContactUsPage from "./Pages/Contact/Contact";
 
 function Layout() {
   return (
@@ -36,7 +37,9 @@ function Layout() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/Activities" element={<Activities />} />
         <Route path="/donation" element={<DonatePage />} />
+        <Route path="/contact" element={<ContactUsPage />} />
       </Routes>
+      <Footer />
       {/* {!hideNavbarPages.includes(location.pathname) && <Footer />} */}
     </>
   );
