@@ -50,7 +50,7 @@ import {
 } from "./serviceAPI";
 
 import Events from "./Events";
-
+import { useRef } from "react";
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [showAddServiceForm, setShowAddServiceForm] = useState(false);
@@ -59,6 +59,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [services, setServices] = useState([]);
+  const detailsRef = useRef(null);
 
   // إحصائيات النظام - تم تحديثها لاستخدام البيانات الديناميكية
   const [membershipCount, setMembershipCount] = useState(0);
@@ -155,7 +156,7 @@ export default function Dashboard() {
       value: membershipCount,
     },
     {
-      name: "طلبات المرضى",
+      name: "طلبات المستفيدين",
       value: patientRequestCount,
     },
     {
@@ -163,7 +164,7 @@ export default function Dashboard() {
       value: volunteerRequestCount,
     },
     {
-      name: "المستخدمون النشطون",
+      name: "المستفيدين النشطون",
       value: userCount,
     },
   ];
@@ -259,10 +260,9 @@ export default function Dashboard() {
       );
       setPatientRequestsByType(res.data); // شكل البيانات: [{ serviceType: "إرشاد", count: 3 }, ...]
     } catch (error) {
-      console.error("فشل في جلب طلبات المرضى حسب النوع:", error);
+      console.error("فشل في جلب طلبات المستفيدين حسب النوع:", error);
     }
   };
-
 
   const fetchRequestsByType = async (type) => {
     try {
@@ -271,10 +271,18 @@ export default function Dashboard() {
       );
       setRequestsByType(res.data);
       setSelectedServiceType(type);
+  
+      // انتظر ظهور القسم في الـ DOM ثم قم بالتمرير إليه
+      setTimeout(() => {
+        if (detailsRef.current) {
+          detailsRef.current.scrollIntoView({ behavior: "smooth" });
+        }
+      }, 100); // يمكن تعديل التأخير حسب الحاجة
     } catch (error) {
       console.error("فشل في جلب تفاصيل الطلبات:", error);
     }
   };
+  
   const updateStatus = async (id, newStatus) => {
     try {
       await axios.put(`http://localhost:5000/api/requests/patient/${id}`, {
@@ -331,6 +339,17 @@ const updateVolunteerStatus = async (id, newStatus) => {
   }
 };
 
+const updateUserStatus = async (userId, newStatus) => {
+  try {
+    await axios.put(`http://localhost:5000/api/users/${userId}`, {
+      isApproved: newStatus === "نشط",
+    });
+    fetchUsers(); // لإعادة تحميل المستخدمين بعد التحديث
+  } catch (err) {
+    console.error("فشل في تحديث حالة المستخدم:", err);
+    setError("فشل في تحديث حالة المستخدم.");
+  }
+};
 
 
 
@@ -363,7 +382,7 @@ const updateVolunteerStatus = async (id, newStatus) => {
     }
   };
 
-  // جلب عدد طلبات المرضى
+  // جلب عدد طلبات المستفيدين
   const fetchPatientRequestCount = async () => {
     try {
       const res = await axios.get(
@@ -371,7 +390,7 @@ const updateVolunteerStatus = async (id, newStatus) => {
       );
       setPatientRequestCount(res.data.count);
     } catch (error) {
-      console.error("فشل في جلب عدد طلبات المرضى:", error);
+      console.error("فشل في جلب عدد طلبات المستفيدين:", error);
     }
   };
 
@@ -611,7 +630,7 @@ const updateVolunteerStatus = async (id, newStatus) => {
             />
             <SidebarItem
               icon={<Users />}
-              text="المستخدمون"
+              text="المستفيدين"
               active={activeTab === "users"}
               onClick={() => setActiveTab("users")}
             />
@@ -630,7 +649,7 @@ const updateVolunteerStatus = async (id, newStatus) => {
             />
             <SidebarItem
               icon={<AlertCircle />}
-              text="طلبات المرضى حسب الخدمة"
+              text="طلبات المستفيدين حسب الخدمة"
               active={activeTab === "patientsByService"}
               onClick={() => setActiveTab("patientsByService")}
             />
@@ -666,10 +685,7 @@ const updateVolunteerStatus = async (id, newStatus) => {
               onClick={() => setActiveTab("donations")}
             />
 
-            <div className="pt-8 mt-6 border-t border-gray-200">
-              <SidebarItem icon={<Settings />} text="الإعدادات" />
-              <SidebarItem icon={<LogOut />} text="تسجيل الخروج" />
-            </div>
+          
           </div>
         </div>
       </div>
@@ -680,7 +696,7 @@ const updateVolunteerStatus = async (id, newStatus) => {
         <header className="bg-white shadow-sm p-4 flex justify-between items-center sticky top-0 z-10">
           <h1 className="text-xl font-semibold text-gray-800">
             {activeTab === "dashboard" && "الرئيسية"}
-            {activeTab === "users" && "المستخدمون"}
+            {activeTab === "users" && "المستفيدين"}
             {activeTab === "services" && "الخدمات"}
             {activeTab === "events" && "الفعاليات"}
             {activeTab === "news" && "الأخبار"}
@@ -756,7 +772,7 @@ const updateVolunteerStatus = async (id, newStatus) => {
 
                 <StatCard
                   icon={<Heart className="w-6 h-6 text-red-500" />}
-                  title="طلبات المرضى"
+                  title="طلبات المستفيدين"
                   value={patientRequestCount}
                   color={colors.softPink}
                 />
@@ -770,7 +786,7 @@ const updateVolunteerStatus = async (id, newStatus) => {
 
                 <StatCard
                   icon={<Users className="w-6 h-6 text-indigo-500" />}
-                  title="المستخدمون النشطون"
+                  title="المستفيدين النشطون"
                   value={userCount}
                   color={colors.lavender}
                 />
@@ -780,11 +796,9 @@ const updateVolunteerStatus = async (id, newStatus) => {
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* اتجاهات التسجيل */}
                 <div className="bg-white rounded-lg shadow-sm p-4 col-span-2">
-                  <h2 className="text-lg font-semibold mb-2">
-                    اتجاهات التسجيل
-                  </h2>
+                  
                   <p className="text-sm text-gray-500 mb-3">
-                    إحصائيات التسجيل للمرضى والمتطوعين خلال الأشهر الخمسة
+                    إحصائيات التسجيل للمستفيدين والمتطوعين خلال الأشهر الخمسة
                     الماضية
                   </p>
                   <div className="h-64">
@@ -799,7 +813,7 @@ const updateVolunteerStatus = async (id, newStatus) => {
                         <Legend />
                         <Bar
                           dataKey="patients"
-                          name="المرضى"
+                          name="المستفيدين"
                           fill={colors.softPink}
                         />
                         <Bar
@@ -814,7 +828,7 @@ const updateVolunteerStatus = async (id, newStatus) => {
                         />
                         <Bar
                           dataKey="users"
-                          name="المستخدمون النشطون"
+                          name="المستفيدين النشطون"
                           fill={colors.lavender}
                         />
                       </BarChart>
@@ -824,11 +838,9 @@ const updateVolunteerStatus = async (id, newStatus) => {
 
                 {/* أكثر الخدمات طلباً */}
                 <div className="bg-white rounded-lg shadow-sm p-4">
-                  <h2 className="text-lg font-semibold mb-2">
-                    أكثر الخدمات طلباً
-                  </h2>
+                 
                   <p className="text-sm text-gray-500 mb-3">
-                    ترتيب أكثر الخدمات المطلوبة من قبل المرضى
+                    ترتيب أكثر الخدمات المطلوبة من قبل المستفيدين
                   </p>
                   <ul className="space-y-3">
                     {patientRequestsByType
@@ -858,11 +870,11 @@ const updateVolunteerStatus = async (id, newStatus) => {
                 </div>
               </div>
 
-              {/* قسم طلبات المرضى حسب نوع الخدمة */}
+              {/* قسم طلبات المستفيدين حسب نوع الخدمة */}
               <div className="bg-white rounded-lg shadow-md p-6 mb-6 border border-gray-100">
                 <div className="flex justify-between items-center mb-5">
                   <h2 className="text-xl font-bold text-teal-700">
-                    طلبات المرضى حسب نوع الخدمة
+                    طلبات المستفيدين حسب نوع الخدمة
                   </h2>
                   <div className="text-sm text-gray-500">
                     {patientRequestsByType.length} أنواع خدمات
@@ -914,7 +926,12 @@ const updateVolunteerStatus = async (id, newStatus) => {
               </div>
 
               {selectedServiceType && (
-                <div className="mt-6 bg-white rounded-lg shadow-md p-6 border border-gray-100">
+
+                
+                <div 
+                ref={detailsRef}
+
+                className="mt-6 bg-white rounded-lg shadow-md p-6 border border-gray-100">
                   <div className="flex justify-between items-center mb-5">
                     <h2 className="text-xl font-bold text-gray-800">
                       تفاصيل طلبات "{selectedServiceType}"
@@ -1069,13 +1086,13 @@ const updateVolunteerStatus = async (id, newStatus) => {
                 </div>
               )}
 
-              {/* القسم الثالث: معلومات المرضى والمتطوعين */}
+              {/* القسم الثالث: معلومات المستفيدين والمتطوعين */}
               <div className="grid grid-cols-1 gap-6 mt-6">
-                {/* معلومات المرضى */}
+                {/* معلومات المستفيدين */}
                 <div className="bg-white rounded-lg shadow-md p-6 border border-gray-100">
                   <div className="flex justify-between items-center mb-5">
                     <h2 className="text-xl font-bold text-gray-800">
-                      معلومات المرضى
+                      معلومات المستفيدين
                     </h2>
                     <button
                       className="flex items-center text-teal-600 hover:text-teal-800 text-sm font-medium"
@@ -1127,6 +1144,10 @@ const updateVolunteerStatus = async (id, newStatus) => {
                           >
                             تاريخ الانضمام
                           </th>
+                          <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                            إجراءات
+                          </th>{" "}
+                          {/* ✅ عمود جديد */}
                         </tr>
                       </thead>
                       <tbody>
@@ -1170,6 +1191,23 @@ const updateVolunteerStatus = async (id, newStatus) => {
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                               {user.joinDate}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm">
+                              <button
+                                className={`text-sm px-3 py-1 rounded ${
+                                  user.status === "نشط"
+                                    ? "bg-yellow-100 text-yellow-800 hover:bg-yellow-200"
+                                    : "bg-green-100 text-green-800 hover:bg-green-200"
+                                }`}
+                                onClick={() =>
+                                  updateUserStatus(
+                                    user._id,
+                                    user.status === "نشط" ? "غير نشط" : "نشط"
+                                  )
+                                }
+                              >
+                                {user.status === "نشط" ? "تعليق" : "تفعيل"}
+                              </button>
                             </td>
                           </tr>
                         ))}
@@ -1253,144 +1291,46 @@ const updateVolunteerStatus = async (id, newStatus) => {
             </div>
           )}
 
-          {/* صفحة المستخدمين */}
           {activeTab === "users" && (
             <div className="space-y-6">
+              {/* ✅ عنوان الصفحة وزر الإضافة */}
               <div className="bg-white rounded-lg shadow-sm p-6">
                 <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-xl font-semibold">المستخدمون</h2>
-                  <button
-                    className="flex items-center space-x-1 space-x-reverse bg-teal-500 text-white px-3 py-2 rounded-lg hover:bg-teal-600"
-                    onClick={() => setShowAddUserForm(true)}
-                  >
-                    <Plus className="w-4 h-4 ml-1" />
-                    <span>إضافة مستخدم</span>
-                  </button>
+                  <h2 className="text-xl font-semibold">المستفيدين</h2>
                 </div>
 
-                {/* نموذج إضافة مستخدم */}
-                {showAddUserForm && (
-                  <div className="bg-gray-50 p-4 rounded-lg mb-6">
-                    <div className="flex justify-between items-center mb-4">
-                      <h3 className="text-lg font-medium">إضافة مستخدم جديد</h3>
-                      <button
-                        className="text-gray-400 hover:text-gray-600"
-                        onClick={() => setShowAddUserForm(false)}
-                      >
-                        <X className="w-5 h-5" />
-                      </button>
-                    </div>
-                    <form onSubmit={handleAddUser}>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            الاسم
-                          </label>
-                          <input
-                            type="text"
-                            required
-                            className="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
-                            value={newUser.name}
-                            onChange={(e) =>
-                              setNewUser({ ...newUser, name: e.target.value })
-                            }
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            العمر
-                          </label>
-                          <input
-                            type="number"
-                            required
-                            className="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
-                            value={newUser.age}
-                            onChange={(e) =>
-                              setNewUser({ ...newUser, age: e.target.value })
-                            }
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            الحالة
-                          </label>
-                          <select
-                            className="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
-                            value={newUser.status}
-                            onChange={(e) =>
-                              setNewUser({ ...newUser, status: e.target.value })
-                            }
-                          >
-                            <option value="نشط">نشط</option>
-                            <option value="غير نشط">غير نشط</option>
-                          </select>
-                        </div>
-                      </div>
-                      <div className="mt-4 flex justify-end">
-                        <button
-                          type="button"
-                          className="mr-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
-                          onClick={() => setShowAddUserForm(false)}
-                        >
-                          إلغاء
-                        </button>
-                        <button
-                          type="submit"
-                          className="px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600"
-                        >
-                          إضافة
-                        </button>
-                      </div>
-                    </form>
-                  </div>
-                )}
-
+                {/* ✅ جدول المستخدمين */}
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                       <tr>
-                        <th
-                          scope="col"
-                          className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
-                        >
+                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
                           الاسم
                         </th>
-                        <th
-                          scope="col"
-                          className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
-                        >
+                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
                           العمر
                         </th>
-                        <th
-                          scope="col"
-                          className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
-                        >
+                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
                           الحالة
                         </th>
-                        <th
-                          scope="col"
-                          className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
-                        >
+                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
                           تاريخ الانضمام
                         </th>
-                        <th
-                          scope="col"
-                          className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
-                        >
+                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
                           إجراءات
                         </th>
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
                       {users.map((user) => (
-                        <tr key={user.id}>
+                        <tr key={user._id}>
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                             {user.name}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                             {user.age}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm">
                             <span
                               className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                                 user.status === "نشط"
@@ -1404,12 +1344,21 @@ const updateVolunteerStatus = async (id, newStatus) => {
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                             {user.joinDate}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <button className="text-blue-600 hover:text-blue-900 ml-3">
-                              <Edit className="w-4 h-4" />
-                            </button>
-                            <button className="text-red-600 hover:text-red-900">
-                              <Trash2 className="w-4 h-4" />
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
+                            <button
+                              className={`text-sm px-3 py-1 rounded ${
+                                user.status === "نشط"
+                                  ? "bg-yellow-100 text-yellow-800 hover:bg-yellow-200"
+                                  : "bg-green-100 text-green-800 hover:bg-green-200"
+                              }`}
+                              onClick={() =>
+                                updateUserStatus(
+                                  user._id,
+                                  user.status === "نشط" ? "غير نشط" : "نشط"
+                                )
+                              }
+                            >
+                              {user.status === "نشط" ? "تعليق" : "تفعيل"}
                             </button>
                           </td>
                         </tr>
@@ -1590,12 +1539,12 @@ const updateVolunteerStatus = async (id, newStatus) => {
           {activeTab === "patientsByService" && (
             <div className="space-y-6 p-6">
               <h2 className="text-xl font-bold mb-4">
-                طلبات المرضى حسب نوع الخدمة
+                طلبات المستفيدين حسب نوع الخدمة
               </h2>
               <div className="bg-white rounded-lg shadow-md p-6 mb-6 border border-gray-100">
                 <div className="flex justify-between items-center mb-5">
                   <h2 className="text-xl font-bold text-teal-700">
-                    طلبات المرضى حسب نوع الخدمة
+                    طلبات المستفيدين حسب نوع الخدمة
                   </h2>
                   <div className="text-sm text-gray-500">
                     {patientRequestsByType.length} أنواع خدمات
@@ -1645,8 +1594,12 @@ const updateVolunteerStatus = async (id, newStatus) => {
                   ))}
                 </div>
               </div>
-               {selectedServiceType && (
-                <div className="mt-6 bg-white rounded-lg shadow-md p-6 border border-gray-100">
+              {selectedServiceType && (
+                <div
+                
+                ref={detailsRef}
+
+                className="mt-6 bg-white rounded-lg shadow-md p-6 border border-gray-100">
                   <div className="flex justify-between items-center mb-5">
                     <h2 className="text-xl font-bold text-gray-800">
                       تفاصيل طلبات "{selectedServiceType}"
@@ -1801,8 +1754,6 @@ const updateVolunteerStatus = async (id, newStatus) => {
                 </div>
               )}
               {/************************************************************ */}
-
-             
             </div>
           )}
 
@@ -1972,7 +1923,7 @@ const updateVolunteerStatus = async (id, newStatus) => {
                   />
                   <StatCard
                     icon={<Heart className="w-6 h-6 text-pink-500" />}
-                    title="طلبات المرضى"
+                    title="طلبات المستفيدين"
                     value={patientRequestCount}
                     color="#FCE4EC"
                   />
@@ -1984,7 +1935,7 @@ const updateVolunteerStatus = async (id, newStatus) => {
                   />
                   <StatCard
                     icon={<Users className="w-6 h-6 text-indigo-500" />}
-                    title="المستخدمون النشطون"
+                    title="المستفيدين النشطون"
                     value={userCount}
                     color="#E8EAF6"
                   />
@@ -1993,11 +1944,9 @@ const updateVolunteerStatus = async (id, newStatus) => {
                 {/* مخطط شريطي أفقي */}
                 {/* اتجاهات التسجيل */}
                 <div className="bg-white rounded-lg shadow-sm p-4 col-span-2">
-                  <h2 className="text-lg font-semibold mb-2">
-                    اتجاهات التسجيل
-                  </h2>
+                
                   <p className="text-sm text-gray-500 mb-3">
-                    إحصائيات التسجيل للمرضى والمتطوعين خلال الأشهر الخمسة
+                    إحصائيات التسجيل للمستفيدين والمتطوعين خلال الأشهر الخمسة
                     الماضية
                   </p>
                   <div className="h-64">
@@ -2012,7 +1961,7 @@ const updateVolunteerStatus = async (id, newStatus) => {
                         <Legend />
                         <Bar
                           dataKey="patients"
-                          name="المرضى"
+                          name="المستفيدين"
                           fill={colors.softPink}
                         />
                         <Bar
@@ -2027,7 +1976,7 @@ const updateVolunteerStatus = async (id, newStatus) => {
                         />
                         <Bar
                           dataKey="users"
-                          name="المستخدمون النشطون"
+                          name="المستفيدين النشطون"
                           fill={colors.lavender}
                         />
                       </BarChart>
@@ -2213,7 +2162,7 @@ const updateVolunteerStatus = async (id, newStatus) => {
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                       <div className="bg-green-50 p-3 rounded-lg">
-                        <p className="text-sm text-gray-600">إجمالي المرضى</p>
+                        <p className="text-sm text-gray-600">إجمالي المستفيدين</p>
                         <p className="text-2xl font-bold text-green-700">
                           1,845
                         </p>
@@ -2247,7 +2196,7 @@ const updateVolunteerStatus = async (id, newStatus) => {
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                       <div className="bg-green-50 p-3 rounded-lg">
-                        <p className="text-sm text-gray-600">إجمالي المرضى</p>
+                        <p className="text-sm text-gray-600">إجمالي المستفيدين</p>
                         <p className="text-2xl font-bold text-green-700">
                           1,789
                         </p>
