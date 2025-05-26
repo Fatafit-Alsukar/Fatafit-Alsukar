@@ -149,5 +149,26 @@ exports.getUserCountByRole = async (req, res) => {
     res.json({ count });
   } catch (err) {
     res.status(500).json({ message: "فشل في جلب عدد المستخدمين", error: err });
+// تعديل حالة المستخدم (نشط / غير نشط)
+exports.updateUserStatus = async (req, res) => {
+  try {
+    const { isApproved } = req.body;
+
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { isApproved },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: "المستخدم غير موجود" });
+    }
+
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({
+      message: "فشل في تحديث المستخدم",
+      error: error.message,
+    });
   }
-};
+  }}};
