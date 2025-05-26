@@ -149,6 +149,9 @@ exports.getUserCountByRole = async (req, res) => {
     res.json({ count });
   } catch (err) {
     res.status(500).json({ message: "فشل في جلب عدد المستخدمين", error: err });
+  }
+};
+
 // تعديل حالة المستخدم (نشط / غير نشط)
 exports.updateUserStatus = async (req, res) => {
   try {
@@ -171,4 +174,4 @@ exports.updateUserStatus = async (req, res) => {
       error: error.message,
     });
   }
-  }}};
+};
