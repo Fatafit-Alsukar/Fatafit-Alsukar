@@ -26,6 +26,7 @@ import {
   BarChart2,
   LineChart,
   ThumbsUp,
+  MessageCircleIcon,
 } from "lucide-react";
 import {
   BarChart,
@@ -50,6 +51,7 @@ import {
 
 import Events from "./Events";
 import { useRef } from "react";
+import ContactMessage from "./ContactMessages";
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [showAddServiceForm, setShowAddServiceForm] = useState(false);
@@ -270,7 +272,7 @@ export default function Dashboard() {
       );
       setRequestsByType(res.data);
       setSelectedServiceType(type);
-  
+
       // انتظر ظهور القسم في الـ DOM ثم قم بالتمرير إليه
       setTimeout(() => {
         if (detailsRef.current) {
@@ -281,7 +283,7 @@ export default function Dashboard() {
       console.error("فشل في جلب تفاصيل الطلبات:", error);
     }
   };
-  
+
   const updateStatus = async (id, newStatus) => {
     try {
       await axios.put(`http://localhost:5000/api/requests/patient/${id}`, {
@@ -313,45 +315,41 @@ export default function Dashboard() {
       console.error("فشل في تحديث حالة طلب الانتساب:", err);
     }
   };
-    
-const fetchVolunteerRequests = async () => {
-  try {
-   const res =        await axios.get("http://localhost:5000/api/requests/volunteer");
-setVolunteerRequests(res.data);}
-catch (err) { 
-    console.error("فشل في جلب طلبات التطوع:", err);
 
-  }
-};
+  const fetchVolunteerRequests = async () => {
+    try {
+      const res = await axios.get(
+        "http://localhost:5000/api/requests/volunteer"
+      );
+      setVolunteerRequests(res.data);
+    } catch (err) {
+      console.error("فشل في جلب طلبات التطوع:", err);
+    }
+  };
 
+  const updateVolunteerStatus = async (id, newStatus) => {
+    try {
+      await axios.put(`http://localhost:5000/api/requests/volunteer/${id}`, {
+        status: newStatus,
+      });
+      fetchVolunteerRequests(); // إعادة التحميل بعد التحديث
+    } catch (err) {
+      console.error("فشل في تحديث حالة المتطوع:", err);
+    }
+  };
 
+  const updateUserStatus = async (userId, newStatus) => {
+    try {
+      await axios.put(`http://localhost:5000/api/users/${userId}`, {
+        isApproved: newStatus === "نشط",
+      });
+      fetchUsers(); // لإعادة تحميل المستخدمين بعد التحديث
+    } catch (err) {
+      console.error("فشل في تحديث حالة المستخدم:", err);
+      setError("فشل في تحديث حالة المستخدم.");
+    }
+  };
 
-
-const updateVolunteerStatus = async (id, newStatus) => {
-  try {
-    await axios.put(`http://localhost:5000/api/requests/volunteer/${id}`, {
-      status: newStatus,
-    });
-    fetchVolunteerRequests(); // إعادة التحميل بعد التحديث
-  } catch (err) {
-    console.error("فشل في تحديث حالة المتطوع:", err);
-  }
-};
-
-const updateUserStatus = async (userId, newStatus) => {
-  try {
-    await axios.put(`http://localhost:5000/api/users/${userId}`, {
-      isApproved: newStatus === "نشط",
-    });
-    fetchUsers(); // لإعادة تحميل المستخدمين بعد التحديث
-  } catch (err) {
-    console.error("فشل في تحديث حالة المستخدم:", err);
-    setError("فشل في تحديث حالة المستخدم.");
-  }
-};
-
-  
- 
   // جلب البيانات عند تحميل المكون
   useEffect(() => {
     fetchServices();
@@ -682,8 +680,12 @@ const updateUserStatus = async (userId, newStatus) => {
               active={activeTab === "donations"}
               onClick={() => setActiveTab("donations")}
             />
-
-          
+            <SidebarItem
+              icon={<MessageCircleIcon />}
+              text="الرسائل"
+              active={activeTab === "contactmessage"}
+              onClick={() => setActiveTab("contactmessage")}
+            />
           </div>
         </div>
       </div>
@@ -700,27 +702,9 @@ const updateUserStatus = async (userId, newStatus) => {
             {activeTab === "news" && "الأخبار"}
             {activeTab === "statistics" && "الإحصائيات"}
             {activeTab === "donations" && "التبرعات"}
+            {activeTab === "contactmessage" && "الرسائل"}
           </h1>
-          <div className="flex items-center space-x-4 space-x-reverse">
-            <div className="relative ml-4">
-              <input
-                type="text"
-                placeholder="بحث..."
-                className="bg-gray-100 pr-9 pl-4 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
-              />
-              <Search className="w-4 h-4 absolute top-2.5 right-3 text-gray-400" />
-            </div>
-            <div className="relative ml-3">
-              <Bell className="w-5 h-5 text-gray-500" />
-              <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
-            </div>
-            <div className="flex items-center">
-              <span className="text-sm font-medium ml-2">مدير النظام</span>
-              <div className="w-8 h-8 bg-blue-200 rounded-full flex items-center justify-center text-blue-700 font-semibold">
-                م
-              </div>
-            </div>
-          </div>
+   
         </header>
 
         {/* المحتوى الرئيسي للوحة التحكم */}
@@ -794,7 +778,6 @@ const updateUserStatus = async (userId, newStatus) => {
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* اتجاهات التسجيل */}
                 <div className="bg-white rounded-lg shadow-sm p-4 col-span-2">
-                  
                   <p className="text-sm text-gray-500 mb-3">
                     إحصائيات التسجيل للمستفيدين والمتطوعين خلال الأشهر الخمسة
                     الماضية
@@ -836,7 +819,6 @@ const updateUserStatus = async (userId, newStatus) => {
 
                 {/* أكثر الخدمات طلباً */}
                 <div className="bg-white rounded-lg shadow-sm p-4">
-                 
                   <p className="text-sm text-gray-500 mb-3">
                     ترتيب أكثر الخدمات المطلوبة من قبل المستفيدين
                   </p>
@@ -924,12 +906,10 @@ const updateUserStatus = async (userId, newStatus) => {
               </div>
 
               {selectedServiceType && (
-
-                
-                <div 
-                ref={detailsRef}
-
-                className="mt-6 bg-white rounded-lg shadow-md p-6 border border-gray-100">
+                <div
+                  ref={detailsRef}
+                  className="mt-6 bg-white rounded-lg shadow-md p-6 border border-gray-100"
+                >
                   <div className="flex justify-between items-center mb-5">
                     <h2 className="text-xl font-bold text-gray-800">
                       تفاصيل طلبات "{selectedServiceType}"
@@ -1594,10 +1574,9 @@ const updateUserStatus = async (userId, newStatus) => {
               </div>
               {selectedServiceType && (
                 <div
-                
-                ref={detailsRef}
-
-                className="mt-6 bg-white rounded-lg shadow-md p-6 border border-gray-100">
+                  ref={detailsRef}
+                  className="mt-6 bg-white rounded-lg shadow-md p-6 border border-gray-100"
+                >
                   <div className="flex justify-between items-center mb-5">
                     <h2 className="text-xl font-bold text-gray-800">
                       تفاصيل طلبات "{selectedServiceType}"
@@ -1942,7 +1921,6 @@ const updateUserStatus = async (userId, newStatus) => {
                 {/* مخطط شريطي أفقي */}
                 {/* اتجاهات التسجيل */}
                 <div className="bg-white rounded-lg shadow-sm p-4 col-span-2">
-                
                   <p className="text-sm text-gray-500 mb-3">
                     إحصائيات التسجيل للمستفيدين والمتطوعين خلال الأشهر الخمسة
                     الماضية
@@ -2048,6 +2026,8 @@ const updateUserStatus = async (userId, newStatus) => {
               </div>
             </div>
           )}
+
+          {activeTab === "contactmessage" && <ContactMessage />}
 
           {/* صفحة الأخبار */}
           {activeTab === "news" && (
@@ -2160,7 +2140,9 @@ const updateUserStatus = async (userId, newStatus) => {
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                       <div className="bg-green-50 p-3 rounded-lg">
-                        <p className="text-sm text-gray-600">إجمالي المستفيدين</p>
+                        <p className="text-sm text-gray-600">
+                          إجمالي المستفيدين
+                        </p>
                         <p className="text-2xl font-bold text-green-700">
                           1,845
                         </p>
@@ -2194,7 +2176,9 @@ const updateUserStatus = async (userId, newStatus) => {
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                       <div className="bg-green-50 p-3 rounded-lg">
-                        <p className="text-sm text-gray-600">إجمالي المستفيدين</p>
+                        <p className="text-sm text-gray-600">
+                          إجمالي المستفيدين
+                        </p>
                         <p className="text-2xl font-bold text-green-700">
                           1,789
                         </p>
