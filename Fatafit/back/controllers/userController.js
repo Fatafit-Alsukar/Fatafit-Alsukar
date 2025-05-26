@@ -141,7 +141,17 @@ exports.getUserCountByRole = async (req, res) => {
   }
 };
 
-// ✅ تعديل حالة المستخدم (مثلاً الموافقة على الحساب)
+// GET /api/users/count-by-role/user
+exports.getUserCountByRole = async (req, res) => {
+  try {
+    const count = await User.countDocuments({ role: 'user' });
+    res.json({ count });
+  } catch (err) {
+    res.status(500).json({ message: "فشل في جلب عدد المستخدمين", error: err });
+  }
+};
+
+// تعديل حالة المستخدم (نشط / غير نشط)
 exports.updateUserStatus = async (req, res) => {
   try {
     const { isApproved } = req.body;

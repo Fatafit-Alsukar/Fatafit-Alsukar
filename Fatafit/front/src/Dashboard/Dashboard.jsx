@@ -704,26 +704,7 @@ export default function Dashboard() {
             {activeTab === "donations" && "التبرعات"}
             {activeTab === "contactmessage" && "الرسائل"}
           </h1>
-          <div className="flex items-center space-x-4 space-x-reverse">
-            <div className="relative ml-4">
-              <input
-                type="text"
-                placeholder="بحث..."
-                className="bg-gray-100 pr-9 pl-4 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
-              />
-              <Search className="w-4 h-4 absolute top-2.5 right-3 text-gray-400" />
-            </div>
-            <div className="relative ml-3">
-              <Bell className="w-5 h-5 text-gray-500" />
-              <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
-            </div>
-            <div className="flex items-center">
-              <span className="text-sm font-medium ml-2">مدير النظام</span>
-              <div className="w-8 h-8 bg-blue-200 rounded-full flex items-center justify-center text-blue-700 font-semibold">
-                م
-              </div>
-            </div>
-          </div>
+   
         </header>
 
         {/* المحتوى الرئيسي للوحة التحكم */}
