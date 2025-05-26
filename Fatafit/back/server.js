@@ -10,7 +10,9 @@ require("dotenv").config();
 const userRoutes = require("./routes/userRoutes");
 const requestRoutes = require("./routes/requestRoutes");
 const serviceRoutes = require("./routes/serviceRoutes")
+const activityRoutes = require("./routes/activityRoutes");
 /****************************************************************** */
+
 app.use(express.json());
 app.use(cookieParser());
 app.use(
@@ -34,6 +36,7 @@ app.use('/uploads', express.static('uploads'));
 app.use("/api/users", userRoutes);
 app.use("/api/requests", requestRoutes);
 app.use("/api/services", serviceRoutes);
+app.use("/api", activityRoutes);
 
 
 
