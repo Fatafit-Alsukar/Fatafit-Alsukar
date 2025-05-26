@@ -46,7 +46,6 @@ import {
   createService,
   deleteService,
   getAllUsers,
- 
 } from "./serviceAPI";
 
 import Events from "./Events";
@@ -252,7 +251,7 @@ export default function Dashboard() {
       console.error("فشل في جلب الفعاليات:", err);
     }
   };
-  
+
   const fetchPatientRequestsGrouped = async () => {
     try {
       const res = await axios.get(
@@ -271,7 +270,7 @@ export default function Dashboard() {
       );
       setRequestsByType(res.data);
       setSelectedServiceType(type);
-  
+
       // انتظر ظهور القسم في الـ DOM ثم قم بالتمرير إليه
       setTimeout(() => {
         if (detailsRef.current) {
@@ -282,7 +281,7 @@ export default function Dashboard() {
       console.error("فشل في جلب تفاصيل الطلبات:", error);
     }
   };
-  
+
   const updateStatus = async (id, newStatus) => {
     try {
       await axios.put(`http://localhost:5000/api/requests/patient/${id}`, {
@@ -314,44 +313,40 @@ export default function Dashboard() {
       console.error("فشل في تحديث حالة طلب الانتساب:", err);
     }
   };
-    
-const fetchVolunteerRequests = async () => {
-  try {
-   const res =        await axios.get("http://localhost:5000/api/requests/volunteer");
-setVolunteerRequests(res.data);}
-catch (err) { 
-    console.error("فشل في جلب طلبات التطوع:", err);
 
-  }
-};
+  const fetchVolunteerRequests = async () => {
+    try {
+      const res = await axios.get(
+        "http://localhost:5000/api/requests/volunteer"
+      );
+      setVolunteerRequests(res.data);
+    } catch (err) {
+      console.error("فشل في جلب طلبات التطوع:", err);
+    }
+  };
 
+  const updateVolunteerStatus = async (id, newStatus) => {
+    try {
+      await axios.put(`http://localhost:5000/api/requests/volunteer/${id}`, {
+        status: newStatus,
+      });
+      fetchVolunteerRequests(); // إعادة التحميل بعد التحديث
+    } catch (err) {
+      console.error("فشل في تحديث حالة المتطوع:", err);
+    }
+  };
 
-
-
-const updateVolunteerStatus = async (id, newStatus) => {
-  try {
-    await axios.put(`http://localhost:5000/api/requests/volunteer/${id}`, {
-      status: newStatus,
-    });
-    fetchVolunteerRequests(); // إعادة التحميل بعد التحديث
-  } catch (err) {
-    console.error("فشل في تحديث حالة المتطوع:", err);
-  }
-};
-
-const updateUserStatus = async (userId, newStatus) => {
-  try {
-    await axios.put(`http://localhost:5000/api/users/${userId}`, {
-      isApproved: newStatus === "نشط",
-    });
-    fetchUsers(); // لإعادة تحميل المستخدمين بعد التحديث
-  } catch (err) {
-    console.error("فشل في تحديث حالة المستخدم:", err);
-    setError("فشل في تحديث حالة المستخدم.");
-  }
-};
-
-
+  const updateUserStatus = async (userId, newStatus) => {
+    try {
+      await axios.put(`http://localhost:5000/api/users/${userId}`, {
+        isApproved: newStatus === "نشط",
+      });
+      fetchUsers(); // لإعادة تحميل المستخدمين بعد التحديث
+    } catch (err) {
+      console.error("فشل في تحديث حالة المستخدم:", err);
+      setError("فشل في تحديث حالة المستخدم.");
+    }
+  };
 
   // جلب البيانات عند تحميل المكون
   useEffect(() => {
@@ -444,8 +439,7 @@ const updateUserStatus = async (userId, newStatus) => {
       console.error("فشل في جلب بيانات الإحصائيات الشهرية:", error);
     }
   };
-  
-  
+
   // جلب عدد المستخدمين
   const fetchUserCount = async () => {
     try {
@@ -684,8 +678,6 @@ const updateUserStatus = async (userId, newStatus) => {
               active={activeTab === "donations"}
               onClick={() => setActiveTab("donations")}
             />
-
-          
           </div>
         </div>
       </div>
@@ -796,7 +788,6 @@ const updateUserStatus = async (userId, newStatus) => {
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* اتجاهات التسجيل */}
                 <div className="bg-white rounded-lg shadow-sm p-4 col-span-2">
-                  
                   <p className="text-sm text-gray-500 mb-3">
                     إحصائيات التسجيل للمستفيدين والمتطوعين خلال الأشهر الخمسة
                     الماضية
@@ -838,7 +829,6 @@ const updateUserStatus = async (userId, newStatus) => {
 
                 {/* أكثر الخدمات طلباً */}
                 <div className="bg-white rounded-lg shadow-sm p-4">
-                 
                   <p className="text-sm text-gray-500 mb-3">
                     ترتيب أكثر الخدمات المطلوبة من قبل المستفيدين
                   </p>
@@ -926,12 +916,10 @@ const updateUserStatus = async (userId, newStatus) => {
               </div>
 
               {selectedServiceType && (
-
-                
-                <div 
-                ref={detailsRef}
-
-                className="mt-6 bg-white rounded-lg shadow-md p-6 border border-gray-100">
+                <div
+                  ref={detailsRef}
+                  className="mt-6 bg-white rounded-lg shadow-md p-6 border border-gray-100"
+                >
                   <div className="flex justify-between items-center mb-5">
                     <h2 className="text-xl font-bold text-gray-800">
                       تفاصيل طلبات "{selectedServiceType}"
@@ -1596,10 +1584,9 @@ const updateUserStatus = async (userId, newStatus) => {
               </div>
               {selectedServiceType && (
                 <div
-                
-                ref={detailsRef}
-
-                className="mt-6 bg-white rounded-lg shadow-md p-6 border border-gray-100">
+                  ref={detailsRef}
+                  className="mt-6 bg-white rounded-lg shadow-md p-6 border border-gray-100"
+                >
                   <div className="flex justify-between items-center mb-5">
                     <h2 className="text-xl font-bold text-gray-800">
                       تفاصيل طلبات "{selectedServiceType}"
@@ -1944,7 +1931,6 @@ const updateUserStatus = async (userId, newStatus) => {
                 {/* مخطط شريطي أفقي */}
                 {/* اتجاهات التسجيل */}
                 <div className="bg-white rounded-lg shadow-sm p-4 col-span-2">
-                
                   <p className="text-sm text-gray-500 mb-3">
                     إحصائيات التسجيل للمستفيدين والمتطوعين خلال الأشهر الخمسة
                     الماضية
@@ -2162,7 +2148,9 @@ const updateUserStatus = async (userId, newStatus) => {
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                       <div className="bg-green-50 p-3 rounded-lg">
-                        <p className="text-sm text-gray-600">إجمالي المستفيدين</p>
+                        <p className="text-sm text-gray-600">
+                          إجمالي المستفيدين
+                        </p>
                         <p className="text-2xl font-bold text-green-700">
                           1,845
                         </p>
@@ -2196,7 +2184,9 @@ const updateUserStatus = async (userId, newStatus) => {
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                       <div className="bg-green-50 p-3 rounded-lg">
-                        <p className="text-sm text-gray-600">إجمالي المستفيدين</p>
+                        <p className="text-sm text-gray-600">
+                          إجمالي المستفيدين
+                        </p>
                         <p className="text-2xl font-bold text-green-700">
                           1,789
                         </p>
