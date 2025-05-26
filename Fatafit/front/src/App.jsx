@@ -20,6 +20,9 @@ import Dashboard from "./Dashboard/Dashboard";
 import ServicesPage from "./Pages/OurServices/OurServices";
 import DonatePage from "./Pages/Donation/Donation";
 import ContactUsPage from "./Pages/Contact/Contact";
+import Articles from "./Pages/Articles/Articles";
+import ArticleDetails from "./Pages/Articles/ArticleDetails";
+import ArticlesManagement from "./Dashboard/ArticlesManagement";
 
 function Layout() {
   return (
@@ -35,9 +38,12 @@ function Layout() {
         <Route path="/membershiprequest" element={<MembershipRequest />} />
         <Route path="/Services" element={<ServicesPage />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/dashboard/articles" element={<ArticlesManagement />} />
         <Route path="/Activities" element={<Activities />} />
         <Route path="/donation" element={<DonatePage />} />
         <Route path="/contact" element={<ContactUsPage />} />
+        <Route path="/articles" element={<Articles />} />
+        <Route path="/articles/:id" element={<ArticleDetails />} />
       </Routes>
       <Footer />
       {/* {!hideNavbarPages.includes(location.pathname) && <Footer />} */}

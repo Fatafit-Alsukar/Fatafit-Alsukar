@@ -1,51 +1,44 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import axios from "axios";
-import { Calendar, MapPin, Clock, Tag, ChevronLeft, ArrowRight, Search, Filter, Star, Users, Heart, Share2 } from "lucide-react";
+import { Calendar, User, Tag, ArrowRight, Search, Filter, Star, Bookmark, Share2 } from "lucide-react";
 
-const Activities = () => {
-  const [activities, setActivities] = useState([]);
+const Articles = () => {
+  const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
 
-  // جلب البيانات من الـ Backend
   useEffect(() => {
-    const fetchActivities = async () => {
+    const fetchArticles = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(
-          "http://localhost:5000/api/activities"
-        );
-        setActivities(response.data);
+        const response = await axios.get("http://localhost:5000/api/articles");
+        setArticles(response.data);
         setError(null);
       } catch (error) {
-        console.error("Error fetching activities", error);
-        setError("حدث خطأ أثناء تحميل الفعاليات، يرجى المحاولة مرة أخرى");
+        console.error("Error fetching articles", error);
+        setError("حدث خطأ أثناء تحميل المقالات، يرجى المحاولة مرة أخرى");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchActivities();
+    fetchArticles();
   }, []);
 
-  // استخراج جميع الفئات الفريدة
-  const categories =
-    activities.length > 0
-      ? ["all", ...new Set(activities.map((activity) => activity.category))]
-      : ["all"];
+  const categories = articles.length > 0
+    ? ["all", ...new Set(articles.map((article) => article.category))]
+    : ["all"];
 
-  // فلترة الفعاليات حسب الفئة المختارة
-  const filteredActivities =
-    activities
-      .filter((activity) => selectedCategory === "all" || activity.category === selectedCategory)
-      .filter((activity) => 
-        activity.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        activity.description.toLowerCase().includes(searchQuery.toLowerCase())
-      );
+  const filteredArticles = articles
+    .filter((article) => selectedCategory === "all" || article.category === selectedCategory)
+    .filter((article) => 
+      article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      article.content.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
-  // تنسيق التاريخ باللغة العربية
   const formatDate = (dateString) => {
     const options = {
       weekday: "long",
@@ -58,11 +51,11 @@ const Activities = () => {
 
   const getCategoryColor = (category) => {
     const colors = {
-      'تكنولوجيا': 'from-purple-500 to-indigo-600',
-      'فنون': 'from-pink-500 to-rose-600',
-      'أعمال': 'from-emerald-500 to-teal-600',
-      'طعام': 'from-orange-500 to-red-600',
-      'default': 'from-blue-500 to-cyan-600'
+      'نصائح صحية': 'from-emerald-500 to-teal-600',
+      'قصص نجاح': 'from-purple-500 to-indigo-600',
+      'تغذية': 'from-orange-500 to-red-600',
+      'تمارين': 'from-blue-500 to-cyan-600',
+      'default': 'from-indigo-500 to-blue-600'
     };
     return colors[category] || colors.default;
   };
@@ -71,9 +64,9 @@ const Activities = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 font-sans" dir="rtl">
       {/* Animated Background Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-purple-400/20 to-pink-400/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-indigo-400/20 to-blue-400/20 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute top-1/3 -left-32 w-64 h-64 bg-gradient-to-br from-blue-400/20 to-cyan-400/20 rounded-full blur-3xl animate-pulse animation-delay-2000"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-gradient-to-br from-indigo-400/20 to-purple-400/20 rounded-full blur-3xl animate-pulse animation-delay-4000"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-gradient-to-br from-indigo-400/20 to-blue-400/20 rounded-full blur-3xl animate-pulse animation-delay-4000"></div>
       </div>
 
       {/* Hero Section */}
@@ -92,15 +85,15 @@ const Activities = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center">
             <div className="inline-flex items-center px-4 py-2 bg-white/10 backdrop-blur-lg border border-white/20 rounded-full mb-6">
-              <Star className="w-4 h-4 text-yellow-400 ml-2" />
-              <span className="text-sm font-medium">أفضل الفعاليات المميزة</span>
+              <Bookmark className="w-4 h-4 text-yellow-400 ml-2" />
+              <span className="text-sm font-medium">أحدث المقالات والنصائح</span>
             </div>
             
             <h1 className="text-6xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent leading-tight">
-              الفعاليات القادمة
+              النصائح والمقالات
             </h1>
             <p className="text-xl text-white/80 max-w-3xl mx-auto mb-12 leading-relaxed">
-              اكتشف عالماً من التجارب الاستثنائية والفعاليات المتميزة التي تلهمك وتثري معرفتك
+              اكتشف مجموعة من النصائح الصحية وقصص النجاح الملهمة لمساعدتك في رحلة صحتك
             </p>
             
             {/* Enhanced Search Bar */}
@@ -110,7 +103,7 @@ const Activities = () => {
                 <div className="relative bg-white/10 backdrop-blur-2xl border border-white/20 rounded-3xl p-1">
                   <input
                     type="text"
-                    placeholder="ابحث عن فعالية تلهمك..."
+                    placeholder="ابحث عن مقال أو نصيحة..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full px-8 py-5 bg-transparent text-white placeholder-white/60 focus:outline-none text-lg"
@@ -146,7 +139,7 @@ const Activities = () => {
                 )}
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 group-hover:translate-x-full transition-all duration-1000 transform -translate-x-full"></div>
                 <span className="relative z-10">
-                  {category === "all" ? "جميع الفعاليات" : category}
+                  {category === "all" ? "جميع المقالات" : category}
                 </span>
               </button>
             ))}
@@ -157,10 +150,10 @@ const Activities = () => {
         {loading && (
           <div className="flex flex-col justify-center items-center h-64">
             <div className="relative">
-              <div className="w-20 h-20 border-4 border-purple-200 rounded-full animate-spin"></div>
-              <div className="absolute top-0 left-0 w-20 h-20 border-4 border-purple-600 rounded-full animate-spin border-t-transparent"></div>
+              <div className="w-20 h-20 border-4 border-indigo-200 rounded-full animate-spin"></div>
+              <div className="absolute top-0 left-0 w-20 h-20 border-4 border-indigo-600 rounded-full animate-spin border-t-transparent"></div>
             </div>
-            <p className="text-slate-600 mt-4 text-lg">جاري تحميل الفعاليات المميزة...</p>
+            <p className="text-slate-600 mt-4 text-lg">جاري تحميل المقالات...</p>
           </div>
         )}
 
@@ -173,7 +166,7 @@ const Activities = () => {
         )}
 
         {/* No Results State */}
-        {!loading && !error && filteredActivities.length === 0 && (
+        {!loading && !error && filteredArticles.length === 0 && (
           <div className="text-center p-16 bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl">
             <div className="w-24 h-24 bg-gradient-to-br from-slate-100 to-slate-200 rounded-full flex items-center justify-center mx-auto mb-6">
               <Search className="w-12 h-12 text-slate-400" />
@@ -183,16 +176,16 @@ const Activities = () => {
           </div>
         )}
 
-        {/* Activities Grid */}
+        {/* Articles Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-          {filteredActivities.map((activity, index) => (
+          {filteredArticles.map((article, index) => (
             <div
-              key={activity._id}
+              key={article._id}
               className="group relative bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl overflow-hidden transition-all duration-700 hover:shadow-2xl hover:-translate-y-4 hover:bg-white"
               style={{ animationDelay: `${index * 100}ms` }}
             >
               {/* Gradient Border Effect */}
-              <div className={`absolute inset-0 bg-gradient-to-r ${getCategoryColor(activity.category)} opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl`}></div>
+              <div className={`absolute inset-0 bg-gradient-to-r ${getCategoryColor(article.category)} opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl`}></div>
               <div className="absolute inset-[2px] bg-white rounded-3xl"></div>
               
               {/* Content Container */}
@@ -200,81 +193,61 @@ const Activities = () => {
                 {/* Image Container */}
                 <div className="relative h-64 overflow-hidden rounded-t-3xl">
                   <img
-                    src={activity.image || "https://via.placeholder.com/400"}
-                    alt={activity.name}
+                    src={article.image ? `http://localhost:5000${article.image}` : "https://via.placeholder.com/400"}
+                    alt={article.title}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60"></div>
                   
                   {/* Category Badge */}
                   <div className="absolute top-4 right-4">
-                    <span className={`px-4 py-2 bg-gradient-to-r ${getCategoryColor(activity.category)} text-white rounded-full text-sm font-semibold shadow-lg backdrop-blur-sm`}>
-                      {activity.category}
+                    <span className={`px-4 py-2 bg-gradient-to-r ${getCategoryColor(article.category)} text-white rounded-full text-sm font-semibold shadow-lg backdrop-blur-sm`}>
+                      {article.category}
                     </span>
                   </div>
                   
-                  {/* Stats Overlay */}
-                  <div className="absolute bottom-4 left-4 flex items-center gap-4 text-white">
+                  {/* Author Info */}
+                  <div className="absolute bottom-4 left-4 flex items-center gap-2 text-white">
                     <div className="flex items-center gap-1 bg-black/30 backdrop-blur-sm px-3 py-1 rounded-full">
-                      <Users className="w-4 h-4" />
-                      <span className="text-sm font-medium">{activity.attendees || 0}</span>
-                    </div>
-                    <div className="flex items-center gap-1 bg-black/30 backdrop-blur-sm px-3 py-1 rounded-full">
-                      <Star className="w-4 h-4 text-yellow-400" />
-                      <span className="text-sm font-medium">{activity.rating || 0}</span>
+                      <User className="w-4 h-4" />
+                      <span className="text-sm font-medium">{article.author}</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Content */}
                 <div className="p-8">
-                  <h3 className="text-xl font-bold text-slate-800 mb-4 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:bg-clip-text group-hover:from-purple-600 group-hover:to-pink-600 transition-all duration-300">
-                    {activity.name}
+                  <h3 className="text-xl font-bold text-slate-800 mb-4 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:bg-clip-text group-hover:from-indigo-600 group-hover:to-blue-600 transition-all duration-300">
+                    {article.title}
                   </h3>
                   <p className="text-slate-600 mb-6 line-clamp-2 leading-relaxed">
-                    {activity.description}
+                    {article.content}
                   </p>
 
                   {/* Details */}
                   <div className="space-y-4 mb-8">
                     <div className="flex items-center gap-4 text-slate-700">
-                      <div className={`w-10 h-10 rounded-xl bg-gradient-to-r ${getCategoryColor(activity.category)} opacity-10 flex items-center justify-center`}>
+                      <div className={`w-10 h-10 rounded-xl bg-gradient-to-r ${getCategoryColor(article.category)} opacity-10 flex items-center justify-center`}>
                         <Calendar className="w-5 h-5 text-slate-600" />
                       </div>
-                      <span className="font-medium">{formatDate(activity.date)}</span>
+                      <span className="font-medium">{formatDate(article.date)}</span>
                     </div>
-                    {activity.location && (
-                      <div className="flex items-center gap-4 text-slate-700">
-                        <div className={`w-10 h-10 rounded-xl bg-gradient-to-r ${getCategoryColor(activity.category)} opacity-10 flex items-center justify-center`}>
-                          <MapPin className="w-5 h-5 text-slate-600" />
-                        </div>
-                        <span className="font-medium">{activity.location}</span>
-                      </div>
-                    )}
-                    {activity.time && (
-                      <div className="flex items-center gap-4 text-slate-700">
-                        <div className={`w-10 h-10 rounded-xl bg-gradient-to-r ${getCategoryColor(activity.category)} opacity-10 flex items-center justify-center`}>
-                          <Clock className="w-5 h-5 text-slate-600" />
-                        </div>
-                        <span className="font-medium">{activity.time}</span>
-                      </div>
-                    )}
                   </div>
 
                   {/* Action Buttons */}
                   <div className="flex gap-3">
-                    <a
-                      href={`/Activities/${activity._id}`}
-                      className={`flex-1 py-4 px-6 bg-gradient-to-r ${getCategoryColor(activity.category)} text-white rounded-2xl transition-all duration-300 hover:shadow-lg text-center font-semibold hover:scale-105 relative overflow-hidden group/btn`}
+                    <Link
+                      to={`/articles/${article._id}`}
+                      className={`flex-1 py-4 px-6 bg-gradient-to-r ${getCategoryColor(article.category)} text-white rounded-2xl transition-all duration-300 hover:shadow-lg text-center font-semibold hover:scale-105 relative overflow-hidden group/btn`}
                     >
                       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover/btn:opacity-100 group-hover/btn:translate-x-full transition-all duration-1000 transform -translate-x-full"></div>
                       <span className="relative z-10 flex items-center justify-center gap-2">
-                        عرض التفاصيل
+                        اقرأ المزيد
                         <ArrowRight className="w-4 h-4 rotate-180" />
                       </span>
-                    </a>
-                    <button className="w-14 h-14 bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-red-500 rounded-2xl transition-all duration-300 hover:scale-110 flex items-center justify-center">
-                      <Heart className="w-5 h-5" />
+                    </Link>
+                    <button className="w-14 h-14 bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-indigo-500 rounded-2xl transition-all duration-300 hover:scale-110 flex items-center justify-center">
+                      <Bookmark className="w-5 h-5" />
                     </button>
                   </div>
                 </div>
@@ -309,4 +282,4 @@ const Activities = () => {
   );
 };
 
-export default Activities;
+export default Articles; 
