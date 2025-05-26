@@ -1,5 +1,5 @@
 // src/pages/Donation/Donation.jsx
-import React from 'react';
+import React, { useState } from 'react';
 import {
   CreditCardIcon,
   DevicePhoneMobileIcon,
@@ -8,83 +8,96 @@ import {
   ChartBarIcon,
 } from '@heroicons/react/24/outline';
 
+const paymentMethods = [
+  'الموقع الإلكتروني لتكية أم علي',
+  'تطبيق تكية أم علي للهواتف المحمولة',
+  'خدمة إي فواتيركم',
+  'خدمة كليك',
+  'خدمة سمارت لينك',
+  'مواقع تكية أم علي في المراكز التجارية',
+  'CAF America',
+  'CAF Canada',
+  'مركز الاتصال',
+  'مقر تكية أم علي الرئيسي',
+  'صناديق جمع التبرعات (الحصّالات)',
+  'محفظة UWallet',
+  'محفظة Orange Money',
+  'محفظة Zain Cash',
+  'محفظة دينارك',
+  'تطبيق وافي',
+  'تطبيق طلبات',
+  'تطبيق كريم',
+  'الحوالات والاقتطاعات البنكية',
+];
+
 export default function DonatePage() {
+  const [currency, setCurrency] = useState('JOD');
+  const [amount, setAmount] = useState('');
+  const [method, setMethod] = useState(paymentMethods[0]);
+
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-800" dir="rtl">
-      {/* Header */}
-      <header className="bg-[#1D3E79] text-white py-12">
-        <h1 className="text-4xl font-bold text-center">التبرع والدعم</h1>
-        <p className="text-center mt-2 opacity-80">Donate / Support Us</p>
-      </header>
-
-      <main className="max-w-5xl mx-auto px-4 py-10 space-y-16">
-        {/* 1. Donation Methods */}
-        <section>
-          <h2 className="text-2xl font-semibold text-[#1D3E79] mb-6">طرق التبرع</h2>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            <button className="flex items-center space-x-2 justify-center bg-[#4A90E2] hover:bg-[#3B7ACB] text-white py-4 rounded-lg transition">
-              <CreditCardIcon className="w-6 h-6" />
-              <span>تحويل إلكتروني</span>
-            </button>
-            <button className="flex items-center space-x-2 justify-center bg-[#4A90E2] hover:bg-[#3B7ACB] text-white py-4 rounded-lg transition">
-              <DevicePhoneMobileIcon className="w-6 h-6" />
-              <span>Apple Pay</span>
-            </button>
-            <button className="flex items-center space-x-2 justify-center bg-[#4A90E2] hover:bg-[#3B7ACB] text-white py-4 rounded-lg transition">
-              <CurrencyDollarIcon className="w-6 h-6" />
-              <span>نقداً / شيك</span>
-            </button>
-          </div>
-        </section>
-
-        {/* 2. Transparency */}
-        <section>
-          <h2 className="text-2xl font-semibold text-[#1D3E79] mb-6">شفافية التبرعات</h2>
-          <div className="bg-white p-6 rounded-lg shadow">
-            <p className="mb-4">
-              نلتزم بنشر تقرير مفصل عن كيفية صرف أموال التبرّع بشكل دوري لضمان أقصى درجات
-              الشفافية.
-            </p>
-            <button className="inline-flex items-center space-x-2 bg-[#4A90E2] hover:bg-[#3B7ACB] text-white py-2 px-4 rounded transition">
-              <ChartBarIcon className="w-5 h-5" />
-              <span>عرض التقارير</span>
-            </button>
-          </div>
-        </section>
-
-        {/* 3. Monthly / Ongoing Support */}
-        <section>
-          <h2 className="text-2xl font-semibold text-[#1D3E79] mb-6">دعم مستمر أو شهري</h2>
-          <div className="grid gap-6 sm:grid-cols-2">
-            {['شهري', 'ربع سنوي', 'سنوي'].map((plan) => (
-              <div
-                key={plan}
-                className="border border-gray-200 p-6 rounded-lg shadow-sm hover:shadow-lg transition"
-              >
-                <h3 className="text-xl font-medium mb-2">{plan}</h3>
-                <p className="mb-4 opacity-75">استمر في دعمنا للحصول على تحديثات ومكافآت خاصة.</p>
-                <button className="bg-[#4A90E2] hover:bg-[#3B7ACB] text-white py-2 px-4 rounded transition">
-                  اختر {plan}
-                </button>
-              </div>
+    <div className="min-h-screen bg-gradient-to-br from-[#EBF8FF] to-[#BEE3F8] flex flex-col items-center justify-center py-10 px-4" dir="rtl">
+      {/* Donation Card */}
+      <div className="w-full max-w-md bg-white/80 rounded-2xl shadow-2xl p-8 border border-blue-100 flex flex-col gap-6 items-center animate-fade-in">
+        <h1 className="text-2xl font-bold text-[#1D3E79] mb-2">أدوات التبرع</h1>
+        {/* Currency Toggle */}
+        <div className="flex gap-2 mb-4">
+          <button
+            className={`px-4 py-2 rounded-lg font-semibold transition-all border ${currency === 'JOD' ? 'bg-blue-500 text-white border-blue-500' : 'bg-white text-blue-500 border-blue-200 hover:bg-blue-50'}`}
+            onClick={() => setCurrency('JOD')}
+          >
+            دينار اردني
+          </button>
+          <button
+            className={`px-4 py-2 rounded-lg font-semibold transition-all border ${currency === 'USD' ? 'bg-blue-500 text-white border-blue-500' : 'bg-white text-blue-500 border-blue-200 hover:bg-blue-50'}`}
+            onClick={() => setCurrency('USD')}
+          >
+            دولار امريكي
+          </button>
+        </div>
+        {/* Amount Input */}
+        <div className="w-full flex flex-col gap-2">
+          <label htmlFor="amount" className="text-blue-700 font-medium">المبلغ</label>
+          <input
+            id="amount"
+            type="number"
+            min="1"
+            value={amount}
+            onChange={e => setAmount(e.target.value)}
+            className="w-full px-4 py-3 rounded-lg border border-blue-200 focus:ring-2 focus:ring-blue-300 focus:outline-none bg-white/90 text-blue-900 text-lg text-right"
+            placeholder="أدخل المبلغ المطلوب التبرع به"
+          />
+        </div>
+        {/* Payment Method Dropdown */}
+        <div className="w-full flex flex-col gap-2">
+          <label htmlFor="method" className="text-blue-700 font-medium">اختر طريقة الدفع</label>
+          <select
+            id="method"
+            value={method}
+            onChange={e => setMethod(e.target.value)}
+            className="w-full px-4 py-3 rounded-lg border border-blue-200 focus:ring-2 focus:ring-blue-300 focus:outline-none bg-white/90 text-blue-900 text-lg"
+          >
+            {paymentMethods.map((m, i) => (
+              <option key={i} value={m}>{m}</option>
             ))}
-          </div>
-        </section>
-
-        {/* 4. In-Kind Donations */}
-        <section>
-          <h2 className="text-2xl font-semibold text-[#1D3E79] mb-6">تبرع بأجهزة أو أدوات</h2>
-          <div className="bg-white p-6 rounded-lg shadow">
-            <p className="mb-4">
-              يمكنك التبرع بأي جهاز أو أداة بحسب مقدرتك، وسنقوم بتوزيعها على مستحقيها بأعلى كفاءة.
-            </p>
-            <button className="inline-flex items-center space-x-2 bg-[#4A90E2] hover:bg-[#3B7ACB] text-white py-2 px-4 rounded transition">
-              <GiftIcon className="w-5 h-5" />
-              <span>اطلب استلام التبرع</span>
-            </button>
-          </div>
-        </section>
-      </main>
+          </select>
+        </div>
+        {/* Donate Button */}
+        <button
+          className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 rounded-lg shadow-md transition-all duration-300 text-lg mt-2"
+        >
+          تبرع الآن
+        </button>
+      </div>
+      
+      {/* Animations */}
+      <style>{`
+        @keyframes fade-in {
+          from { opacity: 0; transform: translateY(24px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in { animation: fade-in 1s cubic-bezier(.4,0,.2,1) both; }
+      `}</style>
     </div>
   );
 }

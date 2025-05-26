@@ -7,6 +7,7 @@ require("dotenv").config();
 const membershipRoutes = require("./routes/membershipRequests");
 const patientRequestRoutes = require("./routes/patientRequests");
 const volunteerRequestRoutes = require("./routes/volunteerRequests");
+const contactRoutes = require('./routes/contactRoutes');
 
 
 
@@ -58,6 +59,8 @@ app.use("/api/requests/volunteer", volunteerRequestRoutes);
 
 app.use("/api/requests", patientRequestRoutes);
 app.use("/api/requests", volunteerRequestRoutes);
+
+app.use('/api/contact', contactRoutes);
 
 /*******************************************************************/
 const PORT = process.env.PORT || 5000;

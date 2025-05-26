@@ -26,6 +26,7 @@ import {
   BarChart2,
   LineChart,
   ThumbsUp,
+  MessageCircleIcon,
 } from "lucide-react";
 import {
   BarChart,
@@ -50,6 +51,7 @@ import {
 
 import Events from "./Events";
 import { useRef } from "react";
+import ContactMessage from "./ContactMessages";
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [showAddServiceForm, setShowAddServiceForm] = useState(false);
@@ -125,7 +127,7 @@ export default function Dashboard() {
 
   const statisticData = [
     {
-      name: "مرضى نشطين",
+      name: "مستفيدين نشطين",
       value: activePatients,
       color: "#A8E6CF",
       icon: <Users className="w-6 h-6 text-teal-500" />,
@@ -612,7 +614,7 @@ export default function Dashboard() {
       {/* الشريط الجانبي */}
       <div className="w-64 bg-white border-l border-gray-200 shadow-sm">
         <div className="p-4 text-xl font-bold text-center text-teal-600">
-          جمعية فتافيت السكر{" "}
+          جمعية كتاكيت السكر{" "}
         </div>
         <div className="p-2">
           <div className="flex flex-col space-y-1">
@@ -678,6 +680,12 @@ export default function Dashboard() {
               active={activeTab === "donations"}
               onClick={() => setActiveTab("donations")}
             />
+            <SidebarItem
+              icon={<MessageCircleIcon />}
+              text="الرسائل"
+              active={activeTab === "contactmessage"}
+              onClick={() => setActiveTab("contactmessage")}
+            />
           </div>
         </div>
       </div>
@@ -694,6 +702,7 @@ export default function Dashboard() {
             {activeTab === "news" && "الأخبار"}
             {activeTab === "statistics" && "الإحصائيات"}
             {activeTab === "donations" && "التبرعات"}
+            {activeTab === "contactmessage" && "الرسائل"}
           </h1>
           <div className="flex items-center space-x-4 space-x-reverse">
             <div className="relative ml-4">
@@ -745,7 +754,7 @@ export default function Dashboard() {
               {/* نظرة عامة - نص ترحيبي */}
               <div className="bg-white rounded-lg shadow-sm p-6">
                 <h2 className="text-xl font-bold text-teal-700 mb-2">
-                  مرحباً بك في لوحة تحكم جمعية فتافيت السكر
+                  مرحباً بك في لوحة تحكم جمعية كتاكيت السكر
                 </h2>
                 <p className="text-gray-600">
                   هذه النظرة العامة توفر لك معلومات حول نشاطات الجمعية
@@ -2028,7 +2037,7 @@ export default function Dashboard() {
                         تبرع الآن
                       </button>
                       <div className="mt-4 text-center text-sm text-gray-500">
-                        جميع التبرعات تذهب مباشرة لدعم أطفال مرضى السكري
+                        جميع التبرعات تذهب مباشرة لدعم أطفال مستفيدين السكري
                       </div>
                     </form>
                   </div>
@@ -2036,6 +2045,8 @@ export default function Dashboard() {
               </div>
             </div>
           )}
+
+          {activeTab === "contactmessage" && <ContactMessage />}
 
           {/* صفحة الأخبار */}
           {activeTab === "news" && (
@@ -2237,7 +2248,7 @@ export default function Dashboard() {
                         <input
                           type="text"
                           className="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
-                          value="الجمعية السعودية لرعاية مرضى السكري"
+                          value="الجمعية السعودية لرعاية مستفيدين السكري"
                           onChange={() => {}}
                         />
                       </div>
