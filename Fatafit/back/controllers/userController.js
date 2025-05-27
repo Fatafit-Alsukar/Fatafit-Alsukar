@@ -131,8 +131,50 @@ exports.getAllUsers = async (req, res) => {
 };
 
 
+// GET /api/users/count-by-role/user
+exports.getUserCountByRole = async (req, res) => {
+  try {
+    const count = await User.countDocuments({ role: "user" });
+    res.json({ count });
+  } catch (err) {
+    res.status(500).json({ message: "فشل في جلب عدد المستخدمين", error: err });
+  }
+};
 
-// GET /api/users/count
+// GET /api/users/count-by-role/user
+exports.getUserCountByRole = async (req, res) => {
+  try {
+    const count = await User.countDocuments({ role: 'user' });
+    res.json({ count });
+  } catch (err) {
+    res.status(500).json({ message: "فشل في جلب عدد المستخدمين", error: err });
+  }
+};
+
+// تعديل حالة المستخدم (نشط / غير نشط)
+exports.updateUserStatus = async (req, res) => {
+  try {
+    const { isApproved } = req.body;
+
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { isApproved },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: "المستخدم غير موجود" });
+    }
+
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({
+      message: "فشل في تحديث المستخدم",
+      error: error.message,
+    });
+  }
+};
+
 exports.getUserCount = async (req, res) => {
   try {
     const count = await User.countDocuments();
@@ -141,3 +183,5 @@ exports.getUserCount = async (req, res) => {
     res.status(500).json({ message: "فشل في جلب عدد المستخدمين", error: err });
   }
 };
+
+

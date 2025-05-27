@@ -16,8 +16,42 @@ import {
   ArrowRight,
   MapPin,
   Clock,
-  Tag
+  Tag,
 } from "lucide-react";
+
+function ServiceCard({ service }) {
+  const colors = { lightBlue: "#4A90E2", darkBlue: "#1D3E79" };
+  return (
+    <div className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+      <div className="h-70 p-5 overflow-hidden">
+        <img
+          src={service.image || "/api/placeholder/400/300"}
+          alt={service.name}
+          className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+          onError={(e) => {
+            e.target.src = "/api/placeholder/400/300";
+          }}
+        />
+      </div>
+      <div className="p-6">
+        <h3
+          className="text-xl font-bold mb-2"
+          style={{ color: colors.darkBlue }}
+        >
+          {service.name}
+        </h3>
+        <p className="text-gray-600 mb-4">{service.description}</p>
+        <a
+          href="/Services"
+          className="px-6 py-2 text-white rounded-md transition duration-300 hover:bg-opacity-90"
+          style={{ backgroundColor: colors.lightBlue }}
+        >
+          المزيد
+        </a>
+      </div>
+    </div>
+  );
+}
 
 export default function DiabetesHomePage() {
   const [activeSlide, setActiveSlide] = useState(0);
@@ -26,6 +60,10 @@ export default function DiabetesHomePage() {
   const [activeReminder, setActiveReminder] = useState(0);
   const [showReminders, setShowReminders] = useState(true);
   const [activities, setActivities] = useState([]);
+  const [services, setServices] = useState([]);
+  const [servicesLoading, setServicesLoading] = useState(true);
+  const [servicesError, setServicesError] = useState(null);
+  const [userCount, setUserCount] = useState(null);
 
   // Set isLoaded to true after component mounts
   useEffect(() => {
@@ -44,6 +82,33 @@ export default function DiabetesHomePage() {
     // Fetch latest activities
     fetchActivities();
 
+    // Fetch 3 services for home page
+    const fetchServices = async () => {
+      try {
+        setServicesLoading(true);
+        const response = await axios.get("http://localhost:5000/api/services");
+        setServices(response.data.data.slice(0, 3));
+        setServicesLoading(false);
+      } catch (err) {
+        setServicesError("حدث خطأ أثناء تحميل الخدمات.");
+        setServicesLoading(false);
+      }
+    };
+    fetchServices();
+
+    // Fetch user count with role 'user'
+    const fetchUserCount = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:5000/api/users/count-by-role/user"
+        );
+        setUserCount(response.data.count);
+      } catch (err) {
+        setUserCount(null);
+      }
+    };
+    fetchUserCount();
+
     return () => {
       clearInterval(interval);
       clearInterval(reminderInterval);
@@ -54,19 +119,19 @@ export default function DiabetesHomePage() {
   const fetchActivities = async () => {
     try {
       // Fetch activities from the backend API
-      const response = await axios.get('http://localhost:5000/api/activities');
-      
+      const response = await axios.get("http://localhost:5000/api/activities");
+
       // Sort activities by date (most recent first)
-      const sortedActivities = response.data.sort((a, b) => 
-        new Date(b.date) - new Date(a.date)
+      const sortedActivities = response.data.sort(
+        (a, b) => new Date(b.date) - new Date(a.date)
       );
-      
+
       // Limit to 3 most recent activities for the home page
       const recentActivities = sortedActivities.slice(0, 3);
-      
+
       setActivities(recentActivities);
     } catch (error) {
-      console.error('Error fetching activities:', error);
+      console.error("Error fetching activities:", error);
       setActivities([]);
     }
   };
@@ -106,7 +171,7 @@ export default function DiabetesHomePage() {
   const stats = [
     {
       icon: <Users className="w-8 h-8" />,
-      number: "٢٥٠٠٠+",
+      number: userCount !== null ? userCount.toLocaleString("ar-EG") : "...",
       label: "مستفيد",
       color: "bg-teal-100 text-teal-600",
     },
@@ -142,7 +207,8 @@ export default function DiabetesHomePage() {
     {
       icon: <Apple className="w-12 h-12" />,
       title: "تغذية مناسبة",
-      description: "نصائح غذائية مخصصة وقوائم طعام متنوعة مناسبة لمرضى السكري",
+      description:
+        "نصائح غذائية مخصصة وقوائم طعام متنوعة مناسبة لمستفيدين السكري",
       color: "bg-gradient-to-br from-purple-500 to-indigo-600",
       animation: "bounce",
     },
@@ -687,7 +753,7 @@ export default function DiabetesHomePage() {
                 <Coffee className="w-16 h-16 mb-6" />
                 <h3 className="text-2xl font-bold mb-4">السكري والتغذية</h3>
                 <p className="mb-6">
-                  تعرف على الأطعمة المناسبة لمرضى السكري وكيفية تنظيم وجباتك
+                  تعرف على الأطعمة المناسبة لمستفيدين السكري وكيفية تنظيم وجباتك
                 </p>
                 <a
                   href="https://altibbi.com/%D9%85%D9%82%D8%A7%D9%84%D8%A7%D8%AA-%D8%B7%D8%A8%D9%8A%D8%A9/%D9%85%D8%B1%D8%B6-%D8%A7%D9%84%D8%B3%D9%83%D8%B1%D9%8A/%D8%A7%D9%84%D8%AD%D9%85%D9%8A%D8%A9-%D8%A7%D9%84%D8%BA%D8%B0%D8%A7%D8%A6%D9%8A%D8%A9-%D8%A7%D9%84%D9%85%D9%86%D8%A7%D8%B3%D8%A8%D8%A9-%D9%84%D9%85%D8%B1%D8%B6%D9%89-%D8%B3%D9%83%D8%B1%D9%8A-%D8%A7%D9%84%D8%A7%D8%B7%D9%81%D8%A7%D9%84-2686"
@@ -733,15 +799,56 @@ export default function DiabetesHomePage() {
           </div>
         </div>
       </section>
-  {/* Donation Section */}
-  <section className="py-20 bg-gradient-to-br from-indigo-50 to-blue-50 relative overflow-hidden">
+
+      {/* New Services Section */}
+      <section className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold mb-4" style={{ color: "#1D3E79" }}>
+            خدماتنا المميزة
+          </h2>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            تعرف على بعض الخدمات التي نقدمها لدعم أطفال السكري وعائلاتهم
+          </p>
+        </div>
+        {servicesLoading ? (
+          <div className="flex justify-center items-center py-12">
+            <div
+              className="w-16 h-16 border-4 border-t-4 rounded-full animate-spin"
+              style={{ borderColor: "#4A90E2", borderTopColor: "transparent" }}
+            ></div>
+          </div>
+        ) : servicesError ? (
+          <div className="text-center py-12">
+            <p className="text-red-500 text-lg">{servicesError}</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {services.map((service) => (
+              <ServiceCard key={service._id || service.id} service={service} />
+            ))}
+          </div>
+        )}
+        <div className="text-center mt-10">
+          <a
+            href="/Services"
+            className="inline-block px-8 py-3 text-white rounded-md transition duration-300 hover:bg-opacity-90"
+            style={{ backgroundColor: "#1D3E79" }}
+          >
+            عرض جميع الخدمات
+          </a>
+        </div>
+      </section>
+
+      {/* Donation Section */}
+      <section className="py-20 bg-gradient-to-br from-indigo-50 to-blue-50 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-indigo-600 mb-4">
-              ساهم في دعم مرضى السكري
+              ساهم في دعم مستفيدين السكري
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              تبرعك يساعدنا في تقديم الدعم والرعاية لمرضى السكري وتطوير خدماتنا
+              تبرعك يساعدنا في تقديم الدعم والرعاية لمستفيدين السكري وتطوير
+              خدماتنا
             </p>
           </div>
 
@@ -750,9 +857,11 @@ export default function DiabetesHomePage() {
               <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Heart className="w-8 h-8 text-indigo-600" />
               </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-2">دعم المرضى</h3>
+              <h3 className="text-xl font-bold text-gray-800 mb-2">
+                دعم المستفيدين
+              </h3>
               <p className="text-gray-600">
-                مساعدة المرضى في الحصول على الأدوية والمستلزمات الطبية
+                مساعدة المستفيدين في الحصول على الأدوية والمستلزمات الطبية
               </p>
             </div>
 
@@ -760,9 +869,11 @@ export default function DiabetesHomePage() {
               <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <BookOpen className="w-8 h-8 text-indigo-600" />
               </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-2">التوعية الصحية</h3>
+              <h3 className="text-xl font-bold text-gray-800 mb-2">
+                التوعية الصحية
+              </h3>
               <p className="text-gray-600">
-                تنظيم برامج توعوية وورش عمل لمرضى السكري وأسرهم
+                تنظيم برامج توعوية وورش عمل لمستفيدين السكري وأسرهم
               </p>
             </div>
 
@@ -770,9 +881,11 @@ export default function DiabetesHomePage() {
               <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Activity className="w-8 h-8 text-indigo-600" />
               </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-2">الأنشطة الرياضية</h3>
+              <h3 className="text-xl font-bold text-gray-800 mb-2">
+                الأنشطة الرياضية
+              </h3>
               <p className="text-gray-600">
-                تنظيم أنشطة رياضية وترفيهية لمرضى السكري
+                تنظيم أنشطة رياضية وترفيهية لمستفيدين السكري
               </p>
             </div>
           </div>
@@ -792,40 +905,6 @@ export default function DiabetesHomePage() {
         <div className="absolute top-10 right-10 w-40 h-40 bg-teal-200 rounded-full mix-blend-multiply opacity-20 animate-blob"></div>
         <div className="absolute bottom-10 left-10 w-40 h-40 bg-indigo-200 rounded-full mix-blend-multiply opacity-20 animate-blob delay-2000"></div>
         <div className="absolute top-1/2 left-1/3 w-40 h-40 bg-blue-200 rounded-full mix-blend-multiply opacity-20 animate-blob delay-4000"></div>
-      </section>
-      {/* CTA Section */}
-      <section id="register" className="relative py-20 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-blue-600"></div>
-        <div className="absolute inset-0">
-          <div className="absolute w-60 h-60 rounded-full bg-white opacity-10 top-0 left-1/4 animate-pulse duration-10000"></div>
-          <div className="absolute w-40 h-40 rounded-full bg-white opacity-10 bottom-0 right-1/4 animate-pulse duration-8000 delay-2000"></div>
-        </div>
-
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-          <Droplets className="w-16 h-16 mx-auto mb-6 text-white opacity-80" />
-          <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
-            انضم إلينا اليوم
-          </h2>
-          <p className="text-xl text-white opacity-90 mb-10 max-w-2xl mx-auto">
-            احصل على الدعم والمعلومات التي تحتاجها للتعايش بصحة وسعادة مع مرض
-            السكري
-          </p>
-          <div className="flex flex-wrap justify-center gap-4">
-            <a
-              href="#signup"
-              className="group relative overflow-hidden rounded-full bg-white px-8 py-4 font-bold text-indigo-600 shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl"
-            >
-              <span className="relative z-10">سجل الآن مجاناً</span>
-              <span className="absolute inset-0 bg-gradient-to-r from-amber-400 to-orange-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
-            </a>
-            <a
-              href="#contact"
-              className="group rounded-full bg-transparent border-2 border-white px-8 py-4 font-bold text-white transition-all duration-300 hover:bg-white hover:text-indigo-600 hover:scale-105"
-            >
-              تواصل معنا
-            </a>
-          </div>
-        </div>
       </section>
 
       {/* Popup Reminders */}
@@ -991,8 +1070,6 @@ export default function DiabetesHomePage() {
           }
         }
       `}</style>
-
-    
     </div>
   );
 }
