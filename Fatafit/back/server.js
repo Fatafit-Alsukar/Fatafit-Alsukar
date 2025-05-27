@@ -8,14 +8,13 @@ const membershipRoutes = require("./routes/membershipRequests");
 const patientRequestRoutes = require("./routes/patientRequests");
 const volunteerRequestRoutes = require("./routes/volunteerRequests");
 const contactRoutes = require('./routes/contactRoutes');
-
-
-
+const articlesRoutes = require("./routes/articlesRoutes");
 
 const userRoutes = require("./routes/userRoutes");
 const requestRoutes = require("./routes/requestRoutes");
 const serviceRoutes = require("./routes/serviceRoutes")
 const activityRoutes = require("./routes/activityRoutes");
+
 /****************************************************************** */
 
 app.use(express.json());
@@ -51,6 +50,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/requests", requestRoutes);
 app.use("/api/services", serviceRoutes);
 app.use("/api", activityRoutes);
+app.use("/api/articles", articlesRoutes);
 
 // المسارات الخاصة بأنواع الطلبات
 app.use("/api/requests/membership", membershipRoutes);
