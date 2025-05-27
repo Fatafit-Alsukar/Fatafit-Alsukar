@@ -704,7 +704,6 @@ export default function Dashboard() {
             {activeTab === "donations" && "التبرعات"}
             {activeTab === "contactmessage" && "الرسائل"}
           </h1>
-   
         </header>
 
         {/* المحتوى الرئيسي للوحة التحكم */}
