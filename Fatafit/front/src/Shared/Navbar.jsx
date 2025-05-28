@@ -79,9 +79,8 @@ export default function KidFriendlyNavbarArabic() {
   // Dropdown options for 'الفعاليات والنشاطات'
   const activitiesOptions = [
     { label: "النشاطات", to: "/Activities" },
+    { label: "المقالات  ", to: "/Articles" },
     { label: "البروشورات", to: "/brochures" },
-    { label: "ألبومات الصور", to: "/albums" },
-    { label: "الفيديوهات", to: "/videos" },
   ];
 
   // Create emoji bubbles that float up randomly

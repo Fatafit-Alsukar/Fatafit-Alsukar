@@ -64,6 +64,7 @@ export default function DiabetesHomePage() {
   const [servicesLoading, setServicesLoading] = useState(true);
   const [servicesError, setServicesError] = useState(null);
   const [userCount, setUserCount] = useState(null);
+  const [articleCount, setArticleCount] = useState(null);
 
   // Set isLoaded to true after component mounts
   useEffect(() => {
@@ -108,6 +109,18 @@ export default function DiabetesHomePage() {
       }
     };
     fetchUserCount();
+
+    // Function to fetch article count
+    const fetchArticleCount = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/api/articles");
+        setArticleCount(response.data.length);
+      } catch (error) {
+        console.error("Error fetching article count:", error);
+        setArticleCount(0);
+      }
+    };
+    fetchArticleCount();
 
     return () => {
       clearInterval(interval);
@@ -177,7 +190,7 @@ export default function DiabetesHomePage() {
     },
     {
       icon: <BookOpen className="w-8 h-8" />,
-      number: "١٢٠٠+",
+      number: articleCount !== null ? articleCount.toLocaleString("ar-EG") : "...",
       label: "مقال تثقيفي",
       color: "bg-indigo-100 text-indigo-600",
     },
