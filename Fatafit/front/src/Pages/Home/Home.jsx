@@ -1,5 +1,8 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { motion } from "framer-motion";
+import AnimatedButton from "../../components/AnimatedButton";
+import CardButton from "../../components/CardButton";
 import {
   Heart,
   Star,
@@ -17,12 +20,54 @@ import {
   MapPin,
   Clock,
   Tag,
+  User,
 } from "lucide-react";
+import RegistrationOptions from '../../components/RegistrationOptions';
+
+// Helper function to get category color
+const getCategoryColor = (category) => {
+  const colors = {
+    "تغذية": "from-teal-500 to-emerald-600",
+    "رياضة": "from-blue-500 to-indigo-600",
+    "علاج": "from-purple-500 to-indigo-600",
+    "توعية": "from-amber-500 to-orange-600",
+    "default": "from-gray-500 to-gray-600"
+  };
+  return colors[category] || colors.default;
+};
+
+// Add animation variants
+const fadeInUp = {
+  initial: { opacity: 0, y: 60 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.6 }
+};
+
+const staggerContainer = {
+  animate: {
+    transition: {
+      staggerChildren: 0.2
+    }
+  }
+};
+
+const scaleIn = {
+  initial: { scale: 0.8, opacity: 0 },
+  animate: { scale: 1, opacity: 1 },
+  transition: { duration: 0.5 }
+};
 
 function ServiceCard({ service }) {
   const colors = { lightBlue: "#4A90E2", darkBlue: "#1D3E79" };
   return (
-    <div className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.5 }}
+      whileHover={{ scale: 1.05 }}
+      className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
+    >
       <div className="h-70 p-5 overflow-hidden">
         <img
           src={service.image || "/api/placeholder/400/300"}
@@ -41,15 +86,13 @@ function ServiceCard({ service }) {
           {service.name}
         </h3>
         <p className="text-gray-600 mb-4">{service.description}</p>
-        <a
-          href="/Services"
-          className="px-6 py-2 text-white rounded-md transition duration-300 hover:bg-opacity-90"
-          style={{ backgroundColor: colors.lightBlue }}
-        >
-          المزيد
+        <a href="/Services" className="block w-full">
+          <CardButton>
+            المزيد
+          </CardButton>
         </a>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -65,6 +108,7 @@ export default function DiabetesHomePage() {
   const [servicesError, setServicesError] = useState(null);
   const [userCount, setUserCount] = useState(null);
   const [articleCount, setArticleCount] = useState(null);
+  const [latestArticles, setLatestArticles] = useState([]);
 
   // Set isLoaded to true after component mounts
   useEffect(() => {
@@ -121,6 +165,20 @@ export default function DiabetesHomePage() {
       }
     };
     fetchArticleCount();
+
+    // Function to fetch latest articles
+    const fetchLatestArticles = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/api/articles");
+        // Sort articles by date (newest first) and take the first 3
+        const sortedArticles = response.data.sort((a, b) => new Date(b.date) - new Date(a.date));
+        setLatestArticles(sortedArticles.slice(0, 3));
+      } catch (error) {
+        console.error("Error fetching latest articles:", error);
+        setLatestArticles([]);
+      }
+    };
+    fetchLatestArticles();
 
     return () => {
       clearInterval(interval);
@@ -290,12 +348,9 @@ export default function DiabetesHomePage() {
   ];
 
   return (
-    <div
-      className={`min-h-screen bg-gradient-to-b from-gray-50 to-blue-50 overflow-x-hidden font-sans ${
-        isLoaded ? "opacity-100 transition-opacity duration-1000" : "opacity-0"
-      }`}
-      dir="rtl"
-    >
+    <div className={`min-h-screen bg-gradient-to-b from-gray-50 to-blue-50 overflow-x-hidden font-sans ${
+      isLoaded ? "opacity-100 transition-opacity duration-1000" : "opacity-0"
+    }`} dir="rtl">
       {/* Floating Elements - Removing this section */}
       {/* <div className="fixed w-full h-full overflow-hidden pointer-events-none z-0">
         <div className="absolute top-1/4 right-5 w-16 h-16 rounded-full bg-teal-500 opacity-10 animate-pulse duration-7000"></div>
@@ -306,7 +361,12 @@ export default function DiabetesHomePage() {
       </div> */}
 
       {/* Hero Section - New Design */}
-      <header className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden">
+      <motion.header
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1 }}
+        className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden"
+      >
         {/* Background with enhanced animations */}
         <div className="absolute inset-0 z-0">
           {slides.map((slide, index) => (
@@ -447,16 +507,24 @@ export default function DiabetesHomePage() {
             ></path>
           </svg>
         </div>
-      </header>
+      </motion.header>
 
       {/* Stats Section */}
-      <section id="stats" className="py-16 bg-white">
+      <motion.section
+        variants={staggerContainer}
+        initial="initial"
+        whileInView="animate"
+        viewport={{ once: true }}
+        id="stats"
+        className="py-16 bg-white"
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {stats.map((stat, index) => (
-              <div
+              <motion.div
                 key={index}
-                className={`text-center p-6 rounded-2xl ${stat.color} shadow-md transition-all duration-500 transform hover:scale-105 hover:shadow-xl`}
+                variants={fadeInUp}
+                className={`text-center p-6 rounded-2xl ${stat.color} shadow-md transition-all duration-500 hover:shadow-xl`}
                 onMouseEnter={() => setHoverItem(`stat-${index}`)}
                 onMouseLeave={() => setHoverItem(null)}
               >
@@ -471,11 +539,118 @@ export default function DiabetesHomePage() {
                   {stat.number}
                 </div>
                 <div className="text-lg">{stat.label}</div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
-      </section>
+      </motion.section>
+
+      {/* Latest Articles Section */}
+      <motion.section
+        variants={staggerContainer}
+        initial="initial"
+        whileInView="animate"
+        viewport={{ once: true }}
+        className="py-16 bg-gradient-to-br from-gray-50 to-blue-50 relative overflow-hidden"
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <motion.h2
+            variants={fadeInUp}
+            className="text-3xl md:text-4xl font-bold text-center mb-4 text-indigo-600"
+          >
+            أحدث المقالات
+          </motion.h2>
+          <motion.p
+            variants={fadeInUp}
+            className="text-xl text-center mb-12 text-gray-600"
+          >
+            اكتشف أحدث المقالات والنصائح الصحية
+          </motion.p>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {latestArticles.length > 0 ? (
+              latestArticles.map((article, index) => (
+                <motion.div
+                  key={article._id}
+                  variants={fadeInUp}
+                  whileHover={{ scale: 1.05 }}
+                  className="bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-500 hover:shadow-xl"
+                >
+                  {/* Article Image */}
+                  <div className="relative h-48 overflow-hidden">
+                    <img
+                      src={article.image ? `http://localhost:5000${article.image}` : "https://via.placeholder.com/400"}
+                      alt={article.title}
+                      className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+                    />
+                    <div className="absolute top-4 right-4">
+                      <span className={`px-3 py-1 bg-gradient-to-r ${getCategoryColor(article.category)} text-white rounded-full text-sm font-medium shadow-md`}>
+                        {article.category}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="p-6">
+                    <h3 className="text-xl font-bold text-gray-800 mb-3">
+                      {article.title}
+                    </h3>
+                    <p className="text-gray-600 mb-4 line-clamp-2">
+                      {article.content}
+                    </p>
+                    <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
+                      <div className="flex items-center">
+                        <User className="w-4 h-4 ml-1" />
+                        <span>{article.author}</span>
+                      </div>
+                      <div className="flex items-center">
+                        <Calendar className="w-4 h-4 ml-1" />
+                        <span>{formatDate(article.date)}</span>
+                      </div>
+                    </div>
+                    <a
+                      href={`/Articles/${article._id}`}
+                      className="block w-full"
+                    >
+                      <CardButton>
+                        اقرأ المزيد
+                        <ArrowRight className="inline-block mr-2 h-4 w-4 rotate-180" />
+                      </CardButton>
+                    </a>
+                  </div>
+                </motion.div>
+              ))
+            ) : (
+              // Loading state
+              Array.from({ length: 3 }).map((_, index) => (
+                <motion.div
+                  key={`skeleton-${index}`}
+                  variants={fadeInUp}
+                  className="bg-white rounded-2xl shadow-lg overflow-hidden animate-pulse"
+                >
+                  <div className="w-full h-48 bg-gray-200"></div>
+                  <div className="p-6">
+                    <div className="h-7 bg-gray-200 rounded mb-3 w-3/4"></div>
+                    <div className="h-5 bg-gray-200 rounded mb-3 w-full"></div>
+                    <div className="h-5 bg-gray-200 rounded mb-3 w-2/3"></div>
+                    <div className="h-12 bg-gray-200 rounded-xl"></div>
+                  </div>
+                </motion.div>
+              ))
+            )}
+          </div>
+
+          <div className="mt-10 text-center">
+            <AnimatedButton href="/Articles">
+              عرض جميع المقالات
+              <ArrowRight className="mr-2 h-5 w-5 rotate-180" />
+            </AnimatedButton>
+          </div>
+        </div>
+
+        {/* Decorative Elements */}
+        <div className="absolute top-10 right-10 w-40 h-40 bg-teal-200 rounded-full mix-blend-multiply opacity-20 animate-blob"></div>
+        <div className="absolute -bottom-8 left-1/3 w-40 h-40 bg-indigo-200 rounded-full mix-blend-multiply opacity-20 animate-blob delay-2000"></div>
+      </motion.section>
 
       {/* Features Section */}
       <section className="py-16 bg-gradient-to-br from-gray-50 to-blue-50 relative overflow-hidden">
@@ -607,13 +782,12 @@ export default function DiabetesHomePage() {
                         )}
                       </div>
 
-                      <a
-                        href={`/Activities/${activity._id}`}
-                        className="block w-full py-3 px-4 bg-gradient-to-r from-indigo-600 to-blue-600 text-white rounded-xl transition-all duration-300 hover:shadow-lg text-center font-medium"
-                      >
-                        عرض التفاصيل
-                        <ArrowRight className="inline-block mr-2 h-4 w-4 rotate-180" />
-                      </a>
+                      <div className="block w-full">
+                        <CardButton href={`/Activities/${activity._id}`}>
+                          عرض التفاصيل
+                          <ArrowRight className="inline-block mr-2 h-4 w-4 rotate-180" />
+                        </CardButton>
+                      </div>
                     </div>
                   </div>
                 ))
@@ -640,13 +814,10 @@ export default function DiabetesHomePage() {
           </div>
 
           <div className="mt-10 text-center">
-            <a
-              href="/Activities"
-              className="inline-flex items-center justify-center bg-indigo-600 text-white font-bold py-3 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 hover:bg-indigo-700 shadow-lg hover:shadow-xl"
-            >
+            <AnimatedButton href="/Activities">
               عرض جميع الأنشطة
               <ArrowRight className="mr-2 h-5 w-5 rotate-180" />
-            </a>
+            </AnimatedButton>
           </div>
         </div>
 
@@ -656,173 +827,117 @@ export default function DiabetesHomePage() {
       </section>
 
       {/* Testimonials Section */}
-      <section className="py-16 bg-gradient-to-br from-indigo-50 to-blue-50 relative overflow-hidden">
+      <motion.section
+        variants={staggerContainer}
+        initial="initial"
+        whileInView="animate"
+        viewport={{ once: true }}
+        className="py-16 bg-gradient-to-br from-indigo-50 to-blue-50 relative overflow-hidden"
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4 text-indigo-600">
+          <motion.h2 variants={fadeInUp} className="text-3xl md:text-4xl font-bold text-center mb-4 text-indigo-600">
             قصص نجاح
-          </h2>
-          <p className="text-xl text-center mb-12 text-gray-600">
+          </motion.h2>
+          <motion.p variants={fadeInUp} className="text-xl text-center mb-12 text-gray-600">
             تجارب حقيقية من أشخاص تغلبوا على تحديات مرض السكري
-          </p>
-
+          </motion.p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div className="bg-white p-6 rounded-2xl shadow-lg transition-all duration-500 transform hover:scale-105 hover:shadow-xl">
-              <div className="flex justify-end mb-4">
-                <div className="text-amber-500">
-                  <Star className="inline-block w-5 h-5 fill-current" />
-                  <Star className="inline-block w-5 h-5 fill-current" />
-                  <Star className="inline-block w-5 h-5 fill-current" />
-                  <Star className="inline-block w-5 h-5 fill-current" />
-                  <Star className="inline-block w-5 h-5 fill-current" />
+            {[...Array(3)].map((_, i) => (
+              <motion.div
+                key={i}
+                variants={fadeInUp}
+                whileHover={{ scale: 1.05 }}
+                className="bg-white p-6 rounded-2xl shadow-lg transition-all duration-500 transform hover:scale-105 hover:shadow-xl"
+              >
+                <div className="flex justify-end mb-4">
+                  <div className="text-amber-500">
+                    <Star className="inline-block w-5 h-5 fill-current" />
+                    <Star className="inline-block w-5 h-5 fill-current" />
+                    <Star className="inline-block w-5 h-5 fill-current" />
+                    <Star className="inline-block w-5 h-5 fill-current" />
+                    <Star className="inline-block w-5 h-5 fill-current" />
+                  </div>
                 </div>
-              </div>
-              <p className="text-gray-600 mb-6 leading-relaxed">
-                "بفضل برامج التوعية والمتابعة المستمرة، استطعت السيطرة على
-                مستويات السكر لدي بشكل أفضل. الدعم المقدم ساعدني كثيراً في تغيير
-                نمط حياتي للأفضل."
-              </p>
-              <div className="flex items-center justify-end">
-                <div className="text-right">
-                  <p className="font-semibold text-gray-800">أحمد محمد</p>
-                  <p className="text-sm text-gray-500">, عمان 45 سنة</p>
+                <p className="text-gray-600 mb-6 leading-relaxed">
+                  "بفضل برامج التوعية والمتابعة المستمرة، استطعت السيطرة على
+                  مستويات السكر لدي بشكل أفضل. الدعم المقدم ساعدني كثيراً في تغيير
+                  نمط حياتي للأفضل."
+                </p>
+                <div className="flex items-center justify-end">
+                  <div className="text-right">
+                    <p className="font-semibold text-gray-800">أحمد محمد</p>
+                    <p className="text-sm text-gray-500">, عمان 45 سنة</p>
+                  </div>
+                  <div className="w-12 h-12 rounded-full bg-indigo-100 mr-4 flex items-center justify-center text-indigo-600 font-bold">
+                    أ.م
+                  </div>
                 </div>
-                <div className="w-12 h-12 rounded-full bg-indigo-100 mr-4 flex items-center justify-center text-indigo-600 font-bold">
-                  أ.م
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white p-6 rounded-2xl shadow-lg transition-all duration-500 transform hover:scale-105 hover:shadow-xl">
-              <div className="flex justify-end mb-4">
-                <div className="text-amber-500">
-                  <Star className="inline-block w-5 h-5 fill-current" />
-                  <Star className="inline-block w-5 h-5 fill-current" />
-                  <Star className="inline-block w-5 h-5 fill-current" />
-                  <Star className="inline-block w-5 h-5 fill-current" />
-                  <Star className="inline-block w-5 h-5 fill-current" />
-                </div>
-              </div>
-              <p className="text-gray-600 mb-6 leading-relaxed">
-                "كأم لطفل مصاب بالسكري، وجدت هنا كل الدعم والمعلومات التي
-                احتجتها. البرامج التعليمية والاستشارات الطبية غيرت حياتنا
-                للأفضل."
-              </p>
-              <div className="flex items-center justify-end">
-                <div className="text-right">
-                  <p className="font-semibold text-gray-800">نورة عبدالله</p>
-                  <p className="text-sm text-gray-500">عمان 38 سنة</p>
-                </div>
-                <div className="w-12 h-12 rounded-full bg-teal-100 mr-4 flex items-center justify-center text-teal-600 font-bold">
-                  ن.ع
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white p-6 rounded-2xl shadow-lg transition-all duration-500 transform hover:scale-105 hover:shadow-xl">
-              <div className="flex justify-end mb-4">
-                <div className="text-amber-500">
-                  <Star className="inline-block w-5 h-5 fill-current" />
-                  <Star className="inline-block w-5 h-5 fill-current" />
-                  <Star className="inline-block w-5 h-5 fill-current" />
-                  <Star className="inline-block w-5 h-5 fill-current" />
-                  <Star className="inline-block w-5 h-5 fill-current" />
-                </div>
-              </div>
-              <p className="text-gray-600 mb-6 leading-relaxed">
-                "اكتشفت إصابتي بالسكري قبل عامين، وكنت خائفاً جداً. لكن مع الدعم
-                والتوجيه الذي تلقيته هنا، أصبحت أكثر ثقة في التعامل مع حالتي
-                ومواصلة حياتي بشكل طبيعي."
-              </p>
-              <div className="flex items-center justify-end">
-                <div className="text-right">
-                  <p className="font-semibold text-gray-800">سعد الفهد</p>
-                  <p className="text-sm text-gray-500">الزرقاء، 29 سنة</p>
-                </div>
-                <div className="w-12 h-12 rounded-full bg-blue-100 mr-4 flex items-center justify-center text-blue-600 font-bold">
-                  س.ف
-                </div>
-              </div>
-            </div>
+              </motion.div>
+            ))}
           </div>
         </div>
 
         <div className="absolute -top-20 -left-20 w-64 h-64 bg-teal-200 rounded-full mix-blend-multiply opacity-10 animate-blob"></div>
         <div className="absolute bottom-10 right-10 w-64 h-64 bg-indigo-200 rounded-full mix-blend-multiply opacity-10 animate-blob delay-4000"></div>
-      </section>
+      </motion.section>
 
       {/* Education Section */}
-      <section className="py-16 bg-white">
+      <motion.section
+        variants={staggerContainer}
+        initial="initial"
+        whileInView="animate"
+        viewport={{ once: true }}
+        className="py-16 bg-white"
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4 text-indigo-600">
+          <motion.h2 variants={fadeInUp} className="text-3xl md:text-4xl font-bold text-center mb-4 text-indigo-600">
             مكتبة التثقيف الصحي
-          </h2>
-          <p className="text-xl text-center mb-12 text-gray-600">
+          </motion.h2>
+          <motion.p variants={fadeInUp} className="text-xl text-center mb-12 text-gray-600">
             تعرف على كل ما يهمك حول مرض السكري
-          </p>
-
+          </motion.p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-gradient-to-br from-teal-500 to-emerald-600 rounded-2xl overflow-hidden shadow-lg transition-all duration-500 transform hover:scale-105 hover:shadow-xl text-white">
-              <div className="p-8 flex flex-col items-center text-center">
-                <Coffee className="w-16 h-16 mb-6" />
-                <h3 className="text-2xl font-bold mb-4">السكري والتغذية</h3>
-                <p className="mb-6">
-                  تعرف على الأطعمة المناسبة لمستفيدين السكري وكيفية تنظيم وجباتك
-                </p>
-                <a
-                  href="https://altibbi.com/%D9%85%D9%82%D8%A7%D9%84%D8%A7%D8%AA-%D8%B7%D8%A8%D9%8A%D8%A9/%D9%85%D8%B1%D8%B6-%D8%A7%D9%84%D8%B3%D9%83%D8%B1%D9%8A/%D8%A7%D9%84%D8%AD%D9%85%D9%8A%D8%A9-%D8%A7%D9%84%D8%BA%D8%B0%D8%A7%D8%A6%D9%8A%D8%A9-%D8%A7%D9%84%D9%85%D9%86%D8%A7%D8%B3%D8%A8%D8%A9-%D9%84%D9%85%D8%B1%D8%B6%D9%89-%D8%B3%D9%83%D8%B1%D9%8A-%D8%A7%D9%84%D8%A7%D8%B7%D9%81%D8%A7%D9%84-2686"
-                  className="mt-auto inline-block bg-white text-teal-600 font-bold py-3 px-6 rounded-lg transition-all duration-300 hover:bg-gray-100"
-                >
-                  اقرأ المزيد
-                </a>
-              </div>
-            </div>
-
-            <div className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl overflow-hidden shadow-lg transition-all duration-500 transform hover:scale-105 hover:shadow-xl text-white">
-              <div className="p-8 flex flex-col items-center text-center">
-                <Activity className="w-16 h-16 mb-6" />
-                <h3 className="text-2xl font-bold mb-4">الرياضة والسكري</h3>
-                <p className="mb-6">
-                  اكتشف التمارين المناسبة وكيفية ممارسة الرياضة بأمان مع مرض
-                  السكري
-                </p>
-                <a
-                  href="https://altibbi.com/%D9%85%D9%82%D8%A7%D9%84%D8%A7%D8%AA-%D8%B7%D8%A8%D9%8A%D8%A9/%D9%85%D8%B1%D8%B6-%D8%A7%D9%84%D8%B3%D9%83%D8%B1%D9%8A/%D8%A7%D9%84%D8%AA%D8%B9%D8%A7%D9%8A%D8%B4-%D9%85%D8%B9-%D8%B3%D9%83%D8%B1%D9%8A-%D8%A7%D9%84%D8%A7%D8%B7%D9%81%D8%A7%D9%84-1796"
-                  className="mt-auto inline-block bg-white text-indigo-600 font-bold py-3 px-6 rounded-lg transition-all duration-300 hover:bg-gray-100"
-                >
-                  اقرأ المزيد
-                </a>
-              </div>
-            </div>
-
-            <div className="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl overflow-hidden shadow-lg transition-all duration-500 transform hover:scale-105 hover:shadow-xl text-white">
-              <div className="p-8 flex flex-col items-center text-center">
-                <Heart className="w-16 h-16 mb-6" />
-                <h3 className="text-2xl font-bold mb-4">العناية اليومية</h3>
-                <p className="mb-6">
-                  نصائح للعناية اليومية ومراقبة مستويات السكر بالدم بشكل فعال
-                </p>
-                <a
-                  href="https://altibbi.com/%D9%85%D9%82%D8%A7%D9%84%D8%A7%D8%AA-%D8%B7%D8%A8%D9%8A%D8%A9/%D9%85%D8%B1%D8%B6-%D8%A7%D9%84%D8%B3%D9%83%D8%B1%D9%8A/%D8%A7%D9%84%D8%AA%D8%B9%D8%A7%D9%8A%D8%B4-%D9%85%D8%B9-%D8%B3%D9%83%D8%B1%D9%8A-%D8%A7%D9%84%D8%A7%D8%B7%D9%81%D8%A7%D9%84-1796"
-                  className="mt-auto inline-block bg-white text-blue-600 font-bold py-3 px-6 rounded-lg transition-all duration-300 hover:bg-gray-100"
-                >
-                  اقرأ المزيد
-                </a>
-              </div>
-            </div>
+            {[...Array(3)].map((_, i) => (
+              <motion.div
+                key={i}
+                variants={fadeInUp}
+                whileHover={{ scale: 1.05 }}
+                className="bg-gradient-to-br from-teal-500 to-emerald-600 rounded-2xl overflow-hidden shadow-lg transition-all duration-500 transform hover:scale-105 hover:shadow-xl text-white"
+              >
+                <div className="p-8 flex flex-col items-center text-center">
+                  <Coffee className="w-16 h-16 mb-6" />
+                  <h3 className="text-2xl font-bold mb-4">السكري والتغذية</h3>
+                  <p className="mb-6">
+                    تعرف على الأطعمة المناسبة لمستفيدين السكري وكيفية تنظيم وجباتك
+                  </p>
+                  <div className="mt-auto w-full">
+                    <CardButton href="https://altibbi.com/%D9%85%D9%82%D8%A7%D9%84%D8%A7%D8%AA-%D8%B7%D8%A8%D9%8A%D8%A9/%D9%85%D8%B1%D8%B6-%D8%A7%D9%84%D8%B3%D9%83%D8%B1%D9%8A/%D8%A7%D9%84%D8%AD%D9%85%D9%8A%D8%A9-%D8%A7%D9%84%D8%BA%D8%B0%D8%A7%D8%A6%D9%8A%D8%A9-%D8%A7%D9%84%D9%85%D9%86%D8%A7%D8%B3%D8%A8%D8%A9-%D9%84%D9%85%D8%B1%D8%B6%D9%89-%D8%B3%D9%83%D8%B1%D9%8A-%D8%A7%D9%84%D8%A7%D8%B7%D9%81%D8%A7%D9%84-2686">
+                      اقرأ المزيد
+                    </CardButton>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* New Services Section */}
-      <section className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="text-center mb-12">
+      <motion.section
+        variants={staggerContainer}
+        initial="initial"
+        whileInView="animate"
+        viewport={{ once: true }}
+        className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16"
+      >
+        <motion.div variants={fadeInUp} className="text-center mb-12">
           <h2 className="text-3xl font-bold mb-4" style={{ color: "#1D3E79" }}>
             خدماتنا المميزة
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             تعرف على بعض الخدمات التي نقدمها لدعم أطفال السكري وعائلاتهم
           </p>
-        </div>
+        </motion.div>
         {servicesLoading ? (
           <div className="flex justify-center items-center py-12">
             <div
@@ -837,36 +952,67 @@ export default function DiabetesHomePage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {services.map((service) => (
-              <ServiceCard key={service._id || service.id} service={service} />
+              <motion.div key={service._id || service.id} variants={fadeInUp} className="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <div className="h-70 p-5 overflow-hidden">
+                  <img
+                    src={service.image || "/api/placeholder/400/300"}
+                    alt={service.name}
+                    className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                    onError={(e) => {
+                      e.target.src = "/api/placeholder/400/300";
+                    }}
+                  />
+                </div>
+                <div className="p-6">
+                  <h3
+                    className="text-xl font-bold mb-2"
+                    style={{ color: "#1D3E79" }}
+                  >
+                    {service.name}
+                  </h3>
+                  <p className="text-gray-600 mb-4">{service.description}</p>
+                  <a href="/Services" className="block w-full">
+                    <CardButton>
+                      المزيد
+                    </CardButton>
+                  </a>
+                </div>
+              </motion.div>
             ))}
           </div>
         )}
         <div className="text-center mt-10">
-          <a
-            href="/Services"
-            className="inline-block px-8 py-3 text-white rounded-md transition duration-300 hover:bg-opacity-90"
-            style={{ backgroundColor: "#1D3E79" }}
-          >
+          <AnimatedButton href="/Services">
             عرض جميع الخدمات
-          </a>
+            <ArrowRight className="mr-2 h-5 w-5 rotate-180" />
+          </AnimatedButton>
         </div>
-      </section>
+      </motion.section>
 
       {/* Donation Section */}
-      <section className="py-20 bg-gradient-to-br from-indigo-50 to-blue-50 relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-indigo-600 mb-4">
-              ساهم في دعم مستفيدين السكري
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              تبرعك يساعدنا في تقديم الدعم والرعاية لمستفيدين السكري وتطوير
-              خدماتنا
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8 mb-12">
-            <div className="bg-white p-6 rounded-2xl shadow-lg text-center transform transition-all duration-500 hover:scale-105 hover:shadow-xl">
+      <motion.section
+        variants={staggerContainer}
+        initial="initial"
+        whileInView="animate"
+        viewport={{ once: true }}
+        className="py-20 bg-gradient-to-br from-indigo-50 to-blue-50 relative overflow-hidden"
+      >
+        <motion.div variants={fadeInUp} className="text-center mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold text-indigo-600 mb-4">
+            ساهم في دعم مستفيدين السكري
+          </h2>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            تبرعك يساعدنا في تقديم الدعم والرعاية لمستفيدين السكري وتطوير خدماتنا
+          </p>
+        </motion.div>
+        <div className="grid md:grid-cols-3 gap-8 mb-12">
+          {[...Array(3)].map((_, i) => (
+            <motion.div
+              key={i}
+              variants={fadeInUp}
+              whileHover={{ scale: 1.05 }}
+              className="bg-white p-6 rounded-2xl shadow-lg text-center transform transition-all duration-500 hover:scale-105 hover:shadow-xl"
+            >
               <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Heart className="w-8 h-8 text-indigo-600" />
               </div>
@@ -876,49 +1022,16 @@ export default function DiabetesHomePage() {
               <p className="text-gray-600">
                 مساعدة المستفيدين في الحصول على الأدوية والمستلزمات الطبية
               </p>
-            </div>
-
-            <div className="bg-white p-6 rounded-2xl shadow-lg text-center transform transition-all duration-500 hover:scale-105 hover:shadow-xl">
-              <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <BookOpen className="w-8 h-8 text-indigo-600" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-2">
-                التوعية الصحية
-              </h3>
-              <p className="text-gray-600">
-                تنظيم برامج توعوية وورش عمل لمستفيدين السكري وأسرهم
-              </p>
-            </div>
-
-            <div className="bg-white p-6 rounded-2xl shadow-lg text-center transform transition-all duration-500 hover:scale-105 hover:shadow-xl">
-              <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Activity className="w-8 h-8 text-indigo-600" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-2">
-                الأنشطة الرياضية
-              </h3>
-              <p className="text-gray-600">
-                تنظيم أنشطة رياضية وترفيهية لمستفيدين السكري
-              </p>
-            </div>
-          </div>
-
-          <div className="text-center">
-            <a
-              href="/donation"
-              className="inline-flex items-center justify-center bg-gradient-to-r from-indigo-600 to-blue-600 text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-xl"
-            >
-              تبرع الآن
-              <ArrowRight className="mr-2 h-5 w-5 rotate-180" />
-            </a>
-          </div>
+            </motion.div>
+          ))}
         </div>
-
-        {/* Decorative Elements */}
-        <div className="absolute top-10 right-10 w-40 h-40 bg-teal-200 rounded-full mix-blend-multiply opacity-20 animate-blob"></div>
-        <div className="absolute bottom-10 left-10 w-40 h-40 bg-indigo-200 rounded-full mix-blend-multiply opacity-20 animate-blob delay-2000"></div>
-        <div className="absolute top-1/2 left-1/3 w-40 h-40 bg-blue-200 rounded-full mix-blend-multiply opacity-20 animate-blob delay-4000"></div>
-      </section>
+        <div className="text-center">
+          <AnimatedButton href="/donation">
+            تبرع الآن
+            <ArrowRight className="mr-2 h-5 w-5 rotate-180" />
+          </AnimatedButton>
+        </div>
+      </motion.section>
 
       {/* Popup Reminders */}
       <div className="fixed bottom-6 right-6 z-50">
@@ -993,6 +1106,8 @@ export default function DiabetesHomePage() {
           </div>
         )}
       </div>
+
+      <RegistrationOptions />
 
       {/* Custom animations */}
       <style jsx>{`
