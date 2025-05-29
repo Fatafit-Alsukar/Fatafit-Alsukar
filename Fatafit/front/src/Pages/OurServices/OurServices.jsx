@@ -20,7 +20,9 @@ export default function ServicesPage() {
           throw new Error("فشل في جلب البيانات من الخادم");
         }
         const data = await response.json();
-        setServices(data);
+        console.log("البيانات المستلمة:", data);
+
+setServices(data.data);
         setLoading(false);
       } catch (err) {
         console.error("Error fetching services:", err);
@@ -63,7 +65,7 @@ export default function ServicesPage() {
             className="text-3xl font-bold mb-4"
             style={{ color: colors.darkBlue }}
           >
-            خدمات جمعية أطفال فتافيت السكر
+            خدمات جمعية أطفال كتاكيت السكر
           </h2>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto">
             نسعى لتقديم الدعم الشامل لمساعدة الأطفال المصابين بالسكري وعائلاتهم
@@ -158,7 +160,7 @@ export default function ServicesPage() {
       >
         <div className="container mx-auto text-center">
           <h2 className="text-3xl font-bold mb-4">
-            ساهم معنا في دعم أطفال فتافيت السكر
+            ساهم معنا في دعم أطفال كتاكيت السكر
           </h2>
           <p className="text-lg max-w-3xl mx-auto mb-8">
             تبرعك، مهما كان بسيطاً، يساهم في توفير الدعم المادي والمعنوي للأطفال

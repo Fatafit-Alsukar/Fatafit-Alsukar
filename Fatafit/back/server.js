@@ -4,6 +4,11 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 require("dotenv").config();
+const membershipRoutes = require("./routes/membershipRequests");
+const patientRequestRoutes = require("./routes/patientRequests");
+const volunteerRequestRoutes = require("./routes/volunteerRequests");
+const contactRoutes = require('./routes/contactRoutes');
+
 
 
 
@@ -15,9 +20,17 @@ const activityRoutes = require("./routes/activityRoutes");
 
 app.use(express.json());
 app.use(cookieParser());
+
 app.use(
   cors({
-    origin: "http://localhost:5173", // أو النطاق الخاص بك
+    origin: (origin, callback) => {
+      // السماح لأي Origin (أو عدم وجود origin مثل Postman / curl)
+      if (!origin || origin.startsWith("http://localhost") || origin.includes("onrender") || origin.includes("vercel")) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );
@@ -32,13 +45,22 @@ mongoose
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.log("MongoDB connection error:", err));
 //************************************************************************************************** */
-app.use('/uploads', express.static('uploads'));
+
+app.use("/uploads", express.static("uploads"));
 app.use("/api/users", userRoutes);
 app.use("/api/requests", requestRoutes);
 app.use("/api/services", serviceRoutes);
 app.use("/api", activityRoutes);
 
+// المسارات الخاصة بأنواع الطلبات
+app.use("/api/requests/membership", membershipRoutes);
+app.use("/api/requests/patient", patientRequestRoutes);
+app.use("/api/requests/volunteer", volunteerRequestRoutes);
 
+app.use("/api/requests", patientRequestRoutes);
+app.use("/api/requests", volunteerRequestRoutes);
+
+app.use('/api/contact', contactRoutes);
 
 /*******************************************************************/
 const PORT = process.env.PORT || 5000;

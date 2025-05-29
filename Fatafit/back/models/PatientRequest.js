@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
 const requestSchema = new mongoose.Schema({
     fullName: {
@@ -16,9 +17,9 @@ const requestSchema = new mongoose.Schema({
         required: true
     },
     serviceType: {
-        type: String,
-        enum: ['إرشاد', 'توعية', 'مرافقة', 'استشارة'], // عدّل حسب الخدمات
-        required: true
+        type: Schema.Types.ObjectId,
+        ref: "Service",
+        required: true,
     },
     additionalInfo: {
         type: String
@@ -26,7 +27,7 @@ const requestSchema = new mongoose.Schema({
     attachment: {
         type: String, // اسم الملف فقط
         default: null
-      },
+    },
     status: {
         type: String,
         enum: ['pending', 'approved', 'rejected'],
