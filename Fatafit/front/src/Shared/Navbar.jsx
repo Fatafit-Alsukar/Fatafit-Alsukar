@@ -36,6 +36,9 @@ export default function KidFriendlyNavbarArabic() {
       "/Services": "خدماتنا",
       "/contact": "تواصل معنا",
       "/login": "سجل معنا",
+      "/patientrequest": "سجل معنا",
+      "/volunteerrequest": "سجل معنا",
+      "/membershiprequest": "سجل معنا",
     };
     setActiveItem(pathToName[location.pathname] || "الصفحة الرئيسية");
   }, [location]);

@@ -9,7 +9,7 @@ const RegistrationOptions = () => {
     {
       title: 'تسجيل مستفيد جديد',
       description: 'سجل كمستفيد جديد للحصول على خدماتنا المميزة والدعم المتواصل',
-      path: '/patient-request',
+      path: '/patientrequest',
       icon: <UserPlus className="w-8 h-8" />,
       color: 'from-emerald-400 to-teal-500',
       shadowColor: 'rgba(52, 211, 153, 0.2)'
@@ -17,7 +17,7 @@ const RegistrationOptions = () => {
     {
       title: 'تسجيل متطوع',
       description: 'كن جزءاً من فريقنا وساهم في مساعدة الآخرين وإحداث تغيير إيجابي',
-      path: '/volunteer-request',
+      path: '/volunteerrequest',
       icon: <Users className="w-8 h-8" />,
       color: 'from-blue-400 to-indigo-500',
       shadowColor: 'rgba(99, 102, 241, 0.2)'
@@ -25,7 +25,7 @@ const RegistrationOptions = () => {
     {
       title: 'تسجيل عضوية',
       description: 'انضم إلى عائلتنا واستفد من جميع الخدمات والأنشطة المقدمة',
-      path: '/membership-request',
+      path: '/membershiprequest',
       icon: <UserCircle className="w-8 h-8" />,
       color: 'from-purple-400 to-pink-500',
       shadowColor: 'rgba(168, 85, 247, 0.2)'
@@ -89,6 +89,7 @@ const RegistrationOptions = () => {
               
               <Link
                 to={option.path}
+                onClick={() => window.scrollTo(0, 0)}
                 className="block relative bg-white rounded-3xl overflow-hidden transition-all duration-300"
               >
                 <div className="p-8">
