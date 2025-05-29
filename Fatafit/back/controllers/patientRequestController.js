@@ -16,14 +16,41 @@ exports.getPatientRequestCount = async (req, res) => {
 exports.getPatientRequestsGrouped = async (req, res) => {
   try {
     const grouped = await PatientRequest.aggregate([
-      { $group: { _id: "$serviceType", count: { $sum: 1 } } },
-      { $project: { serviceType: "$_id", count: 1, _id: 0 } },
+      {
+        $lookup: {
+          from: "services",
+          localField: "serviceType",
+          foreignField: "_id",
+          as: "service",
+        },
+      },
+      { $unwind: "$service" },
+      {
+        $group: {
+          _id: {
+            id: "$service._id",
+            name: "$service.name",
+          },
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $project: {
+          serviceId: "$_id.id",
+          serviceName: "$_id.name",
+          count: 1,
+          _id: 0,
+        },
+      },
     ]);
+    
+
     res.json(grouped);
   } catch (err) {
     res.status(500).json({ message: "Error grouping patient requests" });
   }
 };
+
 
 // جلب الطلبات حسب نوع الخدمة
 exports.getRequestsByServiceType = async (req, res) => {
