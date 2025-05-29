@@ -32,7 +32,7 @@ export default function PatientRequestsByService({
               className="bg-gray-50 p-4 rounded-lg border hover:shadow-md transition-all duration-300"
             >
               <div className="flex justify-between items-center mb-3">
-                <h4 className="font-bold text-gray-800">{item.serviceType}</h4>
+                <h4 className="font-bold text-gray-800">{item.serviceName}</h4>
                 <span className="bg-teal-100 text-teal-800 text-xs px-2 py-1 rounded-full font-medium">
                   {item.count}
                 </span>
@@ -43,7 +43,7 @@ export default function PatientRequestsByService({
                 </p>
                 <button
                   className="bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-700 text-sm font-medium flex items-center"
-                  onClick={() => fetchRequestsByType(item.serviceType)}
+                  onClick={() => fetchRequestsByType(item.serviceId)}
                 >
                   عرض التفاصيل
                 </button>
@@ -61,8 +61,9 @@ export default function PatientRequestsByService({
         >
           <div className="flex justify-between items-center mb-5">
             <h3 className="text-lg font-bold text-gray-800">
-              تفاصيل طلبات "{selectedServiceType}"
+              تفاصيل طلبات "{selectedServiceType?.serviceName}"
             </h3>
+
             <button
               onClick={() => setSelectedServiceType(null)}
               className="text-gray-500 hover:text-gray-700"
