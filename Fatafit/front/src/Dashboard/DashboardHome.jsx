@@ -118,26 +118,29 @@ export default function DashboardHome({
             </ResponsiveContainer>
           </div>
         </div>
-
         <div className="bg-white rounded-lg shadow-sm p-4">
           <p className="text-sm text-gray-500 mb-3">
             أكثر الخدمات طلباً من المستفيدين
           </p>
           <ul className="space-y-3">
-            {patientRequestsByType
-              .sort((a, b) => b.count - a.count) // 👈 الترتيب من الأعلى إلى الأقل
-              .slice(0, 5) // 👈 أخذ أول 5 عناصر بعد الترتيب
-              .map((item, index) => (
-                <li key={index} className="flex justify-between border-b pb-2">
-                  <span className="text-sm font-medium text-gray-800">
-                    {item.serviceType}
-                  </span>
-                  <span className="text-sm font-semibold text-teal-600">
-                    {item.count} طلب
-                  </span>
-                </li>
-              ))}
-            {patientRequestsByType.length === 0 && (
+            {patientRequestsByType.length > 0 ? (
+              patientRequestsByType
+                .sort((a, b) => b.count - a.count) // ترتيب تنازلي حسب العدد
+                .slice(0, 5) // أول 5 خدمات فقط
+                .map((item, index) => (
+                  <li
+                    key={index}
+                    className="flex justify-between border-b pb-2"
+                  >
+                    <span className="text-sm font-medium text-gray-800">
+                      {item.serviceName}
+                    </span>
+                    <span className="text-sm font-semibold text-teal-600">
+                      {item.count} طلب
+                    </span>
+                  </li>
+                ))
+            ) : (
               <p className="text-gray-500 text-sm text-center py-3">
                 لا توجد بيانات حالياً
               </p>

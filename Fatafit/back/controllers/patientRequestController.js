@@ -18,7 +18,7 @@ exports.getPatientRequestsGrouped = async (req, res) => {
     const grouped = await PatientRequest.aggregate([
       {
         $lookup: {
-          from: "services", // اسم الكولكشن في قاعدة البيانات
+          from: "services",
           localField: "serviceType",
           foreignField: "_id",
           as: "service",
@@ -27,13 +27,17 @@ exports.getPatientRequestsGrouped = async (req, res) => {
       { $unwind: "$service" },
       {
         $group: {
-          _id: "$service.name", // الآن نستخدم اسم الخدمة
+          _id: {
+            id: "$service._id",
+            name: "$service.name",
+          },
           count: { $sum: 1 },
         },
       },
       {
         $project: {
-          serviceType: "$_id",
+          serviceId: "$_id.id",
+          serviceName: "$_id.name",
           count: 1,
           _id: 0,
         },
@@ -45,6 +49,7 @@ exports.getPatientRequestsGrouped = async (req, res) => {
     res.status(500).json({ message: "Error grouping patient requests" });
   }
 };
+
 
 // جلب الطلبات حسب نوع الخدمة
 exports.getRequestsByServiceType = async (req, res) => {

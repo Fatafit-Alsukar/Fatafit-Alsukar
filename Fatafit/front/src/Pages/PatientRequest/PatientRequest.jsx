@@ -157,7 +157,7 @@ export default function PatientRequest() {
             </svg>
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            طلب خدمة طبية
+            طلب خدمة 
           </h1>
           <p className="text-gray-600">للمرضى المصابين بالسكري</p>
         </div>

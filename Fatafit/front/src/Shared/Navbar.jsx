@@ -74,9 +74,10 @@ export default function KidFriendlyNavbarArabic() {
 
   // Dropdown options for 'سجل معنا'
   const signupOptions = [
-    { label: "تسجيل مستفيد جديد", to: "/patientrequest" },
+    { label: "تسجيل مستفيد/خدمة", to: "/patientrequest" },
     { label: "تسجيل متطوع", to: "/volunteerrequest" },
     { label: "تسجيل عضوية", to: "/membershiprequest" },
+    { label: "تسجيل دخول ", to: "/login" },
   ];
 
   // Dropdown options for 'الفعاليات والنشاطات'
