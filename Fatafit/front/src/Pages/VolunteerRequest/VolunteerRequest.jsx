@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
 
@@ -10,19 +10,148 @@ export default function VolunteerRequest() {
     birthDate: "",
     additionalInfo: "",
   });
+  
+  const [errors, setErrors] = useState({
+    fullName: "",
+    email: "",
+    phonenumber: "",
+    birthDate: "",
+    additionalInfo: "",
+  });
+  
+  const [touched, setTouched] = useState({
+    fullName: false,
+    email: false,
+    phonenumber: false,
+    birthDate: false,
+    additionalInfo: false,
+  });
+  
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  useEffect(() => {
+    validateForm();
+  }, [formData]);
+
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+    setTouched({ ...touched, [name]: true });
+  };
+
+  const validateForm = () => {
+    let isValid = true;
+    const newErrors = { ...errors };
+
+    // Validate full name
+    if (!formData.fullName.trim()) {
+      newErrors.fullName = "الاسم الكامل مطلوب";
+      isValid = false;
+    } else if (formData.fullName.trim().length < 3) {
+      newErrors.fullName = "الاسم الكامل يجب أن يكون أكثر من 3 أحرف";
+      isValid = false;
+    } else {
+      newErrors.fullName = "";
+    }
+
+    // Validate email
+    if (!formData.email) {
+      newErrors.email = "البريد الإلكتروني مطلوب";
+      isValid = false;
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = "البريد الإلكتروني غير صالح";
+      isValid = false;
+    } else {
+      newErrors.email = "";
+    }
+
+    // Validate phone number
+    if (!formData.phonenumber) {
+      newErrors.phonenumber = "رقم الهاتف مطلوب";
+      isValid = false;
+    } else if (!/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/.test(formData.phonenumber)) {
+      newErrors.phonenumber = "رقم الهاتف غير صالح";
+      isValid = false;
+    } else {
+      newErrors.phonenumber = "";
+    }
+
+    // Validate birth date
+    if (!formData.birthDate) {
+      newErrors.birthDate = "تاريخ الميلاد مطلوب";
+      isValid = false;
+    } else {
+      const today = new Date();
+      const birthDate = new Date(formData.birthDate);
+      const age = today.getFullYear() - birthDate.getFullYear();
+      
+      if (age < 18) {
+        newErrors.birthDate = "يجب أن يكون عمرك 18 سنة على الأقل";
+        isValid = false;
+      } else {
+        newErrors.birthDate = "";
+      }
+    }
+
+    // Validate additional info
+    if (!formData.additionalInfo.trim()) {
+      newErrors.additionalInfo = "هذا الحقل مطلوب";
+      isValid = false;
+    } else if (formData.additionalInfo.trim().length < 20) {
+      newErrors.additionalInfo = "يجب أن يكون النص أكثر من 20 حرفاً";
+      isValid = false;
+    } else {
+      newErrors.additionalInfo = "";
+    }
+
+    setErrors(newErrors);
+    return isValid;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Mark all fields as touched to show errors
+    setTouched({
+      fullName: true,
+      email: true,
+      phonenumber: true,
+      birthDate: true,
+      additionalInfo: true,
+    });
+
+    const isValid = validateForm();
+    
+    if (!isValid) {
+      toast.error("الرجاء إكمال جميع الحقول المطلوبة بشكل صحيح", {
+        duration: 5000,
+        position: "top-center",
+        style: {
+          backgroundColor: '#fef2f2',
+          borderLeft: '4px solid #f87171',
+          padding: '1rem',
+          minWidth: '300px',
+          maxWidth: '90vw',
+        },
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     
     try {
       const res = await axios.post("http://localhost:5000/api/requests/volunteer", formData);
-      toast.success(res.data.message || "تم إرسال طلب التطوع بنجاح");
+      toast.success(res.data.message || "تم إرسال طلب التطوع بنجاح", {
+        duration: 5000,
+        position: "top-center",
+        style: {
+          backgroundColor: '#f0fdf4',
+          borderLeft: '4px solid #4ade80',
+          padding: '1rem',
+          minWidth: '300px',
+          maxWidth: '90vw',
+        },
+    });
       setFormData({
         fullName: "",
         email: "",
@@ -30,15 +159,32 @@ export default function VolunteerRequest() {
         birthDate: "",
         additionalInfo: "",
       });
+      setTouched({
+        fullName: false,
+        email: false,
+        phonenumber: false,
+        birthDate: false,
+        additionalInfo: false,
+      });
     } catch (err) {
-      toast.error(err.response?.data?.message || "حدث خطأ أثناء إرسال الطلب");
+      toast.error(err.response?.data?.message || "حدث خطأ أثناء إرسال الطلب", {
+        duration: 5000,
+        position: "top-center",
+        style: {
+          backgroundColor: '#fef2f2',
+          borderLeft: '4px solid #f87171',
+          padding: '1rem',
+          minWidth: '300px',
+          maxWidth: '90vw',
+        },
+      });
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6" dir="rtl">
+    <div className="min-h-screen lg:px-40 md:px-20 bg-gradient-to-br from-blue-50 via-white to-indigo-100 py-12 px-8" dir="rtl">
       <Toaster 
         position="top-center"
         toastOptions={{
@@ -66,7 +212,7 @@ export default function VolunteerRequest() {
 
         {/* Form Card */}
         <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 border border-gray-100">
-          <div className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
             {/* Personal Information Section */}
             <div className="border-b border-gray-200 pb-6">
               <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
@@ -84,21 +230,38 @@ export default function VolunteerRequest() {
                     placeholder="الاسم الكامل"
                     required
                     onChange={handleChange}
+                    onBlur={() => setTouched({...touched, fullName: true})}
                     value={formData.fullName}
-                    className="w-full border-2 border-gray-200 px-4 py-3 rounded-lg focus:border-blue-400 focus:outline-none transition-colors duration-200 bg-gray-50 focus:bg-white"
+                    className={`w-full border-2 ${errors.fullName && touched.fullName ? 'border-red-500' : 'border-gray-200'} px-4 py-3 rounded-lg focus:border-blue-400 focus:outline-none transition-colors duration-200 bg-gray-50 focus:bg-white`}
                   />
+                  {errors.fullName && touched.fullName && (
+                    <p className="mt-1 text-sm text-red-600">{errors.fullName}</p>
+                  )}
                 </div>
                 
                 <div className="relative">
                   <input
-                    type="tel"
+                    type="text"
                     name="phonenumber"
                     placeholder="رقم الهاتف"
                     required
                     onChange={handleChange}
+                    onBlur={() => setTouched({...touched, phonenumber: true})}
                     value={formData.phonenumber}
-                    className="w-full border-2 border-gray-200 px-4 py-3 rounded-lg focus:border-blue-400 focus:outline-none transition-colors duration-200 bg-gray-50 focus:bg-white"
+                    className={`w-full border-2 ${errors.phonenumber && touched.phonenumber ? 'border-red-500' : 'border-gray-200'} px-4 py-3 rounded-lg focus:border-blue-400 focus:outline-none transition-colors duration-200 bg-gray-50 focus:bg-white`}
                   />
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg
+                      className="w-5 h-5 text-gray-400"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                    </svg>
+                  </div>
+                  {errors.phonenumber && touched.phonenumber && (
+                    <p className="mt-1 text-sm text-red-600">{errors.phonenumber}</p>
+                  )}
                 </div>
               </div>
               
@@ -110,9 +273,23 @@ export default function VolunteerRequest() {
                     placeholder="البريد الإلكتروني"
                     required
                     onChange={handleChange}
+                    onBlur={() => setTouched({...touched, email: true})}
                     value={formData.email}
-                    className="w-full border-2 border-gray-200 px-4 py-3 rounded-lg focus:border-blue-400 focus:outline-none transition-colors duration-200 bg-gray-50 focus:bg-white"
+                    className={`w-full border-2 ${errors.email && touched.email ? 'border-red-500' : 'border-gray-200'} px-4 py-3 rounded-lg focus:border-blue-400 focus:outline-none transition-colors duration-200 bg-gray-50 focus:bg-white`}
                   />
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg
+                      className="w-5 h-5 text-gray-400"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                      <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                    </svg>
+                  </div>
+                  {errors.email && touched.email && (
+                    <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+                  )}
                 </div>
                 
                 <div className="relative">
@@ -122,10 +299,14 @@ export default function VolunteerRequest() {
                     placeholder="تاريخ الميلاد"
                     required
                     onChange={handleChange}
+                    onBlur={() => setTouched({...touched, birthDate: true})}
                     value={formData.birthDate}
-                    className="w-full border-2 border-gray-200 px-4 py-3 rounded-lg focus:border-blue-400 focus:outline-none transition-colors duration-200 bg-gray-50 focus:bg-white text-gray-700"
+                    className={`w-full border-2 ${errors.birthDate && touched.birthDate ? 'border-red-500' : 'border-gray-200'} px-4 py-3 rounded-lg focus:border-blue-400 focus:outline-none transition-colors duration-200 bg-gray-50 focus:bg-white text-gray-700`}
                   />
                   <label className="absolute -top-2 right-3 bg-white px-1 text-xs text-gray-500">تاريخ الميلاد</label>
+                  {errors.birthDate && touched.birthDate && (
+                    <p className="mt-1 text-sm text-red-600">{errors.birthDate}</p>
+                  )}
                 </div>
               </div>
             </div>
@@ -143,10 +324,14 @@ export default function VolunteerRequest() {
                 name="additionalInfo"
                 placeholder="أخبرنا عن دافعك للتطوع معنا، خبراتك السابقة، المهارات التي تملكها، والوقت المتاح لديك للتطوع..."
                 onChange={handleChange}
+                onBlur={() => setTouched({...touched, additionalInfo: true})}
                 value={formData.additionalInfo}
-                className="w-full border-2 border-gray-200 px-4 py-3 rounded-lg focus:border-blue-400 focus:outline-none transition-colors duration-200 bg-gray-50 focus:bg-white resize-none"
+                className={`w-full border-2 ${errors.additionalInfo && touched.additionalInfo ? 'border-red-500' : 'border-gray-200'} px-4 py-3 rounded-lg focus:border-blue-400 focus:outline-none transition-colors duration-200 bg-gray-50 focus:bg-white resize-none`}
                 rows="4"
               />
+              {errors.additionalInfo && touched.additionalInfo && (
+                <p className="mt-1 text-sm text-red-600">{errors.additionalInfo}</p>
+              )}
             </div>
 
             {/* Volunteer Benefits */}
@@ -180,12 +365,9 @@ export default function VolunteerRequest() {
             {/* Submit Button */}
             <div className="pt-4">
               <button
-                onClick={handleSubmit}
+                type="submit"
                 disabled={isSubmitting}
-                className="w-full bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-semibold py-4 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-300 disabled:opacity-70 disabled:cursor-not-allowed"
-                style={{
-                  background: `linear-gradient(135deg, #4A90E2 0%, #1D3E79 100%)`
-                }}
+                className="w-full text-white font-semibold py-4 px-6 rounded-lg transition-all duration-300 transform focus:outline-none focus:ring-4 focus:ring-blue-300 bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300 cursor-pointer disabled:cursor-not-allowed"
               >
                 <span className="flex items-center justify-center">
                   {isSubmitting ? (
@@ -202,7 +384,7 @@ export default function VolunteerRequest() {
                 </span>
               </button>
             </div>
-          </div>
+          </form>
         </div>
 
         {/* Footer */}

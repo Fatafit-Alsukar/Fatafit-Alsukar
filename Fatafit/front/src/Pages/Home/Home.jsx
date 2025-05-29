@@ -220,7 +220,7 @@ export default function DiabetesHomePage() {
 
   const slides = [
     {
-      title: "اهلا بك في كتاكيت السكر ",
+      title: "اهلا بك في فتافيت السكر ",
       description: "معاً نحو حياة صحية وسعيدة مع مرض السكري",
       image: "/api/placeholder/800/450",
       color: "from-teal-500 to-blue-600",
@@ -409,7 +409,7 @@ export default function DiabetesHomePage() {
               >
                 <div className="bg-white/10 backdrop-blur-lg p-8 md:p-10 rounded-3xl shadow-2xl border border-white/20 text-white">
                   <div className="inline-block px-4 py-1 rounded-full bg-white/20 backdrop-blur-sm text-white text-sm font-medium mb-6">
-                    كتاكيت السكر #{index + 1}
+                    فتافيت السكر #{index + 1}
                   </div>
                   <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
                     {slide.title}
