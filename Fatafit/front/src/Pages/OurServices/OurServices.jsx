@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { Users, Clock, ArrowRight } from "lucide-react";
 
 // تعريف الألوان الخاصة بالموقع
 const colors = {
@@ -22,7 +24,7 @@ export default function ServicesPage() {
         const data = await response.json();
         console.log("البيانات المستلمة:", data);
 
-setServices(data.data);
+        setServices(data.data);
         setLoading(false);
       } catch (err) {
         console.error("Error fetching services:", err);
@@ -183,35 +185,99 @@ setServices(data.data);
   );
 }
 
-// مكون بطاقة الخدمة
 function ServiceCard({ service, colors }) {
   return (
-    <div className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
-      <div className="h-70 p-5 overflow-hidden">
+    <div className="group relative bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-500 overflow-hidden border border-gray-100 hover:border-blue-200">
+      {/* خلفية متحركة */}
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-50/20 to-purple-50/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+
+      {/* صورة الخدمة */}
+      <div className="relative h-64 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent z-10"></div>
         <img
           src={service.image || "/api/placeholder/400/300"}
           alt={service.name}
-          className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+          className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110"
           onError={(e) => {
             e.target.src = "/api/placeholder/400/300";
           }}
         />
+
+        {/* عداد الطلبات */}
+        <div className="absolute top-4 right-4 z-20">
+          <div className="bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 flex items-center gap-1 shadow-lg">
+            <Users size={14} className="text-blue-600" />
+            <span className="text-sm font-semibold text-gray-800">
+              {service.requestsCount || service.requestedBy?.length || 0}
+            </span>
+          </div>
+        </div>
+
+        {/* مؤشر جديد إذا كانت الخدمة حديثة */}
+        {new Date() - new Date(service.createdAt) < 7 * 24 * 60 * 60 * 1000 && (
+          <div className="absolute top-4 left-4 z-20">
+            <div className="bg-gradient-to-r from-green-400 to-green-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+              جديد
+            </div>
+          </div>
+        )}
       </div>
-      <div className="p-6">
+
+      {/* محتوى البطاقة */}
+      <div className="relative p-6 z-10">
+        {/* العنوان */}
         <h3
-          className="text-xl font-bold mb-2"
-          style={{ color: colors.darkBlue }}
+          className="text-xl font-bold mb-3 group-hover:text-blue-600 transition-colors duration-300"
+          style={{ color: colors?.darkBlue || "#1e40af" }}
         >
           {service.name}
         </h3>
-        <p className="text-gray-600 mb-4">{service.description}</p>
-        <button
-          className="px-6 py-2 text-white rounded-md transition duration-300 hover:bg-opacity-90"
-          style={{ backgroundColor: colors.lightBlue }}
-        >
-          طلب الخدمة
-        </button>
+
+        {/* الوصف */}
+        <p className="text-gray-600 mb-4 leading-relaxed line-clamp-3">
+          {service.description}
+        </p>
+
+        {/* معلومات إضافية */}
+        <div className="flex items-center gap-4 mb-6 text-sm text-gray-500">
+          <div className="flex items-center gap-1">
+            <Clock size={14} />
+            <span>
+              {new Date(service.createdAt).toLocaleDateString("ar-SA", {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+              })}
+            </span>
+          </div>
+        </div>
+
+        {/* زر طلب الخدمة */}
+        <Link to={`/patientrequest?serviceType=${service._id}`}>
+          <button
+            className="w-full hover:cursor-pointer group/btn relative overflow-hidden rounded-xl py-3 px-6 font-semibold text-white transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/25 active:scale-95"
+            style={{
+              background: `linear-gradient(135deg, ${
+                colors?.lightBlue || "#3b82f6"
+              }, ${colors?.darkBlue || "#1e40af"})`,
+            }}
+          >
+            <span className="relative z-10 flex items-center justify-center gap-2">
+              طلب الخدمة
+              <ArrowRight
+                size={16}
+                className="transition-transform duration-300 group-hover/btn:translate-x-1"
+              />
+            </span>
+
+            {/* تأثير الهوفر */}
+            <div className="absolute inset-0 bg-white/20 translate-x-full group-hover/btn:translate-x-0 transition-transform duration-500"></div>
+          </button>
+        </Link>
       </div>
+
+      {/* حد متوهج عند الهوفر */}
+      <div className="absolute inset-0 rounded-2xl border-2 border-transparent group-hover:border-blue-300/50 transition-colors duration-500 pointer-events-none"></div>
     </div>
   );
 }

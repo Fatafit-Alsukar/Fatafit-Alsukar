@@ -1,38 +1,36 @@
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
+const mongoose = require("mongoose");
 
-const requestSchema = new mongoose.Schema({
+const requestSchema = new mongoose.Schema(
+  {
     fullName: {
-        type: String,
-        required: true,
-        trim: true
+      type: String,
+      required: true,
+      trim: true,
     },
     email: {
-        type: String,
-        required: true,
-        trim: true
+      type: String,
+      required: true,
+      trim: true,
     },
     phonenumber: {
-        type: String,
-        required: true
+      type: String,
+      required: true,
     },
-    serviceType: {
-        type: Schema.Types.ObjectId,
-        ref: "Service",
-        required: true,
-    },
+    serviceType: { type: mongoose.Schema.Types.ObjectId, ref: "Service" },
     additionalInfo: {
-        type: String
+      type: String,
     },
     attachment: {
-        type: String, // اسم الملف فقط
-        default: null
+      type: String, // اسم الملف فقط
+      default: null,
     },
     status: {
-        type: String,
-        enum: ['pending', 'approved', 'rejected'],
-        default: 'pending'
-    }
-}, { timestamps: true });
+      type: String,
+      enum: ["pending", "approved", "rejected"],
+      default: "pending",
+    },
+  },
+  { timestamps: true }
+);
 
-module.exports = mongoose.model('PatientRequest', requestSchema);
+module.exports = mongoose.model("PatientRequest", requestSchema);
