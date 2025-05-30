@@ -27,7 +27,7 @@ import ArticlesManagement from "./Dashboard/ArticlesManagement";
 import ContactMessage from "./Dashboard/ContactMessages";
 function Layout() {
   const location = useLocation();
-  const hideNavbarPages = ["/dashboard"];
+  const hideNavbarPages = ["/login", "/changepassword", "/dashboard"];
 
   return (
     <>
