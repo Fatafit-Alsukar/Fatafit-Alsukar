@@ -240,7 +240,8 @@ export default function DashboardHome({
               >
                 <h4 className="font-bold">{event.name}</h4>
                 <p className="text-sm text-gray-500">
-                  {new Date(event.date).toLocaleDateString("ar-EG")}
+                  {new Date(event.date).toLocaleDateString("en-GB")}
+              
                 </p>
                 <p className="text-sm text-gray-500">{event.category}</p>
               </div>
