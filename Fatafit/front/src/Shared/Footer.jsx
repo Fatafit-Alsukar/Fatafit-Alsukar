@@ -24,11 +24,11 @@ export default function Footer() {
               <div className="flex items-center gap-4">
                 <img 
                   src={logoImg}
-                  alt="كتاكيت السكر" 
+                  alt="فتافيت السكر" 
                   className="w-32 h-32 object-contain"
                 />
                 <div>
-                  <h3 className="text-xl font-bold text-[#2B6CB0]">كتاكيت السكر</h3>
+                  <h3 className="text-xl font-bold text-[#2B6CB0]">فتافيت السكر </h3>
                   <p className="text-blue-600 text-sm">جمعية خيرية للأطفال</p>
                 </div>
               </div>
@@ -74,6 +74,7 @@ export default function Footer() {
                   <li key={index}>
                     <Link 
                       to={link.to} 
+                      onClick={() => window.scrollTo(0, 0)}
                       className="text-blue-600 hover:text-[#2B6CB0] transition-colors flex items-center gap-2 group py-1 hover:pr-2 transition-all duration-300"
                     >
                       <ArrowLeft className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1" />
@@ -115,7 +116,7 @@ export default function Footer() {
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
           <div className="flex flex-col sm:flex-row items-center gap-3 text-blue-600">
             <p className="text-sm text-center sm:text-right">
-              © {new Date().getFullYear()} كتاكيت السكر. جميع الحقوق محفوظة
+              © {new Date().getFullYear()} فتافيت السكر. جميع الحقوق محفوظة
             </p>
             <div className="hidden sm:block w-px h-4 bg-blue-300/50"></div>
             <div className="flex items-center gap-2">

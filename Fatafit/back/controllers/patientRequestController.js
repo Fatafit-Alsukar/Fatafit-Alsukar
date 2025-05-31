@@ -1,4 +1,8 @@
 const PatientRequest = require("../models/PatientRequest");
+const User = require("../models/User");
+const crypto = require("crypto");
+const nodemailer = require("nodemailer");
+
 
 // GET /api/requests/patient/count
 exports.getPatientRequestCount = async (req, res) => {
@@ -16,14 +20,40 @@ exports.getPatientRequestCount = async (req, res) => {
 exports.getPatientRequestsGrouped = async (req, res) => {
   try {
     const grouped = await PatientRequest.aggregate([
-      { $group: { _id: "$serviceType", count: { $sum: 1 } } },
-      { $project: { serviceType: "$_id", count: 1, _id: 0 } },
+      {
+        $lookup: {
+          from: "services",
+          localField: "serviceType",
+          foreignField: "_id",
+          as: "service",
+        },
+      },
+      { $unwind: "$service" },
+      {
+        $group: {
+          _id: {
+            id: "$service._id",
+            name: "$service.name",
+          },
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $project: {
+          serviceId: "$_id.id",
+          serviceName: "$_id.name",
+          count: 1,
+          _id: 0,
+        },
+      },
     ]);
+
     res.json(grouped);
   } catch (err) {
     res.status(500).json({ message: "Error grouping patient requests" });
   }
 };
+
 
 // جلب الطلبات حسب نوع الخدمة
 exports.getRequestsByServiceType = async (req, res) => {
@@ -52,3 +82,66 @@ exports.updatePatientRequestStatus = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+
+
+exports.approveRequest = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { email, fullName } = req.body;
+
+    // ابحث عن الطلب
+    const request = await PatientRequest.findById(id);
+    if (!request) return res.status(404).json({ message: "الطلب غير موجود" });
+
+    // حدّث حالة الطلب
+    request.status = "approved";
+    await request.save();
+
+    // افحص هل المستخدم موجود مسبقًا
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      const randomPassword = crypto.randomBytes(6).toString("hex");
+      const newUser = new User({
+        fullName,
+        email,
+        password: randomPassword, // سيتم هاشينغه تلقائيًا بسبب pre-save hook
+        role: 'user',
+        isApproved: true,
+        mustChangePassword: true,
+      });
+
+      await newUser.save();
+
+      // أرسل إيميل فيه الباسورد
+      await sendApprovalEmail(email, `Your request has been approved.\n\nTemporary password: ${randomPassword}\nPlease login and change your password.`);
+    } else {
+      // إذا المستخدم موجود فقط أرسل إشعار
+      await sendApprovalEmail(email, `Your request has been approved. You can now access the system.`);
+    }
+
+    res.status(200).json({ message: "تمت الموافقة على الطلب بنجاح" });
+  } catch (err) {
+    console.error("Error approving request:", err);
+    res.status(500).json({ message: "حدث خطأ أثناء الموافقة على الطلب" });
+  }
+};
+
+// دالة إرسال الإيميل
+async function sendApprovalEmail(to, text) {
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+  });
+
+  await transporter.sendMail({
+    from: `"Fatafit Alsukkar" <${process.env.EMAIL_USER}>`,
+    to,
+    subject: "Request Approved",
+    text,
+  });
+}
