@@ -168,7 +168,7 @@ const ArticlesManagement = () => {
                   </td>
                   <td className="px-6 py-4 text-gray-600">{article.author}</td>
                   <td className="px-6 py-4 text-gray-600">
-                    {new Date(article.date).toLocaleDateString("ar-SA")}
+                    {new Date(article.date).toLocaleDateString("EN-GB")}
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
