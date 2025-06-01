@@ -23,6 +23,7 @@ import ContactUsPage from "./Pages/Contact/Contact";
 import Articles from "./Pages/Articles/Articles";
 import ArticleDetails from "./Pages/Articles/ArticleDetails";
 import ArticlesManagement from "./Dashboard/ArticlesManagement";
+import InKindDonation from "./Pages/Donation/InKindDonation";
 
 import ContactMessage from "./Dashboard/ContactMessages";
 function Layout() {
@@ -45,6 +46,8 @@ function Layout() {
         <Route path="/dashboard/articles" element={<ArticlesManagement />} />
         <Route path="/Activities" element={<Activities />} />
         <Route path="/donation" element={<DonatePage />} />
+        <Route path="/donation/cash" element={<DonatePage />} />
+        <Route path="/donation/items" element={<InKindDonation />} />
         <Route path="/contact" element={<ContactUsPage />} />
         <Route path="/articles" element={<Articles />} />
         <Route path="/articles/:id" element={<ArticleDetails />} />

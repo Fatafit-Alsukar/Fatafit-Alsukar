@@ -9,6 +9,7 @@ const patientRequestRoutes = require("./routes/patientRequests");
 const volunteerRequestRoutes = require("./routes/volunteerRequests");
 const contactRoutes = require('./routes/contactRoutes');
 const articlesRoutes = require("./routes/articlesRoutes");
+const donationRoutes = require("./routes/donationRoutes");
 
 const userRoutes = require("./routes/userRoutes");
 const requestRoutes = require("./routes/requestRoutes");
@@ -61,6 +62,8 @@ app.use("/api/requests", patientRequestRoutes);
 app.use("/api/requests", volunteerRequestRoutes);
 
 app.use('/api/contact', contactRoutes);
+
+app.use("/api/donations", donationRoutes);
 
 /*******************************************************************/
 const PORT = process.env.PORT || 5000;

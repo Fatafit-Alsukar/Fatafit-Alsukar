@@ -23,6 +23,14 @@ const donationSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  deliveryMethod: { type: String }, // "bring_to_association" or "association_pickup"
+  address: {
+    governorate: String,
+    address: String,
+    street: String,
+    buildingNumber: String,
+  },
+  donorPhone: String,
 });
 
 module.exports = mongoose.model("Donation", donationSchema);

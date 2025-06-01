@@ -13,6 +13,7 @@ export default function KidFriendlyNavbarArabic() {
   const [activitiesDropdownOpen, setActivitiesDropdownOpen] = useState(false);
   const [mobileActivitiesDropdownOpen, setMobileActivitiesDropdownOpen] =
     useState(false);
+  const [donationDropdownOpen, setDonationDropdownOpen] = useState(false);
   const location = useLocation();
 
   useEffect(() => {
@@ -31,8 +32,8 @@ export default function KidFriendlyNavbarArabic() {
   useEffect(() => {
     const pathToName = {
       "/": "الصفحة الرئيسية",
-      "/Activities": "الفعاليات والنشاطات",
-      "/donation": "تبرع لحبة سكر",
+      "/Activities": "مجتمع فتافيت",
+      "/donation": "  التبرعات",
       "/Services": "خدماتنا",
       "/contact": "تواصل معنا",
       "/login": "سجل معنا",
@@ -46,12 +47,12 @@ export default function KidFriendlyNavbarArabic() {
   const navItems = [
     { name: "الصفحة الرئيسية", path: "/", icon: <Home className="w-5 h-5" /> },
     {
-      name: "الفعاليات والنشاطات",
+      name: "مجتمع فتافيت",
       path: "/Activities",
       icon: <Star className="w-5 h-5" />,
     },
     {
-      name: "تبرع لحبة سكر",
+      name: " التبرعات ",
       path: "/donation",
       icon: <Heart className="w-5 h-5" />,
     },
@@ -82,9 +83,16 @@ export default function KidFriendlyNavbarArabic() {
 
   // Dropdown options for 'الفعاليات والنشاطات'
   const activitiesOptions = [
-    { label: "النشاطات", to: "/Activities" },
-    { label: "المقالات  ", to: "/Articles" },
-    { label: "البروشورات", to: "/brochures" },
+    { label: "الأخبار و الفعاليات", to: "/Activities" },
+    { label: "نصائح", to: "/articles" },
+    { label: "قصص ملهمة", to: "/stories" },
+    { label: "أرشيف المحتوى", to: "/archive" },
+  ];
+
+  // Add donation options array
+  const donationOptions = [
+    { label: "تبرع نقدي", to: "/donation/cash" },
+    { label: "تبرع عيني / اجهزة", to: "/donation/items" },
   ];
 
   // Create emoji bubbles that float up randomly
@@ -124,7 +132,7 @@ export default function KidFriendlyNavbarArabic() {
     switch (name) {
       case "الصفحة الرئيسية":
         return <Home className="w-5 h-5" />;
-      case "الفعاليات والنشاطات":
+      case "مجتمع فتافيت":
         return <Star className="w-5 h-5" />;
       case "تبرع لحبة سكر":
         return <Heart className="w-5 h-5" />;
@@ -248,7 +256,7 @@ export default function KidFriendlyNavbarArabic() {
                             : "opacity-0 -translate-y-2 pointer-events-none"
                         }
                       `}
-                      style={{ transitionProperty: "opacity, transform" }}
+                      style={{ transitionProperty: "opacity, transform", minWidth: '220px', whiteSpace: 'nowrap' }}
                     >
                       {signupOptions.map((opt) => (
                         <Link
@@ -262,7 +270,7 @@ export default function KidFriendlyNavbarArabic() {
                       ))}
                     </div>
                   </div>
-                ) : item.name === "الفعاليات والنشاطات" ? (
+                ) : item.name === "مجتمع فتافيت" ? (
                   <div
                     key={item.name}
                     className="relative group"
@@ -304,6 +312,54 @@ export default function KidFriendlyNavbarArabic() {
                           to={opt.to}
                           className="block px-4 py-3 text-blue-600 hover:bg-blue-50 hover:text-[#2B6CB0] transition-all text-base"
                           onClick={() => setActivitiesDropdownOpen(false)}
+                        >
+                          {opt.label}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                ) : item.name.trim() === "التبرعات" ? (
+                  <div
+                    key={item.name}
+                    className="relative group"
+                    onMouseEnter={() => setDonationDropdownOpen(true)}
+                    onMouseLeave={() => setDonationDropdownOpen(false)}
+                  >
+                    <button
+                      type="button"
+                      className={`
+                        text-base lg:text-lg font-medium px-2 lg:px-3 py-2 
+                        rounded-full transition-all duration-300 
+                        relative group whitespace-nowrap
+                        ${
+                          activeItem === item.name
+                            ? "text-white bg-blue-500 shadow-md animate-pulse-subtle"
+                            : "text-blue-500 hover:text-blue-700 hover:bg-blue-50"
+                        }
+                      `}
+                    >
+                      <div className="flex items-center gap-1 lg:gap-2 justify-center">
+                        {getIcon(item.name)}
+                        <span className="whitespace-nowrap">{item.name}</span>
+                      </div>
+                    </button>
+                    {/* Dropdown menu */}
+                    <div
+                      className={`absolute right-0 w-48 bg-white rounded-lg shadow-lg border border-blue-100 transition-all duration-300 z-50 overflow-hidden
+                        ${
+                          donationDropdownOpen
+                            ? "opacity-100 translate-y-0 pointer-events-auto"
+                            : "opacity-0 -translate-y-2 pointer-events-none"
+                        }
+                      `}
+                      style={{ transitionProperty: "opacity, transform", minWidth: '220px', whiteSpace: 'nowrap' }}
+                    >
+                      {donationOptions.map((opt) => (
+                        <Link
+                          key={opt.to}
+                          to={opt.to}
+                          className="block px-4 py-3 text-blue-600 hover:bg-blue-50 hover:text-[#2B6CB0] transition-all text-base"
+                          onClick={() => setDonationDropdownOpen(false)}
                         >
                           {opt.label}
                         </Link>
@@ -420,7 +476,7 @@ export default function KidFriendlyNavbarArabic() {
                       ))}
                     </div>
                   </div>
-                ) : item.name === "الفعاليات والنشاطات" ? (
+                ) : item.name === "مجتمع فتافيت" ? (
                   <div key={item.name} className="relative">
                     <button
                       type="button"
@@ -460,6 +516,57 @@ export default function KidFriendlyNavbarArabic() {
                           onClick={() => {
                             setIsOpen(false);
                             setMobileActivitiesDropdownOpen(false);
+                          }}
+                        >
+                          {opt.label}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                ) : item.name.trim() === "التبرعات" ? (
+                  <div
+                    key={item.name}
+                    className="relative group"
+                    onMouseEnter={() => setMobileDropdownOpen((v) => !v)}
+                    onMouseLeave={() => setMobileDropdownOpen(false)}
+                  >
+                    <button
+                      type="button"
+                      className={`
+                        text-lg font-medium px-4 py-3 
+                        rounded-full transition-all duration-300 
+                        relative group w-full text-right
+                        ${
+                          activeItem === item.name
+                            ? "text-white bg-blue-500 shadow-md"
+                            : "text-blue-500 hover:text-blue-700 hover:bg-blue-50"
+                        }
+                      `}
+                    >
+                      <div className="flex items-center gap-3 justify-end">
+                        {getIcon(item.name)}
+                        <span>{item.name}</span>
+                      </div>
+                    </button>
+                    {/* Dropdown menu */}
+                    <div
+                      className={`transition-all duration-300 overflow-hidden bg-white rounded-lg shadow-lg border border-blue-100 mt-2 z-50
+                        ${
+                          mobileDropdownOpen
+                            ? "max-h-60 opacity-100"
+                            : "max-h-0 opacity-0"
+                        }
+                      `}
+                      style={{ transitionProperty: "max-height, opacity" }}
+                    >
+                      {donationOptions.map((opt) => (
+                        <Link
+                          key={opt.to}
+                          to={opt.to}
+                          className="block px-4 py-3 text-blue-600 hover:bg-blue-50 hover:text-[#2B6CB0] transition-all text-base"
+                          onClick={() => {
+                            setIsOpen(false);
+                            setMobileDropdownOpen(false);
                           }}
                         >
                           {opt.label}
