@@ -276,6 +276,12 @@ export default function Dashboard() {
 
   const fetchRequestsByType = async (type) => {
     try {
+      // Don't make the API call if type is undefined
+      if (!type) {
+        console.warn("Service type is undefined, skipping request");
+        return;
+      }
+
       const res = await axios.get(
         `http://localhost:5000/api/requests/patient/by-type/${type}`
       );
