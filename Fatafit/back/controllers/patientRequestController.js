@@ -3,7 +3,6 @@ const User = require("../models/User");
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
 
-
 // GET /api/requests/patient/count
 exports.getPatientRequestCount = async (req, res) => {
   try {
@@ -47,13 +46,11 @@ exports.getPatientRequestsGrouped = async (req, res) => {
         },
       },
     ]);
-
     res.json(grouped);
   } catch (err) {
     res.status(500).json({ message: "Error grouping patient requests" });
   }
 };
-
 
 // جلب الطلبات حسب نوع الخدمة
 exports.getRequestsByServiceType = async (req, res) => {
@@ -83,65 +80,112 @@ exports.updatePatientRequestStatus = async (req, res) => {
   }
 };
 
-
-
+// Updated approveRequest function to handle both approve and suspend actions
 exports.approveRequest = async (req, res) => {
   try {
     const { id } = req.params;
     const { email, fullName } = req.body;
-
+    
     // ابحث عن الطلب
     const request = await PatientRequest.findById(id);
     if (!request) return res.status(404).json({ message: "الطلب غير موجود" });
 
-    // حدّث حالة الطلب
-    request.status = "approved";
-    await request.save();
+    let newStatus;
+    let message;
 
-    // افحص هل المستخدم موجود مسبقًا
-    let user = await User.findOne({ email });
-
-    if (!user) {
-      const randomPassword = crypto.randomBytes(6).toString("hex");
-      const newUser = new User({
-        fullName,
-        email,
-        password: randomPassword, // سيتم هاشينغه تلقائيًا بسبب pre-save hook
-        role: 'user',
-        isApproved: true,
-        mustChangePassword: true,
-      });
-
-      await newUser.save();
-
-      // أرسل إيميل فيه الباسورد
-      await sendApprovalEmail(email, `Your request has been approved.\n\nTemporary password: ${randomPassword}\nPlease login and change your password.`);
+    // Toggle status based on current status
+    if (request.status === "approved") {
+      // If already approved, suspend it
+      newStatus = "pending";
+      message = "تم تعليق الطلب بنجاح";
+      
+      // Optionally, you can also disable the user account
+      const user = await User.findOne({ email });
+      if (user) {
+        user.isApproved = false;
+        await user.save();
+      }
+      
+      // Send suspension email
+      await sendSuspensionEmail(email, `Your request has been suspended. Please contact support for more information.`);
+      
     } else {
-      // إذا المستخدم موجود فقط أرسل إشعار
-      await sendApprovalEmail(email, `Your request has been approved. You can now access the system.`);
+      // If pending, approve it
+      newStatus = "approved";
+      message = "تمت الموافقة على الطلب بنجاح";
+      
+      // افحص هل المستخدم موجود مسبقًا
+      let user = await User.findOne({ email });
+      if (!user) {
+        const randomPassword = crypto.randomBytes(6).toString("hex");
+        const newUser = new User({
+          fullName,
+          email,
+          password: randomPassword, // سيتم هاشينغه تلقائيًا بسبب pre-save hook
+          role: 'user',
+          isApproved: true,
+          mustChangePassword: true,
+        });
+        await newUser.save();
+        
+        // أرسل إيميل فيه الباسورد
+        await sendApprovalEmail(email, `Your request has been approved.\n\nTemporary password: ${randomPassword}\nPlease login and change your password.`);
+      } else {
+        // إذا المستخدم موجود فقط أرسل إشعار وفعّل الحساب
+        user.isApproved = true;
+        await user.save();
+        await sendApprovalEmail(email, `Your request has been approved. You can now access the system.`);
+      }
     }
 
-    res.status(200).json({ message: "تمت الموافقة على الطلب بنجاح" });
+    // حدّث حالة الطلب
+    request.status = newStatus;
+    await request.save();
+
+    res.status(200).json({ 
+      message,
+      newStatus,
+      requestId: id 
+    });
+    
   } catch (err) {
-    console.error("Error approving request:", err);
-    res.status(500).json({ message: "حدث خطأ أثناء الموافقة على الطلب" });
+    console.error("Error processing request:", err);
+    res.status(500).json({ message: "حدث خطأ أثناء معالجة الطلب" });
   }
 };
 
-// دالة إرسال الإيميل
+// دالة إرسال إيميل الموافقة
 async function sendApprovalEmail(to, text) {
-  const transporter = nodemailer.createTransport({
+  const transporter = nodemailer.createTransporter({
     service: "gmail",
     auth: {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS,
     },
   });
-
+  
   await transporter.sendMail({
     from: `"Fatafit Alsukkar" <${process.env.EMAIL_USER}>`,
     to,
     subject: "Request Approved",
+    text,
+  });
+}
+
+// دالة إرسال إيميل التعليق
+async function sendSuspensionEmail(to, text) {
+  const transporter = nodemailer.createTransporter({
+    service: "gmail",
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+  });
+  
+  await transporter.sendMail({
+    from: `"Fatafit Alsukkar" <${process.env.EMAIL_USER}>`,
+    to,
+    subject: "Request Suspended",
     text,
   });
 }
