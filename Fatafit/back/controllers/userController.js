@@ -48,15 +48,12 @@ exports.login = async (req, res) => {
 
     res.status(200).json({
       message: "تم تسجيل الدخول بنجاح",
-      mustChangePassword: user.mustChangePassword
+      mustChangePassword: user.mustChangePassword,
     });
-
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
-
-
 
 exports.changePassword = async (req, res) => {
   const userId = req.user._id;
@@ -78,8 +75,6 @@ exports.changePassword = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
-
-
 
 exports.logout = (req, res) => {
   try {
@@ -104,7 +99,6 @@ exports.getAllUsers = async (req, res) => {
   }
 };
 
-
 // GET /api/users/count-by-role/user
 exports.getUserCountByRole = async (req, res) => {
   try {
@@ -118,7 +112,7 @@ exports.getUserCountByRole = async (req, res) => {
 // GET /api/users/count-by-role/user
 exports.getUserCountByRole = async (req, res) => {
   try {
-    const count = await User.countDocuments({ role: 'user' });
+    const count = await User.countDocuments({ role: "user" });
     res.json({ count });
   } catch (err) {
     res.status(500).json({ message: "فشل في جلب عدد المستخدمين", error: err });
@@ -158,4 +152,21 @@ exports.getUserCount = async (req, res) => {
   }
 };
 
+// controllers/userController.js
+exports.getLoggedInUser = async (req, res) => {
+  try {
+    // ممكن نحذف كلمة السر قبل الإرسال لو مش عامل `.select('-password')`
+    const user = req.user.toObject();
+    delete user.password;
 
+    res.status(200).json({
+      success: true,
+      user,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "حدث خطأ أثناء جلب بيانات المستخدم",
+    });
+  }
+};
