@@ -178,7 +178,7 @@ async function sendApprovalEmail(to, text) {
       pass: process.env.EMAIL_PASS,
     },
   });
-  
+
   await transporter.sendMail({
     from: `"Fatafit Alsukkar" <${process.env.EMAIL_USER}>`,
     to,
@@ -186,6 +186,7 @@ async function sendApprovalEmail(to, text) {
     text,
   });
 }
+
 
 // دالة إرسال إيميل التعليق
 async function sendSuspensionEmail(to, text) {
@@ -196,7 +197,7 @@ async function sendSuspensionEmail(to, text) {
       pass: process.env.EMAIL_PASS,
     },
   });
-  
+
   await transporter.sendMail({
     from: `"Fatafit Alsukkar" <${process.env.EMAIL_USER}>`,
     to,
