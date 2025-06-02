@@ -1,4 +1,3 @@
-import React from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -24,9 +23,10 @@ import Articles from "./Pages/Articles/Articles";
 import ArticleDetails from "./Pages/Articles/ArticleDetails";
 import ArticlesManagement from "./Dashboard/ArticlesManagement";
 import InKindDonation from "./Pages/Donation/InKindDonation";
+import ContactMessage from "./Dashboard/ContactMessages";
+import DonateDashboard from "./Dashboard/DonationDashboard";
 import Profile from "./Pages/Profile/Profile";
 import Archive from "./Pages/Archive/Archive";
-import ContactMessage from "./Dashboard/ContactMessages";
 
 function Layout() {
   const location = useLocation();
@@ -47,13 +47,13 @@ function Layout() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/dashboard/articles" element={<ArticlesManagement />} />
         <Route path="/Activities" element={<Activities />} />
-        <Route path="/donation" element={<DonatePage />} />
         <Route path="/donation/cash" element={<DonatePage />} />
         <Route path="/donation/items" element={<InKindDonation />} />
         <Route path="/contact" element={<ContactUsPage />} />
         <Route path="/articles" element={<Articles />} />
         <Route path="/articles/:id" element={<ArticleDetails />} />
         <Route path="/contactmessage" element={<ContactMessage />} />
+        <Route path="/donationdashboard" element={<DonateDashboard />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/archive" element={<Archive />} />
         {/* Add more routes as needed */}
