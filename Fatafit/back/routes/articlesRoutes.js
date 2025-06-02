@@ -23,4 +23,8 @@ router.post('/', upload.single('image'), handleMulterError, (req, res, next) => 
 router.put('/:id', upload.single('image'), handleMulterError, (req, res, next) => articleController.updateArticle(req, res, next));
 router.delete('/:id', (req, res, next) => articleController.deleteArticle(req, res, next));
 
+// مسارات الأرشفة
+router.post('/:id/archive', (req, res, next) => articleController.archiveArticle(req, res, next));
+router.post('/:id/unarchive', (req, res, next) => articleController.unarchiveArticle(req, res, next));
+
 module.exports = router; 

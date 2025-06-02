@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { GiftIcon } from '@heroicons/react/24/outline';
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function InKindDonation() {
   const [deviceName, setDeviceName] = useState("");
@@ -114,50 +115,59 @@ export default function InKindDonation() {
                   <span className="ml-2">أرغب بأن تأتي الجمعية لاستلام الجهاز من منزلي</span>
                 </label>
               </div>
-              {deliveryMethod === "association_pickup" && (
-                <div className="space-y-2 border rounded-xl p-4 bg-blue-50">
-                  <div>
-                    <label className="block mb-1 font-medium">المحافظة</label>
-                    <input
-                      type="text"
-                      className="w-full border-2 border-gray-200 p-3 rounded-xl focus:border-blue-500 focus:outline-none transition-colors duration-200 text-right text-lg"
-                      value={address.governorate}
-                      onChange={e => setAddress({ ...address, governorate: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block mb-1 font-medium">الحي/العنوان</label>
-                    <input
-                      type="text"
-                      className="w-full border-2 border-gray-200 p-3 rounded-xl focus:border-blue-500 focus:outline-none transition-colors duration-200 text-right text-lg"
-                      value={address.address}
-                      onChange={e => setAddress({ ...address, address: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block mb-1 font-medium">الشارع</label>
-                    <input
-                      type="text"
-                      className="w-full border-2 border-gray-200 p-3 rounded-xl focus:border-blue-500 focus:outline-none transition-colors duration-200 text-right text-lg"
-                      value={address.street}
-                      onChange={e => setAddress({ ...address, street: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block mb-1 font-medium">رقم البناية</label>
-                    <input
-                      type="text"
-                      className="w-full border-2 border-gray-200 p-3 rounded-xl focus:border-blue-500 focus:outline-none transition-colors duration-200 text-right text-lg"
-                      value={address.buildingNumber}
-                      onChange={e => setAddress({ ...address, buildingNumber: e.target.value })}
-                      required
-                    />
-                  </div>
-                </div>
-              )}
+              <AnimatePresence>
+                {deliveryMethod === "association_pickup" && (
+                  <motion.div
+                    key="address-form"
+                    initial={{ opacity: 0, y: 40 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 40 }}
+                    transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
+                    className="space-y-2 border rounded-xl p-4 bg-blue-50"
+                  >
+                    <div>
+                      <label className="block mb-1 font-medium">المحافظة</label>
+                      <input
+                        type="text"
+                        className="w-full border-2 border-gray-200 p-3 rounded-xl focus:border-blue-500 focus:outline-none transition-colors duration-200 text-right text-lg"
+                        value={address.governorate}
+                        onChange={e => setAddress({ ...address, governorate: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block mb-1 font-medium">الحي/العنوان</label>
+                      <input
+                        type="text"
+                        className="w-full border-2 border-gray-200 p-3 rounded-xl focus:border-blue-500 focus:outline-none transition-colors duration-200 text-right text-lg"
+                        value={address.address}
+                        onChange={e => setAddress({ ...address, address: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block mb-1 font-medium">الشارع</label>
+                      <input
+                        type="text"
+                        className="w-full border-2 border-gray-200 p-3 rounded-xl focus:border-blue-500 focus:outline-none transition-colors duration-200 text-right text-lg"
+                        value={address.street}
+                        onChange={e => setAddress({ ...address, street: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block mb-1 font-medium">رقم البناية</label>
+                      <input
+                        type="text"
+                        className="w-full border-2 border-gray-200 p-3 rounded-xl focus:border-blue-500 focus:outline-none transition-colors duration-200 text-right text-lg"
+                        value={address.buildingNumber}
+                        onChange={e => setAddress({ ...address, buildingNumber: e.target.value })}
+                        required
+                      />
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">

@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import { Cloud, Star, Heart, Sun, Moon, Sparkles, Home, X } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import { Cloud, Star, Gift, Sun, Moon, Sparkles, Home, X, User, LogOut } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import logoImg from "../Shared/Screenshot_2025-05-09_132412-removebg-preview (1).png";
+import Swal from 'sweetalert2';
 
 export default function KidFriendlyNavbarArabic() {
   const [isOpen, setIsOpen] = useState(false);
@@ -14,7 +15,9 @@ export default function KidFriendlyNavbarArabic() {
   const [mobileActivitiesDropdownOpen, setMobileActivitiesDropdownOpen] =
     useState(false);
   const [donationDropdownOpen, setDonationDropdownOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -27,6 +30,16 @@ export default function KidFriendlyNavbarArabic() {
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
+
+  // Check login status from backend
+  useEffect(() => {
+    fetch("http://localhost:5000/api/users/me", {
+      credentials: "include",
+    })
+      .then((res) => (res.ok ? res.json() : Promise.reject()))
+      .then((data) => setIsLoggedIn(!!data.user))
+      .catch(() => setIsLoggedIn(false));
+  }, [location]);
 
   // Update active item based on current route
   useEffect(() => {
@@ -54,7 +67,7 @@ export default function KidFriendlyNavbarArabic() {
     {
       name: " التبرعات ",
       path: "/donation",
-      icon: <Heart className="w-5 h-5" />,
+      icon: <Gift className="w-5 h-5" />,
     },
     {
       name: "خدماتنا",
@@ -135,7 +148,8 @@ export default function KidFriendlyNavbarArabic() {
       case "مجتمع فتافيت":
         return <Star className="w-5 h-5" />;
       case "تبرع لحبة سكر":
-        return <Heart className="w-5 h-5" />;
+      case " التبرعات ":
+        return <Gift className="w-5 h-5" />;
       case "خدماتنا":
         return <Sun className="w-5 h-5" />;
       case "تواصل معنا":
@@ -144,6 +158,39 @@ export default function KidFriendlyNavbarArabic() {
         return <Sparkles className="w-5 h-5" />;
       default:
         return <Star className="w-5 h-5" />;
+    }
+  };
+
+  // navItems without سجل معنا if logged in
+  const navItemsFiltered = isLoggedIn
+    ? navItems.filter((item) => item.name !== "سجل معنا")
+    : navItems;
+
+  const handleLogout = async () => {
+    try {
+      const res = await fetch("http://localhost:5000/api/users/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+      if (res.ok) {
+        setIsLoggedIn(false);
+        await Swal.fire({
+          icon: 'success',
+          title: 'تم تسجيل الخروج',
+          text: 'تم تسجيل خروجك بنجاح!',
+          confirmButtonText: 'حسناً'
+        });
+        navigate("/");
+      } else {
+        throw new Error('Logout failed');
+      }
+    } catch (error) {
+      await Swal.fire({
+        icon: 'error',
+        title: 'خطأ',
+        text: 'حدث خطأ أثناء تسجيل الخروج',
+        confirmButtonText: 'حسناً'
+      });
     }
   };
 
@@ -221,7 +268,7 @@ export default function KidFriendlyNavbarArabic() {
               className="flex items-center justify-center gap-2 lg:gap-4 px-2"
               dir="rtl"
             >
-              {navItems.map((item) =>
+              {navItemsFiltered.map((item) =>
                 item.name === "سجل معنا" ? (
                   <div
                     key={item.name}
@@ -415,6 +462,25 @@ export default function KidFriendlyNavbarArabic() {
                   </Link>
                 )
               )}
+              {/* Profile icon and logout button if logged in */}
+              {isLoggedIn && (
+                <div className="flex items-center gap-2">
+                  <Link
+                    to="/profile"
+                    className="text-blue-500 hover:text-blue-700 px-2 py-2 rounded-full flex items-center gap-2 font-medium text-base lg:text-lg"
+                  >
+                    <User className="w-5 h-5" />
+                    <span>الملف الشخصي</span>
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="text-red-500 hover:text-red-700 px-2 py-2 rounded-full flex items-center gap-2 font-medium text-base lg:text-lg hover:bg-red-50 transition-colors"
+                  >
+                    <LogOut className="w-5 h-5" />
+                    <span>تسجيل الخروج</span>
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -428,7 +494,7 @@ export default function KidFriendlyNavbarArabic() {
         >
           <div className="pt-20 pb-6 px-4">
             <div className="flex flex-col space-y-4">
-              {navItems.map((item) =>
+              {navItemsFiltered.map((item) =>
                 item.name === "سجل معنا" ? (
                   <div key={item.name} className="relative">
                     <button
@@ -600,6 +666,29 @@ export default function KidFriendlyNavbarArabic() {
                     </div>
                   </Link>
                 )
+              )}
+              {/* Profile icon and logout if logged in (mobile) */}
+              {isLoggedIn && (
+                <>
+                  <Link
+                    to="/profile"
+                    onClick={() => setIsOpen(false)}
+                    className="text-lg font-medium px-4 py-3 rounded-full transition-all duration-300 relative group w-full text-right flex items-center gap-3 justify-end text-blue-500 hover:text-blue-700 hover:bg-blue-50"
+                  >
+                    <User className="w-5 h-5" />
+                    <span>الملف الشخصي</span>
+                  </Link>
+                  <button
+                    onClick={() => {
+                      handleLogout();
+                      setIsOpen(false);
+                    }}
+                    className="text-lg font-medium px-4 py-3 rounded-full transition-all duration-300 relative group w-full text-right flex items-center gap-3 justify-end text-red-500 hover:text-red-700 hover:bg-red-50"
+                  >
+                    <LogOut className="w-5 h-5" />
+                    <span>تسجيل الخروج</span>
+                  </button>
+                </>
               )}
             </div>
           </div>

@@ -170,3 +170,19 @@ exports.getLoggedInUser = async (req, res) => {
     });
   }
 };
+
+// Update user profile
+exports.updateProfile = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { fullName, email } = req.body;
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { fullName, email },
+      { new: true, runValidators: true }
+    ).select("-password");
+    res.json({ user });
+  } catch (err) {
+    res.status(500).json({ message: "حدث خطأ أثناء تحديث الملف الشخصي" });
+  }
+};

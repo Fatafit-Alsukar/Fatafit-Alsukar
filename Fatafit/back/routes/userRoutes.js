@@ -10,11 +10,12 @@ router.post("/login", auth.login);
 router.post("/change-password", authMiddleware, auth.changePassword);
 router.get("/me", authMiddleware, auth.getLoggedInUser);
 router.get("/check", authMiddleware, auth.checkAuth);
-router.get("/logout", auth.logout);
+router.post("/logout", auth.logout);
 router.get("/all", auth.getAllUsers);
 router.get("/count", getUserCount);
 router.get("/count-by-role/user", getUserCountByRole);
 router.put("/:id", userController.updateUserStatus);
+router.put("/me", authMiddleware, userController.updateProfile);
 
 
   

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Plus, Edit, Trash2, X, Search, Image as ImageIcon, BookOpen, Tag, User, Calendar , Check  } from "lucide-react";
+import { Plus, Edit, Trash2, X, Search, Image as ImageIcon, BookOpen, Tag, User, Calendar, Check, Archive, ArchiveRestore } from "lucide-react";
 
 const ArticlesManagement = () => {
   const [articles, setArticles] = useState([]);
@@ -9,6 +9,7 @@ const ArticlesManagement = () => {
   const [selectedArticle, setSelectedArticle] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [imageError, setImageError] = useState(null);
+  const [archivedArticles, setArchivedArticles] = useState([]);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -21,6 +22,7 @@ const ArticlesManagement = () => {
 
   useEffect(() => {
     fetchArticles();
+    fetchArchivedArticles();
   }, []);
 
   const fetchArticles = async () => {
@@ -34,6 +36,15 @@ const ArticlesManagement = () => {
       setError("حدث خطأ أثناء تحميل المقالات");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchArchivedArticles = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/api/articles?archived=true");
+      setArchivedArticles(response.data);
+    } catch (error) {
+      console.error("Error fetching archived articles:", error);
     }
   };
 
@@ -124,6 +135,32 @@ const ArticlesManagement = () => {
     }
   };
 
+  const handleArchive = async (article) => {
+    if (window.confirm("هل أنت متأكد من أرشفة هذا المقال؟")) {
+      try {
+        await axios.post(`http://localhost:5000/api/articles/${article._id}/archive`);
+        fetchArticles();
+        fetchArchivedArticles();
+      } catch (error) {
+        console.error("Error archiving article:", error);
+        setError("حدث خطأ أثناء أرشفة المقال");
+      }
+    }
+  };
+
+  const handleUnarchive = async (article) => {
+    if (window.confirm("هل أنت متأكد من إعادة نشر هذا المقال؟")) {
+      try {
+        await axios.post(`http://localhost:5000/api/articles/${article._id}/unarchive`);
+        fetchArticles();
+        fetchArchivedArticles();
+      } catch (error) {
+        console.error("Error unarchiving article:", error);
+        setError("حدث خطأ أثناء إعادة نشر المقال");
+      }
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-6">
       <div className="max-w-7xl mx-auto">
@@ -167,7 +204,7 @@ const ArticlesManagement = () => {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-6 gap-6 mb-8">
           <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/20 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
             <div className="flex items-center justify-between">
               <div>
@@ -239,6 +276,20 @@ const ArticlesManagement = () => {
               </div>
               <div className="bg-gradient-to-r from-green-500 to-green-500 p-3 rounded-xl">
                 <Check className="w-8 h-8 text-white" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/20 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-slate-600 text-sm font-medium">المقالات المؤرشفة</p>
+                <p className="text-3xl font-bold text-gray-600 mt-1">
+                  {archivedArticles.length}
+                </p>
+              </div>
+              <div className="bg-gradient-to-r from-gray-500 to-gray-600 p-3 rounded-xl">
+                <Archive className="w-6 h-6 text-white" />
               </div>
             </div>
           </div>
@@ -482,6 +533,13 @@ const ArticlesManagement = () => {
                             <Edit className="w-4 h-4" />
                           </button>
                           <button
+                            onClick={() => handleArchive(article)}
+                            className="text-gray-600 hover:text-gray-800 hover:bg-gray-50 p-2 rounded-xl transition-all duration-300 hover:scale-110"
+                            title="أرشفة المقال"
+                          >
+                            <Archive className="w-4 h-4" />
+                          </button>
+                          <button
                             onClick={() => handleDelete(article._id)}
                             className="text-red-600 hover:text-red-800 hover:bg-red-50 p-2 rounded-xl transition-all duration-300 hover:scale-110"
                           >
@@ -511,6 +569,97 @@ const ArticlesManagement = () => {
             )}
           </div>
         </div>
+
+        {/* Archived Articles Section */}
+        {archivedArticles.length > 0 && (
+          <div className="mt-8 bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 overflow-hidden">
+            <div className="p-6 border-b border-slate-200">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h3 className="text-xl font-bold text-slate-800">المقالات المؤرشفة</h3>
+                  <p className="text-slate-600 mt-1">المقالات التي تم أرشفتها</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {archivedArticles.map((article) => (
+                  <div
+                    key={article._id}
+                    className="bg-white/80 backdrop-blur-sm rounded-2xl overflow-hidden shadow-xl border border-white/20 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 group opacity-75"
+                  >
+                    <div className="relative">
+                      <img
+                        src={article.image ? `http://localhost:5000${article.image}` : "https://via.placeholder.com/400x240?text=صورة+المقال"}
+                        alt={article.title}
+                        className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                      <div className="absolute top-4 right-4">
+                        <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm font-semibold">
+                          مؤرشف
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="p-6">
+                      <div className="flex justify-between items-start mb-4">
+                        <div className="flex-1">
+                          <h3 className="font-bold text-lg text-slate-800 group-hover:text-blue-600 transition-colors duration-300 mb-2 line-clamp-2">
+                            {article.title}
+                          </h3>
+                          <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold transition-all duration-300 ${
+                            article.category === "الصحة" 
+                              ? "bg-gradient-to-r from-emerald-100 to-green-100 text-emerald-700 border border-emerald-200"
+                              : article.category === "التغذية"
+                              ? "bg-gradient-to-r from-amber-100 to-orange-100 text-amber-700 border border-amber-200"
+                              : article.category === "التمارين"
+                              ? "bg-gradient-to-r from-purple-100 to-pink-100 text-purple-700 border border-purple-200"
+                              : "bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-700 border border-blue-200"
+                          }`}>
+                            {article.category}
+                          </span>
+                        </div>
+                        
+                        <div className="flex space-x-2 space-x-reverse">
+                          <button
+                            onClick={() => handleUnarchive(article)}
+                            className="text-green-600 hover:text-green-800 hover:bg-green-50 p-2 rounded-xl transition-all duration-300 hover:scale-110"
+                            title="إعادة نشر المقال"
+                          >
+                            <ArchiveRestore className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(article._id)}
+                            className="text-red-600 hover:text-red-800 hover:bg-red-50 p-2 rounded-xl transition-all duration-300 hover:scale-110"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                      
+                      <p className="text-slate-600 text-sm leading-relaxed line-clamp-3 mb-4">
+                        {article.content}
+                      </p>
+                      
+                      <div className="flex items-center justify-between text-xs text-slate-500">
+                        <div className="flex items-center space-x-2 space-x-reverse">
+                          <User className="w-3 h-3" />
+                          <span>{article.author}</span>
+                        </div>
+                        <div className="flex items-center space-x-2 space-x-reverse">
+                          <Calendar className="w-3 h-3" />
+                          <span>{new Date(article.date).toLocaleDateString("ar-EG")}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

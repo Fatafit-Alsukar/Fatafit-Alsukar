@@ -24,8 +24,10 @@ import Articles from "./Pages/Articles/Articles";
 import ArticleDetails from "./Pages/Articles/ArticleDetails";
 import ArticlesManagement from "./Dashboard/ArticlesManagement";
 import InKindDonation from "./Pages/Donation/InKindDonation";
-
+import Profile from "./Pages/Profile/Profile";
+import Archive from "./Pages/Archive/Archive";
 import ContactMessage from "./Dashboard/ContactMessages";
+
 function Layout() {
   const location = useLocation();
   const hideNavbarPages = ["/login", "/changepassword", "/dashboard"];
@@ -52,6 +54,8 @@ function Layout() {
         <Route path="/articles" element={<Articles />} />
         <Route path="/articles/:id" element={<ArticleDetails />} />
         <Route path="/contactmessage" element={<ContactMessage />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/archive" element={<Archive />} />
         {/* Add more routes as needed */}
       </Routes>
 
