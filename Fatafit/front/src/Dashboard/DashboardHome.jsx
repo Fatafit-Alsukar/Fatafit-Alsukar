@@ -228,7 +228,8 @@ export default function DashboardHome({
                   </tr>
                 </thead>
                 <tbody>
-                  {users.slice(0, 3).map((user, index) => (
+                  {[...users].slice(-3).reverse().map((user, index) => (
+
                     <tr 
                       key={user._id} 
                       className="border-b border-slate-100 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-300"
@@ -296,7 +297,7 @@ export default function DashboardHome({
             </div>
             <div className="p-6">
               <div className="space-y-4">
-                {events
+                {[...events].sort((a, b) => new Date(a.date) - new Date(b.date))
                   .filter((e) => new Date(e.date) >= new Date())
                   .slice(0, 3)
                   .map((event, index) => (
