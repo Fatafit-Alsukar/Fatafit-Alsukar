@@ -88,7 +88,6 @@ export default function UsersManagement({ users = [], updateUserStatus }) {
               <thead>
                 <tr className="bg-gradient-to-r from-slate-50 to-blue-50 border-b border-slate-200">
                   <th className="py-4 px-6 text-sm font-semibold text-slate-700">الاسم</th>
-                  <th className="py-4 px-6 text-sm font-semibold text-slate-700">العمر</th>
                   <th className="py-4 px-6 text-sm font-semibold text-slate-700">الحالة</th>
                   <th className="py-4 px-6 text-sm font-semibold text-slate-700">تاريخ الانضمام</th>
                   <th className="py-4 px-6 text-sm font-semibold text-slate-700">الإجراءات</th>
@@ -128,9 +127,7 @@ export default function UsersManagement({ users = [], updateUserStatus }) {
                           </div>
                         </div>
                       </td>
-                      <td className="py-4 px-6">
-                        <span className="text-slate-600 font-medium">{user.age} سنة</span>
-                      </td>
+                    
                       <td className="py-4 px-6">
                         <span
                           className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold transition-all duration-300 ${

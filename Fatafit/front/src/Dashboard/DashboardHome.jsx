@@ -1,4 +1,4 @@
-import React from "react";
+import react from "react";
 import {
   ResponsiveContainer,
   BarChart,
@@ -7,8 +7,9 @@ import {
   YAxis,
   Tooltip,
   Legend,
+  
 } from "recharts";
-import { UserPlus, Heart, ThumbsUp, Users } from "lucide-react";
+import { UserPlus, Heart, ThumbsUp, Users,Gift } from "lucide-react";
 import PatientRequestsByService from "./PatientRequestsByService";
 
 const StatCard = ({ icon, title, value, gradient, iconColor }) => (
@@ -34,6 +35,8 @@ export default function DashboardHome({
   patientRequestCount = 0,
   volunteerRequestCount = 0,
   userCount = 0,
+    totalDonations = 0, // تم إضافة الخاصية الجديدة هنا
+
   patientRequestsByType = [],
   events = [],
   users = [],
@@ -72,35 +75,43 @@ export default function DashboardHome({
         </div>
 
         {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <StatCard
-            icon={<UserPlus className="w-8 h-8" />}
+<div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">   
+         <StatCard
+            icon={<UserPlus className="w-6 h-6" />}
             title="طلبات الانتساب"
             value={membershipCount}
             gradient="from-emerald-500 to-teal-500"
             iconColor="text-white"
           />
           <StatCard
-            icon={<Heart className="w-8 h-8" />}
+            icon={<Heart className="w-6 h-6" />}
             title="طلبات المستفيدين"
             value={patientRequestCount}
             gradient="from-pink-500 to-rose-500"
             iconColor="text-white"
           />
           <StatCard
-            icon={<ThumbsUp className="w-8 h-8" />}
+            icon={<ThumbsUp className="w-6 h-6" />}
             title="طلبات التطوع"
             value={volunteerRequestCount}
             gradient="from-amber-500 to-orange-500"
             iconColor="text-white"
           />
           <StatCard
-            icon={<Users className="w-8 h-8" />}
-            title="المستفيدين النشطون"
+            icon={<Users className="w-6 h-6" />}
+            title="إجمالي المستفيدين"
             value={userCount}
             gradient="from-purple-500 to-indigo-500"
             iconColor="text-white"
           />
+             <StatCard
+            icon={<Gift className="w-6 h-6" />}
+            title="إجمالي التبرعات"
+            value={totalDonations}
+            gradient="from-cyan-500 to-blue-500"
+            iconColor="text-white"
+          />
+          
         </div>
 
         {/* Charts Section */}
@@ -151,7 +162,7 @@ export default function DashboardHome({
                       className="flex items-center justify-between p-3 bg-gradient-to-r from-slate-50 to-blue-50 rounded-xl border border-slate-100 hover:shadow-md transition-all duration-300"
                     >
                       <div className="flex items-center space-x-3 space-x-reverse">
-                        <div className="bg-gradient-to-r from-blue-500 to-indigo-500 w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                        <div className="bg-gradient-to-r from-blue-500 to-indigo-500 w-6 h-6 rounded-full flex items-center justify-center text-white font-bold text-sm">
                           {index + 1}
                         </div>
                         <span className="font-semibold text-slate-800">
@@ -166,7 +177,7 @@ export default function DashboardHome({
               ) : (
                 <div className="text-center py-8">
                   <div className="bg-gradient-to-r from-slate-100 to-blue-100 p-4 rounded-2xl mb-3 inline-block">
-                    <svg className="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                     </svg>
                   </div>
@@ -224,7 +235,7 @@ export default function DashboardHome({
                     >
                       <td className="py-4 px-6">
                         <div className="flex items-center space-x-3 space-x-reverse">
-                          <div className="bg-gradient-to-r from-blue-500 to-indigo-500 w-8 h-8 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                          <div className="bg-gradient-to-r from-blue-500 to-indigo-500 w-6 h-6 rounded-full flex items-center justify-center text-white font-semibold text-sm">
                             {user.name.charAt(0)}
                           </div>
                           <span className="font-semibold text-slate-800">{user.name}</span>
@@ -324,7 +335,7 @@ export default function DashboardHome({
                 {events.filter((e) => new Date(e.date) >= new Date()).length === 0 && (
                   <div className="text-center py-8">
                     <div className="bg-gradient-to-r from-slate-100 to-blue-100 p-4 rounded-2xl mb-3 inline-block">
-                      <svg className="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 4v8m0 0V9a2 2 0 012-2h4a2 2 0 012 2v10m-6 0a2 2 0 002 2h4a2 2 0 002-2m-6 0h6" />
                       </svg>
                     </div>
