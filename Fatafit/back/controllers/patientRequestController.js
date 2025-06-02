@@ -171,7 +171,7 @@ exports.approveRequest = async (req, res) => {
 
 // دالة إرسال إيميل الموافقة
 async function sendApprovalEmail(to, text) {
-  const transporter = nodemailer.createTransporter({
+  const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
       user: process.env.EMAIL_USER,
@@ -189,7 +189,7 @@ async function sendApprovalEmail(to, text) {
 
 // دالة إرسال إيميل التعليق
 async function sendSuspensionEmail(to, text) {
-  const transporter = nodemailer.createTransporter({
+  const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
       user: process.env.EMAIL_USER,

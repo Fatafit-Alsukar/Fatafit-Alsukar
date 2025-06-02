@@ -202,7 +202,7 @@
 
 import { useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 import fatafitLogo from "../../assets/fl.png"
 
@@ -313,7 +313,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen lg:px-120 md:px-20 bg-gradient-to-br from-blue-50 via-white to-indigo-100 px-8" dir="rtl" style={{
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-100 px-8" dir="rtl" style={{
       background: 'linear-gradient(135deg, #4A90E2 0%, #3564b8 100%)'
     }}>
       <Toaster
@@ -328,7 +328,7 @@ export default function Login() {
         }}
       />
 
-      <div className="w-full p-4 max-w-xs min-h-screen py-30">
+      <div className="w-[500px] mx-auto p-4 py-30 max-w-xs min-h-screen">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-white bg-opacity-20 backdrop-blur-sm mb-4 overflow-hidden border-2 border-white border-opacity-30">
             <img
@@ -422,6 +422,15 @@ export default function Login() {
               )}
             </button>
           </form>
+          {/* روابط إضافية */}
+          <div className="mt-2 text-center">
+            <Link to="/changepassword"
+              className="text-[14px] hover:underline transition-colors duration-200"
+              style={{ color: '#4A90E2' }}
+            >
+              نسيت كلمة المرور؟
+            </Link>
+          </div>
         </div>
       </div>
     </div>
