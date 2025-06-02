@@ -8,9 +8,8 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import { UserPlus, Heart, ThumbsUp, Users, TrendingUp } from "lucide-react";
-
-const StatCard = ({ icon, title, value, color, gradient }) => (
+import { UserPlus, Heart, ThumbsUp, Users, TrendingUp, Gift } from "lucide-react";
+const StatCard = ({ icon, title, value, iconColor, gradient }) => (
   <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/20 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 group">
     <div className="flex items-center justify-between">
       <div>
@@ -19,8 +18,10 @@ const StatCard = ({ icon, title, value, color, gradient }) => (
           {value}
         </h3>
       </div>
-      <div className={`p-4 rounded-2xl shadow-lg ${gradient} group-hover:scale-110 transition-transform duration-300`}>
-        {icon}
+       <div className={`bg-gradient-to-r ${gradient} p-4 rounded-2xl shadow-lg group-hover:scale-110 transition-all duration-300`}>
+        <div className={`${iconColor}`}>
+          {icon}
+        </div>
       </div>
     </div>
   </div>
@@ -31,6 +32,7 @@ export default function StatisticsDashboard({
   patientRequestCount = 0,
   volunteerRequestCount = 0,
   userCount = 0,
+  totalDonations = 0,
   monthlyRegistrations = [
     { name: "يناير", patients: 65, volunteers: 28, memberships: 15, users: 45 },
     { name: "فبراير", patients: 59, volunteers: 48, memberships: 22, users: 52 },
@@ -72,7 +74,7 @@ export default function StatisticsDashboard({
         </div>
 
         {/* Main Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8"> 
           <StatCard
             icon={<UserPlus className="w-6 h-6 text-white" />}
             title="طلبات الانتساب"
@@ -97,6 +99,13 @@ export default function StatisticsDashboard({
             value={userCount}
             gradient="bg-gradient-to-r from-indigo-500 to-purple-500"
           />
+              <StatCard
+                      icon={<Gift className="w-6 h-6" />}
+                      title="إجمالي التبرعات"
+                      value={totalDonations}
+                      gradient="from-cyan-500 to-blue-500"
+                      iconColor="text-white"
+                    />
         </div>
 
         {/* Summary Card */}

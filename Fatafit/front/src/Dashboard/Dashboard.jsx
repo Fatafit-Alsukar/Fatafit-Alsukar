@@ -1,4 +1,4 @@
-import { useState, useEffect, act } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import {
   Home,
@@ -8,23 +8,13 @@ import {
   PieChart,
   Heart,
   Activity,
-  Bell,
-  Settings,
-  LogOut,
-  Plus,
-  Search,
-  DollarSign,
-  TrendingUp,
+
   UserPlus,
-  Calendar,
+
   AlertCircle,
-  Trash2,
-  Edit,
+
   X,
-  Clock,
-  HelpCircle,
-  BarChart2,
-  LineChart,
+
   ThumbsUp,
   MessageCircleIcon,
 } from "lucide-react";
@@ -35,12 +25,8 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
-  PieChart as RPieChart,
-  Pie,
-  Cell,
-  Legend,
-  LineChart as RLineChart,
-  Line,
+
+
 } from "recharts";
 import {
   getServices,
@@ -60,12 +46,12 @@ import VolunteerRequests from "./VolunteerRequests";
 import PatientRequestsByService from "./PatientRequestsByService";
 import StatisticsDashboard from "./StatisticsDashboard";
 import DashboardHome from "./DashboardHome";
+import DonationDashboard from "./DonationDashboard";
 
-export default function Dashboard() {
+export default function Dashboard(// تم إضافة الخاصية الجديدة هنا
+) {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [showAddServiceForm, setShowAddServiceForm] = useState(false);
-  const [showAddUserForm, setShowAddUserForm] = useState(false);
-  const [showAddEventForm, setShowAddEventForm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [services, setServices] = useState([]);
@@ -76,108 +62,33 @@ export default function Dashboard() {
   const [patientRequestCount, setPatientRequestCount] = useState(0);
   const [volunteerRequestCount, setVolunteerRequestCount] = useState(0);
   const [userCount, setUserCount] = useState(0);
-  const [activePatients, setActivePatients] = useState(0);
-  const [totalVolunteers, setTotalVolunteers] = useState(0);
-  const [upcomingEvents, setUpcomingEvents] = useState(0);
-  const [completedEvents, setCompletedEvents] = useState(0);
   const [patientRequestsByType, setPatientRequestsByType] = useState([]);
   const [selectedServiceType, setSelectedServiceType] = useState(null);
   const [requestsByType, setRequestsByType] = useState([]);
-  const [groupedRequests, setGroupedRequests] = useState([]);
   const [membershipRequests, setMembershipRequests] = useState([]);
   const [volunteerRequests, setVolunteerRequests] = useState([]);
-
   // بيانات الرسم البياني (يمكن استبدالها ببيانات ديناميكية لاحقًا)
   const [monthlyRegistrations, setMonthlyRegistrations] = useState([]);
 
-  const [ageDistribution, setAgeDistribution] = useState([
-    { name: "0-5", value: 45 },
-    { name: "6-10", value: 78 },
-    { name: "11-15", value: 56 },
-    { name: "16-18", value: 23 },
-  ]);
 
-  const [genderDistribution, setGenderDistribution] = useState([
-    { name: "ذكور", value: 110 },
-    { name: "إناث", value: 108 },
-  ]);
 
-  const [patientsByRegion, setPatientsByRegion] = useState([
-    { name: "الرياض", value: 57 },
-    { name: "جدة", value: 42 },
-    { name: "الدمام", value: 31 },
-    { name: "المدينة", value: 19 },
-    { name: "أبها", value: 15 },
-    { name: "أخرى", value: 54 },
-  ]);
+const [donations, setDonations] = useState([]);
+const totalDonations = donations.length;
+const fetchDonations = async () => {
+  try {
+    const res = await axios.get("http://localhost:5000/api/donations");
+    setDonations(res.data);
+  } catch (error) {
+    console.error("فشل في جلب التبرعات:", error);
+  }
+};
+  useEffect(() => {
+    fetchDonations();
+  }, []);
 
-  const [volunteerHoursByMonth, setVolunteerHoursByMonth] = useState([
-    { name: "يناير", hours: 120 },
-    { name: "فبراير", hours: 145 },
-    { name: "مارس", hours: 132 },
-    { name: "أبريل", hours: 190 },
-    { name: "مايو", hours: 170 },
-  ]);
 
-  const [donationsByMonth, setDonationsByMonth] = useState([
-    { name: "يناير", donations: 5200 },
-    { name: "فبراير", donations: 6100 },
-    { name: "مارس", donations: 4800 },
-    { name: "أبريل", donations: 9200 },
-    { name: "مايو", donations: 8500 },
-  ]);
 
-  const [volunteersByCategory, setVolunteersByCategory] = useState([
-    { name: "طبي", value: 28 },
-    { name: "تعليمي", value: 15 },
-    { name: "إداري", value: 12 },
-    { name: "لوجستي", value: 8 },
-  ]);
-
-  const statisticData = [
-    {
-      name: "مستفيدين نشطين",
-      value: activePatients,
-      color: "#A8E6CF",
-      icon: <Users className="w-6 h-6 text-teal-500" />,
-    },
-    {
-      name: "متطوعين",
-      value: totalVolunteers,
-      color: "#FF8BB0",
-      icon: <Heart className="w-6 h-6 text-pink-500" />,
-    },
-    {
-      name: "فعاليات قادمة",
-      value: upcomingEvents,
-      color: "#FFF9C4",
-      icon: <Calendar className="w-6 h-6 text-yellow-500" />,
-    },
-    {
-      name: "فعاليات منتهية",
-      value: completedEvents,
-      color: "#E6E6FA",
-      icon: <Activity className="w-6 h-6 text-purple-500" />,
-    },
-  ];
-  const dashboardStatsData = [
-    {
-      name: "طلبات الانتساب",
-      value: membershipCount,
-    },
-    {
-      name: "طلبات المستفيدين",
-      value: patientRequestCount,
-    },
-    {
-      name: "طلبات التطوع",
-      value: volunteerRequestCount,
-    },
-    {
-      name: "المستفيدين النشطون",
-      value: userCount,
-    },
-  ];
+  
   // ألوان الواجهة
   const colors = {
     skyBlue: "#87CEEB",
@@ -189,41 +100,10 @@ export default function Dashboard() {
     background: "#FFFCF0",
   };
 
-  const pieColors = ["#A8E6CF", "#FFD3B6", "#FF8BB0", "#E6E6FA"];
 
   const [users, setUsers] = useState([]);
   const [events, setEvents] = useState([]);
 
-  const [recentActivities, setRecentActivities] = useState([
-    {
-      id: 1,
-      icon: <UserPlus className="w-5 h-5 text-blue-500" />,
-      title: "تسجيل مريض جديد",
-      description: "أحمد محمد، 8 سنوات",
-      time: "منذ ساعتين",
-    },
-    {
-      id: 2,
-      icon: <Calendar className="w-5 h-5 text-green-500" />,
-      title: "تم تحديد موعد",
-      description: "فحص مع د. سلطان",
-      time: "بالأمس",
-    },
-    {
-      id: 3,
-      icon: <DollarSign className="w-5 h-5 text-pink-500" />,
-      title: "تم استلام تبرع",
-      description: "2500 ريال من شركة السعادة",
-      time: "منذ يومين",
-    },
-    {
-      id: 4,
-      icon: <Heart className="w-5 h-5 text-red-500" />,
-      title: "متطوع جديد",
-      description: "نورة العتيبي انضمت للفريق",
-      time: "منذ 3 أيام",
-    },
-  ]);
 
   // حالات النماذج
   const [newService, setNewService] = useState({
@@ -251,13 +131,8 @@ export default function Dashboard() {
       const res = await axios.get("http://localhost:5000/api/activities");
       setEvents(res.data);
 
-      // إحصائيات
-      setUpcomingEvents(
-        res.data.filter((e) => new Date(e.date) >= new Date()).length
-      );
-      setCompletedEvents(
-        res.data.filter((e) => new Date(e.date) < new Date()).length
-      );
+
+
     } catch (err) {
       console.error("فشل في جلب الفعاليات:", err);
     }
@@ -547,24 +422,8 @@ export default function Dashboard() {
     }
   };
 
-  // إضافة مستخدم جديد
-  const handleAddUser = (e) => {
-    e.preventDefault();
-    const id = users.length + 1;
-    const joinDate = new Date().toISOString().split("T")[0];
-    setUsers([...users, { id, ...newUser, joinDate }]);
-    setNewUser({ name: "", age: "", status: "نشط" });
-    setShowAddUserForm(false);
-  };
 
-  // إضافة فعالية جديدة
-  const handleAddEvent = (e) => {
-    e.preventDefault();
-    const id = events.length + 1;
-    setEvents([...events, { id, ...newEvent }]);
-    setNewEvent({ title: "", date: "", location: "" });
-    setShowAddEventForm(false);
-  };
+
 
   // معالجة التبرع
   const handleDonation = (e) => {
@@ -579,9 +438,8 @@ export default function Dashboard() {
   // مكونات واجهة المستخدم (تبقى كما هي بدون تغيير)
   const SidebarItem = ({ icon, text, active, onClick }) => (
     <button
-      className={`flex items-center space-x-2 space-x-reverse p-2 rounded-lg w-full text-right ${
-        active ? "bg-blue-50 text-blue-600" : "text-gray-600 hover:bg-gray-100"
-      }`}
+      className={`flex items-center space-x-2 space-x-reverse p-2 rounded-lg w-full text-right ${active ? "bg-blue-50 text-blue-600" : "text-gray-600 hover:bg-gray-100"
+        }`}
       onClick={onClick}
     >
       <div className="flex items-center justify-between w-full">
@@ -591,31 +449,9 @@ export default function Dashboard() {
     </button>
   );
 
-  const StatCard = ({ icon, title, value, color }) => (
-    <div
-      className="p-6 rounded-lg shadow-sm"
-      style={{ backgroundColor: color }}
-    >
-      <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-lg font-semibold text-gray-800">{value}</h3>
-          <p className="text-sm text-gray-600">{title}</p>
-        </div>
-        <div className="p-3 bg-white bg-opacity-60 rounded-full">{icon}</div>
-      </div>
-    </div>
-  );
 
-  const ActivityItem = ({ icon, title, description, time }) => (
-    <div className="flex items-start gap-3">
-      <div className="mt-1">{icon}</div>
-      <div className="flex-1">
-        <h3 className="font-medium">{title}</h3>
-        <p className="text-sm text-gray-500">{description}</p>
-      </div>
-      <div className="text-xs text-gray-400 whitespace-nowrap">{time}</div>
-    </div>
-  );
+
+
 
   // بقية الكود (العناصر الأخرى والواجهة) تبقى كما هي بدون تغيير
   // ...
@@ -766,6 +602,7 @@ export default function Dashboard() {
               requestsByType={requestsByType}
               updateStatus={updateStatus}
               setSelectedServiceType={setSelectedServiceType}
+              totalDonations={totalDonations} // ✅ أضف هذا السطر
             />
           )}
 
@@ -835,76 +672,20 @@ export default function Dashboard() {
               userCount={userCount}
               monthlyRegistrations={monthlyRegistrations}
               colors={colors}
+              totalDonations={totalDonations} // ✅ أضف هذا السطر
             />
           )}
 
           {/* صفحة التبرعات */}
-          {activeTab === "donations" && (
-            <div className="space-y-6">
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <h2 className="text-xl font-semibold mb-4">التبرعات</h2>
+          {activeTab === "donations" && 
+            <DonationDashboard 
+              totalDonations={totalDonations}
+        />
+      }
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  <div className="lg:col-span-2">
-                    <h3 className="text-lg font-semibold mb-4">
-                      سجل التبرعات الشهرية
-                    </h3>
-                    <div className="h-64">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <BarChart
-                          data={donationsByMonth}
-                          margin={{ top: 5, right: 30, left: 0, bottom: 5 }}
-                        >
-                          <XAxis dataKey="name" />
-                          <YAxis />
-                          <Tooltip
-                            formatter={(value) => [`${value} ريال`, "التبرعات"]}
-                          />
-                          <Bar
-                            dataKey="donations"
-                            name="التبرعات (بالريال)"
-                            fill="#82ca9d"
-                          />
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </div>
-
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <h3 className="text-lg font-semibold mb-4">تبرع الآن</h3>
-                    <form onSubmit={handleDonation}>
-                      <div className="mb-4">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          المبلغ (بالريال)
-                        </label>
-                        <input
-                          type="number"
-                          required
-                          min="1"
-                          className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-300"
-                          value={donationAmount}
-                          onChange={(e) => setDonationAmount(e.target.value)}
-                        />
-                      </div>
-                      <button
-                        type="submit"
-                        className="w-full bg-green-500 text-white p-3 rounded-lg hover:bg-green-600"
-                      >
-                        تبرع الآن
-                      </button>
-                      <div className="mt-4 text-center text-sm text-gray-500">
-                        جميع التبرعات تذهب مباشرة لدعم أطفال مستفيدين السكري
-                      </div>
-                    </form>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeTab === "contactmessage" && <ContactMessage />}
-        </main>
-      </div>
-    </div>
-  );
+      {activeTab === "contactmessage" && <ContactMessage />}
+    </main>
+  </div>
+</div>
+);
 }

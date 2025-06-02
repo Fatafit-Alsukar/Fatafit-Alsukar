@@ -140,7 +140,6 @@ export default function VolunteerRequests({
                     <th className="py-4 px-6 text-sm font-semibold text-slate-700">البريد الإلكتروني</th>
                     <th className="py-4 px-6 text-sm font-semibold text-slate-700">الهاتف</th>
                     <th className="py-4 px-6 text-sm font-semibold text-slate-700">تاريخ الميلاد</th>
-                    <th className="py-4 px-6 text-sm font-semibold text-slate-700">المهارات</th>
                     <th className="py-4 px-6 text-sm font-semibold text-slate-700">معلومات إضافية</th>
                     <th className="py-4 px-6 text-sm font-semibold text-slate-700">الحالة</th>
                     <th className="py-4 px-6 text-sm font-semibold text-slate-700">الإجراءات</th>
@@ -216,9 +215,7 @@ export default function VolunteerRequests({
 
                           </div>
                         </td>
-                        <td className="py-4 px-6">
-                          <ReadMoreCell text={req.skills || "-"} />
-                        </td>
+                      
                         <td className="py-4 px-6">
                           <ReadMoreCell text={req.additionalInfo} />
                         </td>

@@ -31,4 +31,12 @@ router.post("/items", async (req, res) => {
   }
 });
 
+router.get('/', async (req, res) => {
+  try {
+    const donations = await Donation.find().sort({ createdAt: -1 });
+    res.json(donations);
+  } catch (err) {
+    res.status(500).json({ error: 'فشل في جلب التبرعات' });
+  }
+});
 module.exports = router; 
