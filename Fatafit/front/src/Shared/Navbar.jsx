@@ -53,6 +53,7 @@ export default function KidFriendlyNavbarArabic() {
       "/patientrequest": "سجل معنا",
       "/volunteerrequest": "سجل معنا",
       "/membershiprequest": "سجل معنا",
+      "/success-stories": "قصص النجاح",
     };
     setActiveItem(pathToName[location.pathname] || "الصفحة الرئيسية");
   }, [location]);
@@ -98,7 +99,7 @@ export default function KidFriendlyNavbarArabic() {
   const activitiesOptions = [
     { label: "الأخبار و الفعاليات", to: "/Activities" },
     { label: "نصائح", to: "/articles" },
-    { label: "قصص ملهمة", to: "/stories" },
+    { label: "قصص ملهمة", to: "/success-stories" },
     { label: "أرشيف المحتوى", to: "/archive" },
   ];
 

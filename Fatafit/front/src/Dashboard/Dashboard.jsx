@@ -14,7 +14,7 @@ import {
   AlertCircle,
 
   X,
-
+BookOpen,
   ThumbsUp,
   MessageCircleIcon,
 } from "lucide-react";
@@ -47,8 +47,9 @@ import PatientRequestsByService from "./PatientRequestsByService";
 import StatisticsDashboard from "./StatisticsDashboard";
 import DashboardHome from "./DashboardHome";
 import DonationDashboard from "./DonationDashboard";
+import SuccessStories from "./SuccessStories";
 
-export default function Dashboard(// تم إضافة الخاصية الجديدة هنا
+export default function Dashboard(   
 ) {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [showAddServiceForm, setShowAddServiceForm] = useState(false);
@@ -69,6 +70,8 @@ export default function Dashboard(// تم إضافة الخاصية الجديد
   const [volunteerRequests, setVolunteerRequests] = useState([]);
   // بيانات الرسم البياني (يمكن استبدالها ببيانات ديناميكية لاحقًا)
   const [monthlyRegistrations, setMonthlyRegistrations] = useState([]);
+const [successStories, setSuccessStories] = useState([]);
+const [showForm, setShowForm] = useState(false);
 
 
 
@@ -85,7 +88,6 @@ const fetchDonations = async () => {
   useEffect(() => {
     fetchDonations();
   }, []);
-
 
 
   
@@ -239,6 +241,32 @@ const fetchDonations = async () => {
       setError("فشل في تحديث حالة المستخدم.");
     }
   };
+
+
+  const fetchSuccessStories = async () => {
+  try {
+    const res = await axios.get("http://localhost:5000/api/success-stories");
+    setSuccessStories(res.data);
+  } catch (error) {
+    console.error("فشل في جلب قصص النجاح:", error);
+  }
+};
+useEffect(() => {
+  // ... استدعاءات API الأخرى
+  fetchSuccessStories();
+}, []);
+
+const handleStorySubmit = async (data) => {
+  try {
+    await axios.post("http://localhost:5000/api/success-stories", data);
+    alert("تم حفظ قصة النجاح بنجاح!");
+    setShowForm(false);
+    fetchSuccessStories(); // إعادة تحميل القصص بعد الإضافة
+  } catch (error) {
+    alert("حدث خطأ أثناء الحفظ.");
+    console.error(error);
+  }
+};
 
   // جلب البيانات عند تحميل المكون
   useEffect(() => {
@@ -537,6 +565,13 @@ const fetchDonations = async () => {
               active={activeTab === "contactmessage"}
               onClick={() => setActiveTab("contactmessage")}
             />
+            <SidebarItem
+              icon={<BookOpen />} // أو أي أيقونة أخرى مناسبة
+              text="قصص النجاح"
+              active={activeTab === "successStories"}
+              onClick={() => setActiveTab("successStories")}
+            />
+
              <div className="flex justify-center">
               <SidebarItem
                 icon={<Home className="w-7 h-7" />}
@@ -693,6 +728,12 @@ const fetchDonations = async () => {
       }
 
       {activeTab === "contactmessage" && <ContactMessage />}
+{activeTab === "successStories" && (
+  <SuccessStories
+    successStories={successStories}
+    onSubmit={handleStorySubmit}
+  />
+)}
     </main>
   </div>
 </div>
