@@ -436,10 +436,9 @@ const fetchDonations = async () => {
   };
 
   // مكونات واجهة المستخدم (تبقى كما هي بدون تغيير)
-  const SidebarItem = ({ icon, text, active, onClick }) => (
+  const SidebarItem = ({ icon, text, active, onClick, customClass = "" }) => (
     <button
-      className={`flex items-center space-x-2 space-x-reverse p-2 rounded-lg w-full text-right ${active ? "bg-blue-50 text-blue-600" : "text-gray-600 hover:bg-gray-100"
-        }`}
+      className={`flex items-center space-x-2 space-x-reverse p-2 rounded-lg w-full text-right ${active ? "bg-blue-50 text-blue-600" : "text-gray-600 hover:bg-gray-100"} ${customClass}`}
       onClick={onClick}
     >
       <div className="flex items-center justify-between w-full">
@@ -469,6 +468,7 @@ const fetchDonations = async () => {
         </div>
         <div className="p-2">
           <div className="flex flex-col space-y-1">
+           
             <SidebarItem
               icon={<Home />}
               text="الرئيسية"
@@ -537,6 +537,15 @@ const fetchDonations = async () => {
               active={activeTab === "contactmessage"}
               onClick={() => setActiveTab("contactmessage")}
             />
+             <div className="flex justify-center">
+              <SidebarItem
+                icon={<Home className="w-7 h-7" />}
+                text={<span className="text-lg font-extrabold">الصفحة الرئيسية للموقع</span>}
+                active={false}
+                onClick={() => window.location.href = '/'}
+                customClass="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-2xl mt-8 py-4 px-6 hover:from-blue-700 hover:to-indigo-700 transition-all font-extrabold shadow-xl scale-100 hover:scale-105 border-2 border-blue-100"
+              />
+            </div>
           </div>
         </div>
       </div>

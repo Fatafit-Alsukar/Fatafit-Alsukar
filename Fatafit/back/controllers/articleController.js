@@ -33,7 +33,9 @@ const upload = multer({
 // الحصول على جميع المقالات
 exports.getArticles = async (req, res) => {
   try {
-    const articles = await Article.find().sort({ date: -1 });
+    const { archived } = req.query;
+    const query = archived === 'true' ? { isArchived: true } : { isArchived: false };
+    const articles = await Article.find(query).sort({ date: -1 });
     res.json(articles);
   } catch (error) {
     console.error('Error fetching articles:', error);
@@ -139,6 +141,56 @@ exports.deleteArticle = async (req, res) => {
     console.error('Error deleting article:', error);
     res.status(500).json({ 
       message: 'حدث خطأ أثناء حذف المقال',
+      error: error.message 
+    });
+  }
+};
+
+// أرشفة مقال
+exports.archiveArticle = async (req, res) => {
+  try {
+    const article = await Article.findById(req.params.id);
+    if (!article) {
+      return res.status(404).json({ message: 'المقال غير موجود' });
+    }
+
+    if (article.isArchived) {
+      return res.status(400).json({ message: 'المقال مؤرشف بالفعل' });
+    }
+
+    article.isArchived = true;
+    article.archivedAt = new Date();
+    const updatedArticle = await article.save();
+    res.json(updatedArticle);
+  } catch (error) {
+    console.error('Error archiving article:', error);
+    res.status(500).json({ 
+      message: 'حدث خطأ أثناء أرشفة المقال',
+      error: error.message 
+    });
+  }
+};
+
+// إلغاء أرشفة مقال
+exports.unarchiveArticle = async (req, res) => {
+  try {
+    const article = await Article.findById(req.params.id);
+    if (!article) {
+      return res.status(404).json({ message: 'المقال غير موجود' });
+    }
+
+    if (!article.isArchived) {
+      return res.status(400).json({ message: 'المقال غير مؤرشف' });
+    }
+
+    article.isArchived = false;
+    article.archivedAt = null;
+    const updatedArticle = await article.save();
+    res.json(updatedArticle);
+  } catch (error) {
+    console.error('Error unarchiving article:', error);
+    res.status(500).json({ 
+      message: 'حدث خطأ أثناء إلغاء أرشفة المقال',
       error: error.message 
     });
   }

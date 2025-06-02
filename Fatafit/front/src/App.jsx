@@ -25,6 +25,8 @@ import ArticlesManagement from "./Dashboard/ArticlesManagement";
 import InKindDonation from "./Pages/Donation/InKindDonation";
 import ContactMessage from "./Dashboard/ContactMessages";
 import DonateDashboard from "./Dashboard/DonationDashboard";
+import Profile from "./Pages/Profile/Profile";
+import Archive from "./Pages/Archive/Archive";
 
 function Layout() {
   const location = useLocation();
@@ -52,6 +54,8 @@ function Layout() {
         <Route path="/articles/:id" element={<ArticleDetails />} />
         <Route path="/contactmessage" element={<ContactMessage />} />
         <Route path="/donationdashboard" element={<DonateDashboard />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/archive" element={<Archive />} />
         {/* Add more routes as needed */}
       </Routes>
 

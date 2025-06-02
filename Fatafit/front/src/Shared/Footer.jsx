@@ -1,7 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Facebook, Instagram, Twitter, Mail, Phone, MapPin, Heart, ArrowLeft, Send } from 'lucide-react';
+import { Mail, Phone, MapPin, Heart, ArrowLeft, Send } from 'lucide-react';
 import logoImg from "./Screenshot_2025-05-09_132412-removebg-preview (1).png";
+import whatsappIcon from "./icons8-whatsapp.gif";
+import instagramIcon from "./icons8-instagram.gif";
+import facebookIcon from "./icons8-facebook-48 (1).png";
 
 export default function Footer() {
   return (
@@ -43,14 +46,14 @@ export default function Footer() {
             <div className="space-y-2">
               <h4 className="text-base font-semibold text-[#2B6CB0]">تابعونا</h4>
               <div className="flex gap-2">
-                <a href="#" className="group p-2 rounded-lg bg-white/80 backdrop-blur-sm border border-blue-200 hover:bg-blue-50 hover:text-[#2B6CB0] transition-all duration-300 shadow-sm">
-                  <Facebook className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                <a href="https://www.facebook.com/p/%D8%AC%D9%85%D8%B9%D9%8A%D8%A9-%D8%A3%D8%B7%D9%81%D8%A7%D9%84-%D9%81%D8%AA%D8%A7%D9%81%D9%8A%D8%AA-%D8%A7%D9%84%D8%B3%D9%83%D8%B1-%D8%A7%D9%84%D8%AE%D9%8A%D8%B1%D9%8A%D8%A9-61557610734202/" target="_blank" rel="noopener noreferrer" className="group p-2 rounded-lg bg-white/80 backdrop-blur-sm border border-blue-200 hover:bg-blue-50 hover:text-[#2B6CB0] transition-all duration-300 shadow-sm">
+                  <img src={facebookIcon} alt="Facebook" className="w-4 h-4 group-hover:scale-110 transition-transform" />
                 </a>
-                <a href="#" className="group p-2 rounded-lg bg-white/80 backdrop-blur-sm border border-blue-200 hover:bg-blue-50 hover:text-[#2B6CB0] transition-all duration-300 shadow-sm">
-                  <Instagram className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                <a href="https://www.instagram.com/fatafeetalsukar24?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" rel="noopener noreferrer" className="group p-2 rounded-lg bg-white/80 backdrop-blur-sm border border-blue-200 hover:bg-blue-50 hover:text-[#2B6CB0] transition-all duration-300 shadow-sm">
+                  <img src={instagramIcon} alt="Instagram" className="w-4 h-4 group-hover:scale-110 transition-transform" />
                 </a>
-                <a href="#" className="group p-2 rounded-lg bg-white/80 backdrop-blur-sm border border-blue-200 hover:bg-blue-50 hover:text-[#2B6CB0] transition-all duration-300 shadow-sm">
-                  <Twitter className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                <a href="https://wa.me/962790000000" target="_blank" rel="noopener noreferrer" className="group p-2 rounded-lg bg-white/80 backdrop-blur-sm border border-blue-200 hover:bg-blue-50 hover:text-[#2B6CB0] transition-all duration-300 shadow-sm">
+                  <img src={whatsappIcon} alt="WhatsApp" className="w-4 h-4 group-hover:scale-110 transition-transform" />
                 </a>
               </div>
             </div>
@@ -93,15 +96,19 @@ export default function Footer() {
               </h4>
               <ul className="space-y-3">
                 {[
-                  { icon: Phone, text: "+962 6 123 4567" },
-                  { icon: Mail, text: "info@fatafit.com" },
+                  { icon: Phone, text: "+962 7 8151 9422" },
+                  { icon: Mail, text: "fatafeatskr@gmail.com" },
                   { icon: MapPin, text: "عمان، الأردن" }
                 ].map((contact, index) => (
                   <li key={index} className="flex items-center gap-3 text-blue-600 group">
                     <div className="p-1.5 rounded-lg bg-white/80 backdrop-blur-sm border border-blue-200 group-hover:bg-blue-50 transition-all shadow-sm">
                       <contact.icon className="w-4 h-4" />
                     </div>
-                    <span className="text-sm group-hover:text-[#2B6CB0] transition-colors">{contact.text}</span>
+                    {contact.icon === Phone ? (
+                      <span dir="ltr" className="text-sm font-mono group-hover:text-[#2B6CB0] transition-colors">{contact.text}</span>
+                    ) : (
+                      <span className="text-sm group-hover:text-[#2B6CB0] transition-colors">{contact.text}</span>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -115,17 +122,16 @@ export default function Footer() {
         {/* Bottom Section */}
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
           <div className="flex flex-col sm:flex-row items-center gap-3 text-blue-600">
-            <p className="text-sm text-center sm:text-right">
-              © {new Date().getFullYear()} فتافيت السكر. جميع الحقوق محفوظة
-            </p>
-            <div className="hidden sm:block w-px h-4 bg-blue-300/50"></div>
             <div className="flex items-center gap-2">
-              <span className="text-sm">صنع </span>
-             
-              <span className="text-sm">في الأردن</span>
-
-              <Heart className="w-3 h-3 text-red-400 animate-pulse" />
+              <span className="text-sm">تم التطوير بواسطة أكاديمية أورنج للبرمجة- فرع الزرقاء</span>
+              <img 
+                src="/src/Shared/Orange_logo.svg.webp" 
+                alt="Orange Academy Logo" 
+                className="h-4 w-auto"
+              />
             </div>
+            <div className="hidden sm:block w-px h-4 bg-blue-300/50"></div>
+          
           </div>
           
           <div className="flex items-center gap-3 text-sm text-blue-600">
@@ -134,6 +140,8 @@ export default function Footer() {
             <Link to="/terms" className="hover:text-[#2B6CB0] transition-colors">الشروط والأحكام</Link>
           </div>
         </div>
+
+     
       </div>
     </footer>
   );
