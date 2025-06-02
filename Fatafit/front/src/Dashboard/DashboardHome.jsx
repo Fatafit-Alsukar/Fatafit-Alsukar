@@ -1,4 +1,6 @@
 import react from "react";
+import { useState } from "react";
+import axios from "axios";
 import {
   ResponsiveContainer,
   BarChart,
@@ -29,7 +31,49 @@ const StatCard = ({ icon, title, value, gradient, iconColor }) => (
     </div>
   </div>
 );
+const SuccessStoryForm = ({ onSubmit }) => {
+  const [name, setName] = useState("");
+  const [age, setAge] = useState("");
+  const [story, setStory] = useState("");
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSubmit({ name, age, story });
+    setName("");
+    setAge("");
+    setStory("");
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+      <input
+        className="w-full border p-2 rounded"
+        placeholder="الاسم"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
+      <input
+        className="w-full border p-2 rounded"
+        placeholder="العمر"
+        type="number"
+        value={age}
+        onChange={(e) => setAge(e.target.value)}
+      />
+      <textarea
+        className="w-full border p-2 rounded"
+        placeholder="قصة النجاح"
+        value={story}
+        onChange={(e) => setStory(e.target.value)}
+      />
+      <button
+        type="submit"
+        className="bg-teal-600 text-white px-4 py-2 rounded"
+      >
+        حفظ القصة
+      </button>
+    </form>
+  );
+};
 export default function DashboardHome({
   membershipCount = 0,
   patientRequestCount = 0,
@@ -50,6 +94,20 @@ export default function DashboardHome({
   updateStatus,
   setSelectedServiceType,
 }) {
+
+
+    const [showForm, setShowForm] = useState(false);
+
+  const handleStorySubmit = async (data) => {
+    try {
+      await axios.post("http://localhost:5000/api/success-stories", data);
+      alert("تم حفظ قصة النجاح بنجاح!");
+      setShowForm(false);
+    } catch (error) {
+      alert("حدث خطأ أثناء الحفظ.");
+      console.error(error);
+    }
+  };
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-6">
       <div className="max-w-7xl mx-auto space-y-8">
@@ -119,7 +177,6 @@ export default function DashboardHome({
           {/* Bar Chart */}
           <div className="lg:col-span-2 bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/20">
             <div className="mb-6">
-              <h3 className="text-xl font-bold text-slate-800 mb-2">إحصائيات التسجيل الشهرية</h3>
               <p className="text-slate-600">إحصائيات التسجيل خلال الأشهر الخمسة الماضية</p>
             </div>
             <div className="h-80">
@@ -148,7 +205,6 @@ export default function DashboardHome({
           {/* Top Services */}
           <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/20">
             <div className="mb-6">
-              <h3 className="text-xl font-bold text-slate-800 mb-2">أكثر الخدمات طلباً</h3>
               <p className="text-slate-600">أكثر الخدمات طلباً من المستفيدين</p>
             </div>
             <div className="space-y-4">
@@ -162,9 +218,7 @@ export default function DashboardHome({
                       className="flex items-center justify-between p-3 bg-gradient-to-r from-slate-50 to-blue-50 rounded-xl border border-slate-100 hover:shadow-md transition-all duration-300"
                     >
                       <div className="flex items-center space-x-3 space-x-reverse">
-                        <div className="bg-gradient-to-r from-blue-500 to-indigo-500 w-6 h-6 rounded-full flex items-center justify-center text-white font-bold text-sm">
-                          {index + 1}
-                        </div>
+                        
                         <span className="font-semibold text-slate-800">
                           {item.serviceName}
                         </span>
@@ -228,7 +282,8 @@ export default function DashboardHome({
                   </tr>
                 </thead>
                 <tbody>
-                  {users.slice(0, 3).map((user, index) => (
+                  {[...users].slice(-3).reverse().map((user, index) => (
+
                     <tr 
                       key={user._id} 
                       className="border-b border-slate-100 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-300"
@@ -296,7 +351,7 @@ export default function DashboardHome({
             </div>
             <div className="p-6">
               <div className="space-y-4">
-                {events
+                {[...events].sort((a, b) => new Date(a.date) - new Date(b.date))
                   .filter((e) => new Date(e.date) >= new Date())
                   .slice(0, 3)
                   .map((event, index) => (
@@ -345,6 +400,9 @@ export default function DashboardHome({
               </div>
             </div>
           </div>
+
+
+
         </div>
       </div>
     </div>

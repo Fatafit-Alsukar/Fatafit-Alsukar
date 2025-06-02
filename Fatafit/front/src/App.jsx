@@ -27,7 +27,7 @@ import ContactMessage from "./Dashboard/ContactMessages";
 import DonateDashboard from "./Dashboard/DonationDashboard";
 import Profile from "./Pages/Profile/Profile";
 import Archive from "./Pages/Archive/Archive";
-
+  import SuccessStories from "./Pages/SuccessStories/SuccessStories";
 function Layout() {
   const location = useLocation();
   const hideNavbarPages = ["/login", "/changepassword", "/dashboard"];
@@ -56,6 +56,7 @@ function Layout() {
         <Route path="/donationdashboard" element={<DonateDashboard />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/archive" element={<Archive />} />
+        <Route path="/success-stories" element={<SuccessStories />} />
         {/* Add more routes as needed */}
       </Routes>
 
