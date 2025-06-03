@@ -13,7 +13,7 @@ const articleSchema = new mongoose.Schema({
   category: {
     type: String,
     required: true,
-    enum: ['قصص نجاح', 'الصحة ', 'التغذية', 'التمارين']
+    enum: ['قصص نجاح', 'الصحة', 'التغذية', 'التمارين']
   },
   author: {
     type: String,
