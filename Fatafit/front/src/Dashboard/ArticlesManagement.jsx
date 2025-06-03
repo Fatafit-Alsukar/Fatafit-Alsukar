@@ -80,11 +80,8 @@ const ArticlesManagement = () => {
     try {
       const formDataToSend = new FormData();
       Object.keys(formData).forEach((key) => {
-        if (key === "tags") {
-          formDataToSend.append(key, formData[key].split(",").map((tag) => tag.trim()));
-        } else {
-          formDataToSend.append(key, formData[key]);
-        }
+        if (key === "image" && !formData[key]) return; // skip if image is null/empty
+        formDataToSend.append(key, formData[key]);
       });
 
       if (selectedArticle) {
@@ -105,8 +102,13 @@ const ArticlesManagement = () => {
       });
       fetchArticles();
     } catch (error) {
-      console.error("Error saving article", error);
-      setError("حدث خطأ أثناء حفظ المقال");
+      if (error.response && error.response.data) {
+        console.error("Backend error:", error.response.data);
+        setError(error.response.data.message || "حدث خطأ أثناء حفظ المقال");
+      } else {
+        console.error("Error saving article", error);
+        setError("حدث خطأ أثناء حفظ المقال");
+      }
     }
   };
 

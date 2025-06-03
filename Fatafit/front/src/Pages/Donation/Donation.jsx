@@ -6,9 +6,16 @@ import {
   CurrencyDollarIcon,
   GiftIcon,
   ChartBarIcon,
+  ArrowRightIcon,
+  CheckCircleIcon,
+  BuildingOfficeIcon,
+  PhoneIcon,
+  MapPinIcon,
+  ClockIcon,
 } from '@heroicons/react/24/outline';
 
 const paymentMethods = [
+  'بطاقة فيزا',
   'الموقع الإلكتروني لفتافيت السكر',
   'تطبيق فتافيت السكر للهواتف المحمولة',
   'خدمة إي فواتيركم',
@@ -30,6 +37,130 @@ const paymentMethods = [
   'الحوالات والاقتطاعات البنكية',
 ];
 
+// Add payment process steps for each method
+const paymentProcesses = {
+  'بطاقة فيزا': [
+    'أدخل رقم بطاقة فيزا الخاصة بك',
+    'أدخل تاريخ انتهاء الصلاحية',
+    'أدخل رمز الأمان (CVV)',
+    'اضغط على زر التبرع'
+  ],
+  'الموقع الإلكتروني لفتافيت السكر': [
+    'اختر المبلغ المراد التبرع به',
+    'أدخل بيانات البطاقة البنكية',
+    'تأكد من صحة البيانات',
+    'اضغط على زر التبرع'
+  ],
+  'تطبيق فتافيت السكر للهواتف المحمولة': [
+    'قم بتحميل التطبيق من متجر التطبيقات',
+    'سجل دخولك أو أنشئ حساباً جديداً',
+    'اختر المبلغ المراد التبرع به',
+    'اتبع خطوات الدفع في التطبيق'
+  ],
+  'خدمة إي فواتيركم': [
+    'قم بزيارة أقرب مركز إي فواتيركم',
+    'اخبر الموظف برغبتك في التبرع لفتافيت السكر',
+    'حدد المبلغ المراد التبرع به',
+    'ادفع المبلغ وخذ الإيصال'
+  ],
+  'خدمة كليك': [
+    'قم بزيارة أقرب مركز كليك',
+    'اخبر الموظف برغبتك في التبرع لفتافيت السكر',
+    'حدد المبلغ المراد التبرع به',
+    'ادفع المبلغ وخذ الإيصال'
+  ],
+  'خدمة سمارت لينك': [
+    'قم بزيارة أقرب مركز سمارت لينك',
+    'اخبر الموظف برغبتك في التبرع لفتافيت السكر',
+    'حدد المبلغ المراد التبرع به',
+    'ادفع المبلغ وخذ الإيصال'
+  ],
+  'مواقع فتافيت السكر في المراكز التجارية': [
+    'قم بزيارة أحد مراكز فتافيت السكر',
+    'اخبر المتطوع برغبتك في التبرع',
+    'حدد المبلغ المراد التبرع به',
+    'ادفع المبلغ وخذ الإيصال'
+  ],
+  'CAF America': [
+    'قم بزيارة موقع CAF America',
+    'اختر فتافيت السكر كجهة التبرع',
+    'حدد المبلغ المراد التبرع به',
+    'اتبع خطوات الدفع المقدمة'
+  ],
+  'CAF Canada': [
+    'قم بزيارة موقع CAF Canada',
+    'اختر فتافيت السكر كجهة التبرع',
+    'حدد المبلغ المراد التبرع به',
+    'اتبع خطوات الدفع المقدمة'
+  ],
+  'مركز الاتصال': [
+    'اتصل على رقم مركز الاتصال',
+    'اخبر الموظف برغبتك في التبرع',
+    'حدد المبلغ المراد التبرع به',
+    'اتبع تعليمات الموظف لإتمام التبرع'
+  ],
+  'مقر فتافيت السكر الرئيسي': [
+    'قم بزيارة المقر الرئيسي لفتافيت السكر',
+    'اخبر الموظف برغبتك في التبرع',
+    'حدد المبلغ المراد التبرع به',
+    'ادفع المبلغ وخذ الإيصال'
+  ],
+  'صناديق جمع التبرعات (الحصّالات)': [
+    'قم بزيارة أحد مواقع الحصالات',
+    'ضع المبلغ المراد التبرع به في الحصالة',
+    'تأكد من إغلاق الحصالة بشكل صحيح',
+    'خذ صورة للحصالة كإثبات للتبرع'
+  ],
+  'محفظة UWallet': [
+    'افتح تطبيق UWallet',
+    'اختر خيار التبرع',
+    'ابحث عن فتافيت السكر',
+    'حدد المبلغ واتبع خطوات الدفع'
+  ],
+  'محفظة Orange Money': [
+    'افتح تطبيق Orange Money',
+    'اختر خيار التبرع',
+    'ابحث عن فتافيت السكر',
+    'حدد المبلغ واتبع خطوات الدفع'
+  ],
+  'محفظة Zain Cash': [
+    'افتح تطبيق Zain Cash',
+    'اختر خيار التبرع',
+    'ابحث عن فتافيت السكر',
+    'حدد المبلغ واتبع خطوات الدفع'
+  ],
+  'محفظة دينارك': [
+    'افتح تطبيق دينارك',
+    'اختر خيار التبرع',
+    'ابحث عن فتافيت السكر',
+    'حدد المبلغ واتبع خطوات الدفع'
+  ],
+  'تطبيق وافي': [
+    'افتح تطبيق وافي',
+    'اختر خيار التبرع',
+    'ابحث عن فتافيت السكر',
+    'حدد المبلغ واتبع خطوات الدفع'
+  ],
+  'تطبيق طلبات': [
+    'افتح تطبيق طلبات',
+    'اختر خيار التبرع',
+    'ابحث عن فتافيت السكر',
+    'حدد المبلغ واتبع خطوات الدفع'
+  ],
+  'تطبيق كريم': [
+    'افتح تطبيق كريم',
+    'اختر خيار التبرع',
+    'ابحث عن فتافيت السكر',
+    'حدد المبلغ واتبع خطوات الدفع'
+  ],
+  'الحوالات والاقتطاعات البنكية': [
+    'قم بزيارة أقرب فرع بنكي',
+    'اخبر الموظف برغبتك في التبرع لفتافيت السكر',
+    'قدم رقم حساب فتافيت السكر',
+    'حدد المبلغ واتبع خطوات التحويل'
+  ]
+};
+
 export default function DonatePage() {
   const [currency, setCurrency] = useState('JOD');
   const [amount, setAmount] = useState('');
@@ -37,6 +168,12 @@ export default function DonatePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState('');
   const [success, setSuccess] = useState(false);
+  
+  // Add state for Visa card form
+  const [cardNumber, setCardNumber] = useState('');
+  const [expiryDate, setExpiryDate] = useState('');
+  const [cvv, setCvv] = useState('');
+  const [cardHolderName, setCardHolderName] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -54,6 +191,197 @@ export default function DonatePage() {
       setSuccess(false);
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  // Render payment method specific form
+  const renderPaymentMethodForm = () => {
+    switch (method) {
+      case 'بطاقة فيزا':
+        return (
+          <div className="space-y-4">
+            <div className="relative">
+              <input
+                type="text"
+                value={cardNumber}
+                onChange={(e) => setCardNumber(e.target.value)}
+                className="w-full border-2 border-gray-200 p-4 rounded-xl focus:border-blue-500 focus:outline-none transition-colors duration-200 text-right"
+                placeholder="رقم البطاقة"
+                maxLength="16"
+                required
+              />
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <CreditCardIcon className="w-5 h-5 text-gray-400" />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="relative">
+                <input
+                  type="text"
+                  value={expiryDate}
+                  onChange={(e) => setExpiryDate(e.target.value)}
+                  className="w-full border-2 border-gray-200 p-4 rounded-xl focus:border-blue-500 focus:outline-none transition-colors duration-200 text-right"
+                  placeholder="MM/YY"
+                  maxLength="5"
+                  required
+                />
+              </div>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={cvv}
+                  onChange={(e) => setCvv(e.target.value)}
+                  className="w-full border-2 border-gray-200 p-4 rounded-xl focus:border-blue-500 focus:outline-none transition-colors duration-200 text-right"
+                  placeholder="CVV"
+                  maxLength="3"
+                  required
+                />
+              </div>
+            </div>
+            <div className="relative">
+              <input
+                type="text"
+                value={cardHolderName}
+                onChange={(e) => setCardHolderName(e.target.value)}
+                className="w-full border-2 border-gray-200 p-4 rounded-xl focus:border-blue-500 focus:outline-none transition-colors duration-200 text-right"
+                placeholder="اسم حامل البطاقة"
+                required
+              />
+            </div>
+          </div>
+        );
+
+      case 'خدمة كليك':
+        return (
+          <div className="bg-blue-50 rounded-xl p-6 border border-blue-100">
+            <div className="flex items-center gap-3 mb-4">
+              <BuildingOfficeIcon className="w-6 h-6 text-blue-600" />
+              <h4 className="text-lg font-semibold text-blue-800">مراكز كليك القريبة</h4>
+            </div>
+            <div className="space-y-3">
+              <div className="bg-white p-4 rounded-lg border border-blue-200 mb-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <CreditCardIcon className="w-5 h-5 text-blue-600" />
+                  <p className="font-medium text-blue-800">رمز الدفع</p>
+                </div>
+                <p className="text-2xl font-bold text-blue-600 text-center">fatafet123</p>
+                <p className="text-sm text-blue-600 text-center mt-2">قم بتقديم هذا الرمز عند الدفع في أي مركز كليك</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <MapPinIcon className="w-5 h-5 text-blue-600 mt-1" />
+                <div>
+                  <p className="font-medium text-blue-800">مركز كليك - عمان</p>
+                  <p className="text-blue-600">شارع المدينة المنورة، عمان</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <MapPinIcon className="w-5 h-5 text-blue-600 mt-1" />
+                <div>
+                  <p className="font-medium text-blue-800">مركز كليك - الزرقاء</p>
+                  <p className="text-blue-600">شارع الملك حسين، الزرقاء</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <MapPinIcon className="w-5 h-5 text-blue-600 mt-1" />
+                <div>
+                  <p className="font-medium text-blue-800">مركز كليك - إربد</p>
+                  <p className="text-blue-600">شارع الجامعة، إربد</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'خدمة إي فواتيركم':
+        return (
+          <div className="bg-blue-50 rounded-xl p-6 border border-blue-100">
+            <div className="flex items-center gap-3 mb-4">
+              <BuildingOfficeIcon className="w-6 h-6 text-blue-600" />
+              <h4 className="text-lg font-semibold text-blue-800">مراكز إي فواتيركم القريبة</h4>
+            </div>
+            <div className="space-y-3">
+              <div className="flex items-start gap-3">
+                <MapPinIcon className="w-5 h-5 text-blue-600 mt-1" />
+                <div>
+                  <p className="font-medium text-blue-800">مركز إي فواتيركم - عمان</p>
+                  <p className="text-blue-600">شارع الرينبو، عمان</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <MapPinIcon className="w-5 h-5 text-blue-600 mt-1" />
+                <div>
+                  <p className="font-medium text-blue-800">مركز إي فواتيركم - الزرقاء</p>
+                  <p className="text-blue-600">شارع الأمير محمد، الزرقاء</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'مركز الاتصال':
+        return (
+          <div className="bg-blue-50 rounded-xl p-6 border border-blue-100">
+            <div className="flex items-center gap-3 mb-4">
+              <PhoneIcon className="w-6 h-6 text-blue-600" />
+              <h4 className="text-lg font-semibold text-blue-800">معلومات الاتصال</h4>
+            </div>
+            <div className="space-y-3">
+              <p className="text-blue-700">رقم الهاتف: +962 7 8151 9422</p>
+              <p className="text-blue-700">ساعات العمل: 9:00 صباحاً - 5:00 مساءً</p>
+              <p className="text-blue-700">يمكنك الاتصال بنا لتقديم تبرعك عبر الهاتف</p>
+            </div>
+          </div>
+        );
+
+      case 'مقر فتافيت السكر الرئيسي':
+        return (
+          <div className="bg-blue-50 rounded-xl p-6 border border-blue-100">
+            <div className="flex items-center gap-3 mb-4">
+              <BuildingOfficeIcon className="w-6 h-6 text-blue-600" />
+              <h4 className="text-lg font-semibold text-blue-800">معلومات المقر الرئيسي</h4>
+            </div>
+            <div className="space-y-3">
+              <div className="flex items-start gap-3">
+                <MapPinIcon className="w-5 h-5 text-blue-600 mt-1" />
+                <div>
+                  <p className="font-medium text-blue-800">العنوان</p>
+                  <p className="text-blue-600">شارع الملكة رانيا العبدالله، عمان</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <PhoneIcon className="w-5 h-5 text-blue-600 mt-1" />
+                <div>
+                  <p className="font-medium text-blue-800">رقم الهاتف</p>
+                  <p className="text-blue-600">+962 7 8151 9422</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <ClockIcon className="w-5 h-5 text-blue-600 mt-1" />
+                <div>
+                  <p className="font-medium text-blue-800">ساعات العمل</p>
+                  <p className="text-blue-600">الأحد - الخميس: 9:00 صباحاً - 5:00 مساءً</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+
+      default:
+        return (
+          <div className="mt-6 bg-blue-50 rounded-xl p-6 border border-blue-100">
+            <h4 className="text-lg font-semibold text-blue-800 mb-4">خطوات الدفع:</h4>
+            <div className="space-y-3">
+              {paymentProcesses[method].map((step, index) => (
+                <div key={index} className="flex items-start gap-3">
+                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center">
+                    <span className="text-blue-600 font-semibold text-sm">{index + 1}</span>
+                  </div>
+                  <p className="text-blue-700">{step}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
     }
   };
 
@@ -149,6 +477,9 @@ export default function DonatePage() {
                   <CreditCardIcon className="w-5 h-5 text-gray-400" />
                 </div>
               </div>
+
+              {/* Payment Method Specific Form */}
+              {renderPaymentMethodForm()}
             </div>
 
             {/* Submit Button */}
