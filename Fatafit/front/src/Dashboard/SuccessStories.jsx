@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { Plus, User, Calendar, Star, X, Heart, Award, TrendingUp } from "lucide-react";
+import { Plus, User, Calendar, Star, X, Heart, Award, TrendingUp, Trash2 } from "lucide-react";
+import axios from "axios";
 
 export default function SuccessStoriesManagement({
   successStories = [],
@@ -12,25 +13,71 @@ export default function SuccessStoriesManagement({
 }) {
   // Internal state for form when external state is not provided
   const [internalShowForm, setInternalShowForm] = useState(false);
-  const [internalFormData, setInternalFormData] = useState({ name: '', age: '', story: '' });
+  const [internalFormData, setInternalFormData] = useState({ 
+    title: '', 
+    name: '', 
+    age: '', 
+    story: '',
+    image: null 
+  });
   
   // Use external state if provided, otherwise use internal state
   const showForm = externalShowForm !== undefined ? externalShowForm : internalShowForm;
   const formData = externalFormData || internalFormData;
   const setFormData = externalSetFormData || setInternalFormData;
   const setShowForm = externalSetShowForm || setInternalShowForm;
+
+  const handleDelete = async (id) => {
+    if (window.confirm('هل أنت متأكد من حذف هذه القصة؟')) {
+      try {
+        const response = await axios.delete(`http://localhost:5000/api/success-stories/${id}`);
+        if (response.status === 200) {
+          onDelete(id);
+        }
+      } catch (error) {
+        console.error('فشل في حذف القصة:', error);
+        if (error.response) {
+          // The request was made and the server responded with a status code
+          // that falls out of the range of 2xx
+          alert(error.response.data.error || 'حدث خطأ أثناء حذف القصة');
+        } else if (error.request) {
+          // The request was made but no response was received
+          alert('لم يتم استلام رد من الخادم. يرجى التحقق من اتصال الإنترنت');
+        } else {
+          // Something happened in setting up the request that triggered an Error
+          alert('حدث خطأ أثناء إرسال الطلب');
+        }
+      }
+    }
+  };
   
   const handleChange = (e) => {
-    setFormData(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
+    if (e.target.name === 'image') {
+      setFormData(prev => ({
+        ...prev,
+        image: e.target.files[0]
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [e.target.name]: e.target.value,
+      }));
+    }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onSubmit(formData);
-    setFormData({ name: "", age: "", story: "" });
+    const formDataToSend = new FormData();
+    formDataToSend.append('title', formData.title);
+    formDataToSend.append('name', formData.name);
+    formDataToSend.append('age', formData.age);
+    formDataToSend.append('story', formData.story);
+    if (formData.image) {
+      formDataToSend.append('image', formData.image);
+    }
+    
+    onSubmit(formDataToSend);
+    setFormData({ title: '', name: '', age: '', story: '', image: null });
     setShowForm(false);
   };
 
@@ -142,6 +189,20 @@ export default function SuccessStoriesManagement({
             
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">
+                    عنوان القصة
+                  </label>
+                  <input
+                    type="text"
+                    name="title"
+                    required
+                    className="w-full border-2 border-slate-200 rounded-xl p-3 focus:border-rose-500 focus:ring-4 focus:ring-rose-100 transition-all duration-300 bg-white/70 backdrop-blur-sm"
+                    value={formData.title}
+                    onChange={handleChange}
+                    placeholder="أدخل عنوان القصة"
+                  />
+                </div>
                 <div>
                   <label className="block text-sm font-semibold text-slate-700 mb-2">
                     اسم المستفيد
@@ -185,6 +246,27 @@ export default function SuccessStoriesManagement({
                     onChange={handleChange}
                     placeholder="شارك قصة النجاح الملهمة..."
                   ></textarea>
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">
+                    صورة القصة
+                  </label>
+                  <input
+                    type="file"
+                    name="image"
+                    accept="image/*"
+                    className="w-full border-2 border-slate-200 rounded-xl p-3 focus:border-rose-500 focus:ring-4 focus:ring-rose-100 transition-all duration-300 bg-white/70 backdrop-blur-sm"
+                    onChange={handleChange}
+                  />
+                  {formData.image && (
+                    <div className="mt-2">
+                      <img
+                        src={URL.createObjectURL(formData.image)}
+                        alt="Preview"
+                        className="w-32 h-32 object-cover rounded-lg"
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
               
@@ -230,7 +312,7 @@ export default function SuccessStoriesManagement({
                 {successStories.map((story, index) => (
                   <div
                     key={story._id || index}
-                    className="bg-white/80 backdrop-blur-sm rounded-2xl overflow-hidden shadow-xl border border-white/20 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 group"
+                    className="group relative bg-white/80 backdrop-blur-sm rounded-2xl overflow-hidden shadow-xl border border-white/20 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2"
                     style={{ animationDelay: `${index * 0.1}s` }}
                   >
                     <div className="relative p-6 bg-gradient-to-br from-rose-50 to-orange-50">
@@ -250,22 +332,17 @@ export default function SuccessStoriesManagement({
                           </div>
                         </div>
                         
-                        <div className="flex items-center">
+                        <div className="flex items-center space-x-2 space-x-reverse">
+                          <button
+                            onClick={() => handleDelete(story._id)}
+                            className="text-red-400 hover:text-red-600 hover:bg-red-50 p-2 rounded-xl transition-all duration-300 hover:scale-110"
+                          >
+                            <Trash2 className="w-5 h-5" />
+                          </button>
                           <div className="bg-gradient-to-r from-amber-400 to-orange-400 p-2 rounded-full">
                             <Star className="w-4 h-4 text-white" />
                           </div>
                         </div>
-                      </div>
-                      
-                      <div className="absolute top-4 right-4">
-                        {onDelete && (
-                          <button
-                            className="text-red-400 hover:text-red-600 hover:bg-red-50 p-2 rounded-xl transition-all duration-300 hover:scale-110 opacity-0 group-hover:opacity-100"
-                            onClick={() => onDelete(story._id || index)}
-                          >
-                            <X className="w-4 h-4" />
-                          </button>
-                        )}
                       </div>
                     </div>
                     
@@ -274,6 +351,8 @@ export default function SuccessStoriesManagement({
                         <Heart className="w-5 h-5 text-rose-500 ml-2" />
                         <span className="text-sm font-semibold text-rose-600">قصة النجاح</span>
                       </div>
+                      
+                      <h4 className="text-lg font-bold text-slate-800 mb-2">{story.title}</h4>
                       
                       <p className="text-slate-700 leading-relaxed text-sm">
                         {story.story && story.story.length > 150 

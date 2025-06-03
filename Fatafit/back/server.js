@@ -10,6 +10,8 @@ const volunteerRequestRoutes = require("./routes/volunteerRequests");
 const contactRoutes = require('./routes/contactRoutes');
 const articlesRoutes = require("./routes/articlesRoutes");
 const donationRoutes = require("./routes/donationRoutes");
+const path = require("path");
+const fs = require("fs");
 
 const userRoutes = require("./routes/userRoutes");
 const requestRoutes = require("./routes/requestRoutes");
@@ -46,6 +48,12 @@ mongoose
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.log("MongoDB connection error:", err));
 //************************************************************************************************** */
+
+// Create uploads directory if it doesn't exist
+const uploadsDir = path.join(__dirname, 'uploads/success-stories');
+if (!fs.existsSync(uploadsDir)){
+    fs.mkdirSync(uploadsDir, { recursive: true });
+}
 
 app.use("/uploads", express.static("uploads"));
 app.use("/api/users", userRoutes);
