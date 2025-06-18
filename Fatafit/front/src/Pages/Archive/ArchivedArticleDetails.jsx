@@ -6,7 +6,7 @@ import { Calendar, User, Tag, ArrowRight, ChevronLeft, Bookmark, Share2, Heart, 
 // Configure axios to include credentials
 axios.defaults.withCredentials = true;
 
-const ArticleDetails = () => {
+const ArchivedArticleDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [article, setArticle] = useState(null);
@@ -27,8 +27,8 @@ const ArticleDetails = () => {
         setComments(response.data.comments || []);
         setError(null);
       } catch (error) {
-        console.error("Error fetching article", error);
-        setError("حدث خطأ أثناء تحميل المقال، يرجى المحاولة مرة أخرى");
+        console.error("Error fetching archived article", error);
+        setError("حدث خطأ أثناء تحميل المقال المؤرشف، يرجى المحاولة مرة أخرى");
       } finally {
         setLoading(false);
       }
@@ -39,12 +39,23 @@ const ArticleDetails = () => {
 
   const handleLike = async () => {
     try {
+      // Check if user is logged in
+      const userResponse = await axios.get('http://localhost:5000/api/users/me');
+      if (!userResponse.data.user) {
+        navigate('/login', { state: { from: `/archive/${id}` } });
+        return;
+      }
+
       const response = await axios.post(`http://localhost:5000/api/articles/${id}/like`);
       setLikesCount(response.data.likes);
       setIsLiked(response.data.liked);
     } catch (err) {
       console.error('Error liking article:', err);
-      alert('فشل الإعجاب بالمقال. يرجى تسجيل الدخول.');
+      if (err.response?.status === 401) {
+        navigate('/login', { state: { from: `/archive/${id}` } });
+      } else {
+        alert('حدث خطأ أثناء الإعجاب بالمقال. يرجى المحاولة مرة أخرى.');
+      }
     }
   };
 
@@ -53,12 +64,23 @@ const ArticleDetails = () => {
     if (!newCommentText.trim()) return;
 
     try {
+      // Check if user is logged in
+      const userResponse = await axios.get('http://localhost:5000/api/users/me');
+      if (!userResponse.data.user) {
+        navigate('/login', { state: { from: `/archive/${id}` } });
+        return;
+      }
+
       const response = await axios.post(`http://localhost:5000/api/articles/${id}/comments`, { text: newCommentText });
       setComments(prevComments => [...prevComments, response.data]);
       setNewCommentText("");
     } catch (err) {
       console.error('Error adding comment:', err);
-      alert('فشل إضافة التعليق. يرجى تسجيل الدخول.');
+      if (err.response?.status === 401) {
+        navigate('/login', { state: { from: `/archive/${id}` } });
+      } else {
+        alert('حدث خطأ أثناء إضافة التعليق. يرجى المحاولة مرة أخرى.');
+      }
     }
   };
 
@@ -101,10 +123,10 @@ const ArticleDetails = () => {
           <div className="text-2xl mb-2">⚠️</div>
           <p className="text-lg mb-4">{error}</p>
           <button
-            onClick={() => navigate("/Articles")}
+            onClick={() => navigate("/archive")}
             className="px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors duration-300"
           >
-            العودة إلى المقالات
+            العودة إلى الأرشيف
           </button>
         </div>
       </div>
@@ -120,7 +142,7 @@ const ArticleDetails = () => {
       {/* Back Button */}
       <div className="fixed top-4 right-4 z-50">
         <button
-          onClick={() => navigate("/Articles")}
+          onClick={() => navigate("/archive")}
           className="flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
         >
           <ChevronLeft className="w-5 h-5" />
@@ -200,7 +222,7 @@ const ArticleDetails = () => {
                 <span>{likesCount}</span>
               </button>
             </div>
-           
+            
           </div>
         </div>
 
@@ -250,44 +272,9 @@ const ArticleDetails = () => {
             )}
           </div>
         </div>
-
-        {/* Related Articles */}
-        {article.relatedArticles && article.relatedArticles.length > 0 && (
-          <div className="mt-16">
-            <h2 className="text-2xl font-bold text-gray-800 mb-8">مقالات ذات صلة</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {article.relatedArticles.map((relatedArticle) => (
-                <div
-                  key={relatedArticle._id}
-                  className="group bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
-                >
-                  <div className="relative h-48">
-                    <img
-                      src={relatedArticle.image || "https://via.placeholder.com/400"}
-                      alt={relatedArticle.title}
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                    <div className="absolute bottom-4 right-4">
-                      <span className={`px-3 py-1 bg-gradient-to-r ${getCategoryColor(relatedArticle.category)} text-white rounded-full text-sm font-medium`}>
-                        {relatedArticle.category}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="p-6">
-                    <h3 className="text-xl font-bold text-gray-800 mb-2 group-hover:text-blue-600 transition-colors duration-300">
-                      {relatedArticle.title}
-                    </h3>
-                    <p className="text-gray-600 line-clamp-2">{relatedArticle.content}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
 };
 
-export default ArticleDetails; 
+export default ArchivedArticleDetails; 

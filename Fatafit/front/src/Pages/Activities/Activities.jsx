@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Calendar, MapPin, Clock, Tag, ChevronLeft, ArrowRight, Search, Filter, Star, Users, Heart, Share2 } from "lucide-react";
+import { Calendar, MapPin, Clock, Tag, ChevronLeft, ArrowRight, Search, Filter, Star, Users, Heart, Share2, X } from "lucide-react";
 
 const Activities = () => {
   const [activities, setActivities] = useState([]);
@@ -8,6 +8,7 @@ const Activities = () => {
   const [error, setError] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedActivity, setSelectedActivity] = useState(null);
 
   // جلب البيانات من الـ Backend
   useEffect(() => {
@@ -53,7 +54,7 @@ const Activities = () => {
       month: "long",
       day: "numeric",
     };
-    return new Date(dateString).toLocaleDateString("ar-SA", options);
+    return new Date(dateString).toLocaleDateString("ar-GB", options);
   };
 
   const getCategoryColor = (category) => {
@@ -263,8 +264,9 @@ const Activities = () => {
 
                   {/* Action Buttons */}
                   <div className="flex gap-3">
-                    <a
-                      href={`/Activities/${activity._id}`}
+                    <button
+                      type="button"
+                      onClick={() => setSelectedActivity(activity)}
                       className={`flex-1 py-4 px-6 bg-gradient-to-r ${getCategoryColor(activity.category)} text-white rounded-2xl transition-all duration-300 hover:shadow-lg text-center font-semibold hover:scale-105 relative overflow-hidden group/btn`}
                     >
                       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover/btn:opacity-100 group-hover/btn:translate-x-full transition-all duration-1000 transform -translate-x-full"></div>
@@ -272,7 +274,7 @@ const Activities = () => {
                         عرض التفاصيل
                         <ArrowRight className="w-4 h-4 rotate-180" />
                       </span>
-                    </a>
+                    </button>
                     <button className="w-14 h-14 bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-red-500 rounded-2xl transition-all duration-300 hover:scale-110 flex items-center justify-center">
                       <Heart className="w-5 h-5" />
                     </button>
@@ -283,6 +285,71 @@ const Activities = () => {
           ))}
         </div>
       </div>
+
+      {/* Activity Details Modal */}
+      {selectedActivity && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-8 relative animate-in fade-in duration-300">
+            <button
+              className="absolute top-4 left-4 text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-2 rounded-xl transition-all duration-300"
+              onClick={() => setSelectedActivity(null)}
+            >
+              <X className="w-6 h-6" />
+            </button>
+            <div className="flex flex-col md:flex-row gap-8">
+              <img
+                src={selectedActivity.image || "https://via.placeholder.com/400"}
+                alt={selectedActivity.name}
+                className="w-full md:w-64 h-64 object-cover rounded-xl mb-4 md:mb-0"
+              />
+              <div className="flex-1">
+                <h2 className="text-2xl font-bold text-slate-800 mb-2">{selectedActivity.name}</h2>
+                <div className="flex flex-wrap gap-2 mb-4">
+                  <span className={`px-4 py-2 bg-gradient-to-r ${getCategoryColor(selectedActivity.category)} text-white rounded-full text-sm font-semibold shadow-lg backdrop-blur-sm`}>
+                    {selectedActivity.category}
+                  </span>
+                  {selectedActivity.date && (
+                    <span className="flex items-center gap-1 text-slate-600 text-sm">
+                      <Calendar className="w-4 h-4" />
+                      {formatDate(selectedActivity.date)}
+                    </span>
+                  )}
+                  {selectedActivity.location && (
+                    <span className="flex items-center gap-1 text-slate-600 text-sm">
+                      <MapPin className="w-4 h-4" />
+                      {selectedActivity.location}
+                    </span>
+                  )}
+                  {selectedActivity.time && (
+                    <span className="flex items-center gap-1 text-slate-600 text-sm">
+                      <Clock className="w-4 h-4" />
+                      {selectedActivity.time}
+                    </span>
+                  )}
+                </div>
+                <p className="text-slate-700 mb-4 leading-relaxed">{selectedActivity.description}</p>
+                <div className="flex gap-4 mb-2">
+                  <div className="flex items-center gap-1 bg-slate-100 px-3 py-1 rounded-full">
+                    <Users className="w-4 h-4 text-slate-600" />
+                    <span className="text-sm font-medium">{selectedActivity.attendees || 0} مشارك</span>
+                  </div>
+                  <div className="flex items-center gap-1 bg-slate-100 px-3 py-1 rounded-full">
+                    <Star className="w-4 h-4 text-yellow-400" />
+                    <span className="text-sm font-medium">{selectedActivity.rating || 0} تقييم</span>
+                  </div>
+                </div>
+                {selectedActivity.tags && selectedActivity.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {selectedActivity.tags.map((tag, i) => (
+                      <span key={i} className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs">#{tag}</span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <style jsx>{`
         @keyframes float {

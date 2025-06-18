@@ -46,7 +46,7 @@ exports.getArticles = async (req, res) => {
 // الحصول على مقال محدد
 exports.getArticle = async (req, res) => {
   try {
-    const article = await Article.findById(req.params.id);
+    const article = await Article.findById(req.params.id).populate('comments.user', 'fullName');
     if (!article) {
       return res.status(404).json({ message: 'المقال غير موجود' });
     }
@@ -191,6 +191,90 @@ exports.unarchiveArticle = async (req, res) => {
     console.error('Error unarchiving article:', error);
     res.status(500).json({ 
       message: 'حدث خطأ أثناء إلغاء أرشفة المقال',
+      error: error.message 
+    });
+  }
+};
+
+// Like or unlike an article
+exports.likeArticle = async (req, res) => {
+  try {
+    const article = await Article.findById(req.params.id);
+    if (!article) {
+      return res.status(404).json({ message: 'المقال غير موجود' });
+    }
+
+    const userId = req.user._id; // Assuming user ID is available from auth middleware
+    const likedIndex = article.likes.indexOf(userId);
+
+    if (likedIndex === -1) {
+      // User hasn't liked, add like
+      article.likes.push(userId);
+    } else {
+      // User has liked, remove like
+      article.likes.splice(likedIndex, 1);
+    }
+
+    await article.save();
+    res.json({ likes: article.likes.length, liked: likedIndex === -1 });
+  } catch (error) {
+    console.error('Error liking article:', error);
+    res.status(500).json({ 
+      message: 'حدث خطأ أثناء الإعجاب بالمقال',
+      error: error.message 
+    });
+  }
+};
+
+// Add a comment to an article
+exports.addComment = async (req, res) => {
+  try {
+    const article = await Article.findById(req.params.id);
+    if (!article) {
+      return res.status(404).json({ message: 'المقال غير موجود' });
+    }
+
+    const userId = req.user._id; // Assuming user ID is available from auth middleware
+    const { text } = req.body;
+
+    if (!text) {
+      return res.status(400).json({ message: 'نص التعليق مطلوب' });
+    }
+
+    const newComment = {
+      user: userId,
+      text: text,
+    };
+
+    article.comments.push(newComment);
+    await article.save();
+    
+    // Populate user info for the added comment before returning
+    const populatedArticle = await article.populate('comments.user', 'fullName');
+    const addedComment = populatedArticle.comments[populatedArticle.comments.length - 1];
+
+    res.status(201).json(addedComment);
+  } catch (error) {
+    console.error('Error adding comment:', error);
+    res.status(500).json({ 
+      message: 'حدث خطأ أثناء إضافة التعليق',
+      error: error.message 
+    });
+  }
+};
+
+// Get comments for an article
+exports.getComments = async (req, res) => {
+  try {
+    const article = await Article.findById(req.params.id).populate('comments.user', 'fullName');
+    if (!article) {
+      return res.status(404).json({ message: 'المقال غير موجود' });
+    }
+    res.json(article.comments);
+  } catch (error) {
+    console.error('Error fetching comments:', error);
+    res.status(500).json({ 
+      message: 'حدث خطأ أثناء جلب التعليقات',
       error: error.message 
     });
   }

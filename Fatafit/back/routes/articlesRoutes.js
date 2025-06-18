@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { upload } = require('../middlware/uploadMiddleware');
 const articleController = require('../controllers/articleController');
+const authMiddleware = require('../middlware/authMiddleware');
 
 // Error handling middleware for multer
 const handleMulterError = (err, req, res, next) => {
@@ -26,5 +27,10 @@ router.delete('/:id', (req, res, next) => articleController.deleteArticle(req, r
 // مسارات الأرشفة
 router.post('/:id/archive', (req, res, next) => articleController.archiveArticle(req, res, next));
 router.post('/:id/unarchive', (req, res, next) => articleController.unarchiveArticle(req, res, next));
+
+// مسارات الإعجابات والتعليقات
+router.post('/:id/like', authMiddleware, (req, res, next) => articleController.likeArticle(req, res, next));
+router.post('/:id/comments', authMiddleware, (req, res, next) => articleController.addComment(req, res, next));
+router.get('/:id/comments', authMiddleware, (req, res, next) => articleController.getComments(req, res, next));
 
 module.exports = router; 

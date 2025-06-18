@@ -258,7 +258,11 @@ useEffect(() => {
 
 const handleStorySubmit = async (data) => {
   try {
-    await axios.post("http://localhost:5000/api/success-stories", data);
+    await axios.post("http://localhost:5000/api/success-stories", data, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
     alert("تم حفظ قصة النجاح بنجاح!");
     setShowForm(false);
     fetchSuccessStories(); // إعادة تحميل القصص بعد الإضافة

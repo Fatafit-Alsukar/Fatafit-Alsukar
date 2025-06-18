@@ -23,6 +23,7 @@ import {
   User,
 } from "lucide-react";
 import RegistrationOptions from '../../components/RegistrationOptions';
+import { Link } from "react-router-dom";
 
 // Helper function to get category color
 const getCategoryColor = (category) => {
@@ -108,7 +109,11 @@ export default function DiabetesHomePage() {
   const [servicesError, setServicesError] = useState(null);
   const [userCount, setUserCount] = useState(null);
   const [articleCount, setArticleCount] = useState(null);
+  const [successStoriesCount, setSuccessStoriesCount] = useState(null);
+  const [archiveCount, setArchiveCount] = useState(null);
+  const [totalContentCount, setTotalContentCount] = useState(null);
   const [latestArticles, setLatestArticles] = useState([]);
+  const [latestStories, setLatestStories] = useState([]);
 
   // Set isLoaded to true after component mounts
   useEffect(() => {
@@ -164,7 +169,33 @@ export default function DiabetesHomePage() {
         setArticleCount(0);
       }
     };
+
+    // Function to fetch success stories count
+    const fetchSuccessStoriesCount = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/api/success-stories");
+        setSuccessStoriesCount(response.data.length);
+      } catch (error) {
+        console.error("Error fetching success stories count:", error);
+        setSuccessStoriesCount(0);
+      }
+    };
+
+    // Function to fetch archive count
+    const fetchArchiveCount = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/api/archive");
+        setArchiveCount(response.data.length);
+      } catch (error) {
+        console.error("Error fetching archive count:", error);
+        setArchiveCount(0);
+      }
+    };
+
+    // Fetch all counts
     fetchArticleCount();
+    fetchSuccessStoriesCount();
+    fetchArchiveCount();
 
     // Function to fetch latest articles
     const fetchLatestArticles = async () => {
@@ -180,11 +211,31 @@ export default function DiabetesHomePage() {
     };
     fetchLatestArticles();
 
+    // Function to fetch latest success stories
+    const fetchLatestStories = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/api/success-stories");
+        // Sort stories by date (newest first) and take the first 3
+        const sortedStories = response.data.sort((a, b) => new Date(b.date) - new Date(a.date));
+        setLatestStories(sortedStories.slice(0, 3));
+      } catch (error) {
+        console.error("Error fetching latest success stories:", error);
+        setLatestStories([]);
+      }
+    };
+    fetchLatestStories();
+
     return () => {
       clearInterval(interval);
       clearInterval(reminderInterval);
     };
   }, []);
+
+  // Update total content count whenever individual counts change
+  useEffect(() => {
+    const total = (articleCount || 0) + (successStoriesCount || 0) + (archiveCount || 0);
+    setTotalContentCount(total);
+  }, [articleCount, successStoriesCount, archiveCount]);
 
   // Function to fetch latest activities
   const fetchActivities = async () => {
@@ -209,13 +260,24 @@ export default function DiabetesHomePage() {
 
   // Format date in Arabic
   const formatDate = (dateString) => {
-    const options = {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    };
-    return new Date(dateString).toLocaleDateString("ar-SA", options);
+    try {
+      if (!dateString) return "تاريخ غير متوفر";
+      
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return "تاريخ غير صالح";
+
+      const options = {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      };
+      
+      return date.toLocaleDateString("ar-SA", options);
+    } catch (error) {
+      console.error("Error formatting date:", error);
+      return "تاريخ غير متوفر";
+    }
   };
 
   const slides = [
@@ -248,7 +310,7 @@ export default function DiabetesHomePage() {
     },
     {
       icon: <BookOpen className="w-8 h-8" />,
-      number: articleCount !== null ? articleCount.toLocaleString("ar-EG") : "...",
+      number: totalContentCount !== null ? totalContentCount.toLocaleString("ar-EG") : "...",
       label: "مقال تثقيفي",
       color: "bg-indigo-100 text-indigo-600",
     },
@@ -558,13 +620,13 @@ export default function DiabetesHomePage() {
             variants={fadeInUp}
             className="text-3xl md:text-4xl font-bold text-center mb-4 text-indigo-600"
           >
-            أحدث المقالات
+            النصائح والإرشادات
           </motion.h2>
           <motion.p
             variants={fadeInUp}
             className="text-xl text-center mb-12 text-gray-600"
           >
-            اكتشف أحدث المقالات والنصائح الصحية
+            نصائح وإرشادات صحية قيمة للتعايش مع السكري
           </motion.p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -602,9 +664,9 @@ export default function DiabetesHomePage() {
                         <User className="w-4 h-4 ml-1" />
                         <span>{article.author}</span>
                       </div>
-                      <div className="flex items-center">
-                        <Calendar className="w-4 h-4 ml-1" />
-                        <span>{formatDate(article.date)}</span>
+                      <div className="flex items-center gap-2">
+                        <Heart className="w-4 h-4 text-pink-500 fill-current" />
+                        <span>{article.likes?.length || 0}</span>
                       </div>
                     </div>
                     <a
@@ -649,6 +711,108 @@ export default function DiabetesHomePage() {
 
         {/* Decorative Elements */}
         <div className="absolute top-10 right-10 w-40 h-40 bg-teal-200 rounded-full mix-blend-multiply opacity-20 animate-blob"></div>
+        <div className="absolute -bottom-8 left-1/3 w-40 h-40 bg-indigo-200 rounded-full mix-blend-multiply opacity-20 animate-blob delay-2000"></div>
+      </motion.section>
+
+      {/* Latest Success Stories Section */}
+      <motion.section
+        variants={staggerContainer}
+        initial="initial"
+        whileInView="animate"
+        viewport={{ once: true }}
+        className="py-16 bg-gradient-to-br from-blue-50 to-indigo-50 relative overflow-hidden"
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <motion.h2
+            variants={fadeInUp}
+            className="text-3xl md:text-4xl font-bold text-center mb-4 text-indigo-600"
+          >
+            قصص النجاح
+          </motion.h2>
+          <motion.p
+            variants={fadeInUp}
+            className="text-xl text-center mb-12 text-gray-600"
+          >
+            تعرف على قصص النجاح الملهمة لمستفيدين السكري
+          </motion.p>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {latestStories.length > 0 ? (
+              latestStories.map((story) => (
+                <motion.div
+                  key={story._id}
+                  variants={fadeInUp}
+                  whileHover={{ scale: 1.05 }}
+                  className="bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-500 hover:shadow-xl"
+                >
+                  {/* Story Image */}
+                  <div className="relative h-48 overflow-hidden">
+                    <img
+                      src={story.image ? `http://localhost:5000${story.image}` : "https://via.placeholder.com/400"}
+                      alt={story.title}
+                      className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                    <div className="absolute bottom-4 right-4">
+                      <span className="px-3 py-1 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-full text-sm font-medium shadow-md">
+                        قصة نجاح
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Story Content */}
+                  <div className="p-6">
+                    <h3 className="text-xl font-bold text-gray-800 mb-2 line-clamp-2">
+                      {story.title}
+                    </h3>
+                    <p className="text-gray-600 mb-4 line-clamp-3">
+                      {story.content}
+                    </p>
+                    <div className="flex items-center justify-end text-sm text-gray-500">
+                      <div className="flex items-center gap-2">
+                        <Heart className="w-4 h-4 text-pink-500 fill-current" />
+                        <span>{story.likes?.length || 0}</span>
+                      </div>
+                    </div>
+                    <Link
+                      to={`/success-stories/${story._id}`}
+                      className="mt-4 block w-full text-center py-2 px-4 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl font-semibold hover:from-blue-600 hover:to-indigo-700 transition-all duration-300"
+                    >
+                      اقرأ القصة
+                    </Link>
+                  </div>
+                </motion.div>
+              ))
+            ) : (
+              // Loading state
+              Array.from({ length: 3 }).map((_, index) => (
+                <motion.div
+                  key={`skeleton-${index}`}
+                  variants={fadeInUp}
+                  className="bg-white rounded-2xl shadow-lg overflow-hidden animate-pulse"
+                >
+                  <div className="w-full h-48 bg-gray-200"></div>
+                  <div className="p-6">
+                    <div className="h-7 bg-gray-200 rounded mb-3 w-3/4"></div>
+                    <div className="h-5 bg-gray-200 rounded mb-3 w-full"></div>
+                    <div className="h-5 bg-gray-200 rounded mb-3 w-2/3"></div>
+                    <div className="h-12 bg-gray-200 rounded-xl"></div>
+                  </div>
+                </motion.div>
+              ))
+            )}
+          </div>
+
+          <div className="mt-10 text-center">
+            <AnimatedButton href="/success-stories">
+              عرض جميع قصص النجاح
+              <ArrowRight className="mr-2 h-5 w-5 rotate-180" />
+            </AnimatedButton>
+          </div>
+        </div>
+
+        {/* Decorative Elements */}
+        <div className="absolute top-10 right-10 w-40 h-40 bg-blue-200 rounded-full mix-blend-multiply opacity-20 animate-blob"></div>
         <div className="absolute -bottom-8 left-1/3 w-40 h-40 bg-indigo-200 rounded-full mix-blend-multiply opacity-20 animate-blob delay-2000"></div>
       </motion.section>
 
@@ -827,59 +991,7 @@ export default function DiabetesHomePage() {
       </section>
 
       {/* Testimonials Section */}
-      <motion.section
-        variants={staggerContainer}
-        initial="initial"
-        whileInView="animate"
-        viewport={{ once: true }}
-        className="py-16 bg-gradient-to-br from-indigo-50 to-blue-50 relative overflow-hidden"
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <motion.h2 variants={fadeInUp} className="text-3xl md:text-4xl font-bold text-center mb-4 text-indigo-600">
-            قصص نجاح
-          </motion.h2>
-          <motion.p variants={fadeInUp} className="text-xl text-center mb-12 text-gray-600">
-            تجارب حقيقية من أشخاص تغلبوا على تحديات مرض السكري
-          </motion.p>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[...Array(3)].map((_, i) => (
-              <motion.div
-                key={i}
-                variants={fadeInUp}
-                whileHover={{ scale: 1.05 }}
-                className="bg-white p-6 rounded-2xl shadow-lg transition-all duration-500 transform hover:scale-105 hover:shadow-xl"
-              >
-                <div className="flex justify-end mb-4">
-                  <div className="text-amber-500">
-                    <Star className="inline-block w-5 h-5 fill-current" />
-                    <Star className="inline-block w-5 h-5 fill-current" />
-                    <Star className="inline-block w-5 h-5 fill-current" />
-                    <Star className="inline-block w-5 h-5 fill-current" />
-                    <Star className="inline-block w-5 h-5 fill-current" />
-                  </div>
-                </div>
-                <p className="text-gray-600 mb-6 leading-relaxed">
-                  "بفضل برامج التوعية والمتابعة المستمرة، استطعت السيطرة على
-                  مستويات السكر لدي بشكل أفضل. الدعم المقدم ساعدني كثيراً في تغيير
-                  نمط حياتي للأفضل."
-                </p>
-                <div className="flex items-center justify-end">
-                  <div className="text-right">
-                    <p className="font-semibold text-gray-800">أحمد محمد</p>
-                    <p className="text-sm text-gray-500">, عمان 45 سنة</p>
-                  </div>
-                  <div className="w-12 h-12 rounded-full bg-indigo-100 mr-4 flex items-center justify-center text-indigo-600 font-bold">
-                    أ.م
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-
-        <div className="absolute -top-20 -left-20 w-64 h-64 bg-teal-200 rounded-full mix-blend-multiply opacity-10 animate-blob"></div>
-        <div className="absolute bottom-10 right-10 w-64 h-64 bg-indigo-200 rounded-full mix-blend-multiply opacity-10 animate-blob delay-4000"></div>
-      </motion.section>
+     
 
       {/* Education Section */}
       <motion.section

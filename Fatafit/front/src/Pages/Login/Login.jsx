@@ -1,10 +1,9 @@
-
-
 import { useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
-import fatafitLogo from "../../assets/fl.png"
+import { Eye, EyeOff, Mail, Lock } from "lucide-react";
+import logoImg from "../../Shared/Screenshot_2025-05-09_132412-removebg-preview (1).png";
 
 export default function Login() {
   const [formData, setFormData] = useState({
@@ -16,6 +15,7 @@ export default function Login() {
     password: "",
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const validateForm = () => {
@@ -45,7 +45,6 @@ export default function Login() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
-    // Clear error when user starts typing
     if (errors[name]) {
       setErrors({ ...errors, [name]: "" });
     }
@@ -113,9 +112,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-100 px-8" dir="rtl" style={{
-      background: 'linear-gradient(135deg, #4A90E2 0%, #3564b8 100%)'
-    }}>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-100 flex items-center justify-center p-4" dir="rtl">
       <Toaster
         position="top-center"
         toastOptions={{
@@ -128,45 +125,52 @@ export default function Login() {
         }}
       />
 
-      <div className="w-[500px] mx-auto p-4 py-30 max-w-xs min-h-screen">
+      {/* Decorative Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-purple-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
+      </div>
+
+      <div className="w-full max-w-md relative">
+        {/* Logo Section */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-white bg-opacity-20 backdrop-blur-sm mb-4 overflow-hidden border-2 border-white border-opacity-30">
+          <div className="inline-flex items-center justify-center w-32 h-32 rounded-full bg-white bg-opacity-90 backdrop-blur-sm mb-4 overflow-hidden border-2 border-white border-opacity-30 shadow-xl transform hover:scale-105 transition-transform duration-300">
             <img
-              src={fatafitLogo}
+              src={logoImg}
               alt="فتافيت السكَر"
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain p-2"
               onError={(e) => {
                 e.target.onerror = null;
               }}
             />
           </div>
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">مرحباً بعودتك!</h1>
+          <p className="text-gray-600">سجل دخولك للوصول إلى حسابك</p>
         </div>
 
-        <div className="bg-white bg-opacity-95 backdrop-blur-sm rounded-3xl shadow-2xl p-6">
+        {/* Login Form */}
+        <div className="bg-white bg-opacity-95 backdrop-blur-sm rounded-3xl shadow-2xl p-8 border border-gray-100">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <label className="block text-sm font-medium" style={{ color: '#1D3E79' }}>
+              <label className="block text-sm font-medium text-gray-700">
                 البريد الإلكتروني
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                  <svg className="h-5 w-5" style={{ color: '#4A90E2' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
-                  </svg>
+                  <Mail className="h-5 w-5 text-blue-500" />
                 </div>
                 <input
                   type="email"
                   name="email"
                   placeholder="أدخل بريدك الإلكتروني"
-                  className={`w-full pr-10 pl-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all duration-300 text-right ${errors.email
-                    ? 'border-red-500'
-                    : formData.email
-                      ? 'border-[#4A90E2]'
-                      : 'border-gray-200'
-                    }`}
-                  style={{
-                    boxShadow: formData.email ? '0 0 0 3px rgba(74, 144, 226, 0.1)' : 'none'
-                  }}
+                  className={`w-full pr-10 pl-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all duration-300 text-right ${
+                    errors.email
+                      ? 'border-red-500 focus:ring-red-200'
+                      : formData.email
+                        ? 'border-blue-500 focus:ring-blue-200'
+                        : 'border-gray-200 focus:ring-gray-200'
+                  }`}
                   value={formData.email}
                   onChange={handleChange}
                 />
@@ -175,31 +179,38 @@ export default function Login() {
             </div>
 
             <div className="space-y-2">
-              <label className="block text-sm font-medium" style={{ color: '#1D3E79' }}>
+              <label className="block text-sm font-medium text-gray-700">
                 كلمة المرور
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                  <svg className="h-5 w-5" style={{ color: '#4A90E2' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                  </svg>
+                  <Lock className="h-5 w-5 text-blue-500" />
                 </div>
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   name="password"
                   placeholder="أدخل كلمة المرور"
-                  className={`w-full pr-10 pl-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all duration-300 text-right ${errors.password
-                    ? 'border-red-500'
-                    : formData.password
-                      ? 'border-[#4A90E2]'
-                      : 'border-gray-200'
-                    }`}
-                  style={{
-                    boxShadow: formData.password ? '0 0 0 3px rgba(74, 144, 226, 0.1)' : 'none'
-                  }}
+                  className={`w-full pr-10 pl-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all duration-300 text-right ${
+                    errors.password
+                      ? 'border-red-500 focus:ring-red-200'
+                      : formData.password
+                        ? 'border-blue-500 focus:ring-blue-200'
+                        : 'border-gray-200 focus:ring-gray-200'
+                  }`}
                   value={formData.password}
                   onChange={handleChange}
                 />
+                <button
+                  type="button"
+                  className="absolute inset-y-0 left-0 pl-3 flex items-center"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                  ) : (
+                    <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                  )}
+                </button>
                 {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
               </div>
             </div>
@@ -207,7 +218,7 @@ export default function Login() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full mb-2 py-3 px-4 rounded-xl text-white font-semibold text-lg bg-[#3564b8] hover:bg-[#2b559e] transition-all duration-300 transform focus:outline-none focus:ring-4 focus:ring-opacity-50 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none cursor-pointer"
+              className="w-full py-3 px-4 rounded-xl text-white font-semibold text-lg bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 transform focus:outline-none focus:ring-4 focus:ring-blue-200 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none cursor-pointer shadow-lg hover:shadow-xl"
             >
               {isLoading ? (
                 <div className="flex items-center justify-center">
@@ -222,11 +233,12 @@ export default function Login() {
               )}
             </button>
           </form>
-          {/* روابط إضافية */}
-          <div className="mt-2 text-center">
-            <Link to="/changepassword"
-              className="text-[14px] hover:underline transition-colors duration-200"
-              style={{ color: '#4A90E2' }}
+
+          {/* Additional Links */}
+          <div className="mt-6 text-center">
+            <Link
+              to="/changepassword"
+              className="text-sm text-blue-600 hover:text-blue-800 transition-colors duration-200 hover:underline"
             >
               نسيت كلمة المرور؟
             </Link>
