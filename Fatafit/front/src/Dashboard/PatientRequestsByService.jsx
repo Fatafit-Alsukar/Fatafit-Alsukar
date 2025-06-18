@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from "react";
-import { Eye, X, Download, Users, Clock, CheckCircle, AlertCircle, Sparkles } from "lucide-react";
+import { Eye, X, Download, Users, Clock, CheckCircle, AlertCircle, Sparkles, File, ChevronRight, ChevronLeft } from "lucide-react";
 
 export default function PatientRequestsByService({
   patientRequestsByType,
@@ -12,6 +11,9 @@ export default function PatientRequestsByService({
 }) {
   const [popupText, setPopupText] = useState("");
   const [showPopup, setShowPopup] = useState(false);
+  const [showAttachments, setShowAttachments] = useState(false);
+  const [currentAttachments, setCurrentAttachments] = useState([]);
+  const [currentAttachmentIndex, setCurrentAttachmentIndex] = useState(0);
   const [requestsByType, setRequestsByType] = useState(initialRequestsByType || []);
   const [loadingRequests, setLoadingRequests] = useState(new Set());
 
@@ -80,6 +82,30 @@ export default function PatientRequestsByService({
   const closePopup = () => {
     setShowPopup(false);
     setPopupText("");
+  };
+
+  const openAttachments = (attachments) => {
+    setCurrentAttachments(attachments);
+    setCurrentAttachmentIndex(0);
+    setShowAttachments(true);
+  };
+
+  const closeAttachments = () => {
+    setShowAttachments(false);
+    setCurrentAttachments([]);
+    setCurrentAttachmentIndex(0);
+  };
+
+  const nextAttachment = () => {
+    setCurrentAttachmentIndex((prev) => 
+      prev === currentAttachments.length - 1 ? 0 : prev + 1
+    );
+  };
+
+  const prevAttachment = () => {
+    setCurrentAttachmentIndex((prev) => 
+      prev === 0 ? currentAttachments.length - 1 : prev - 1
+    );
   };
 
   function ReadMoreCell({ text = "-", maxLength = 25 }) {
@@ -239,16 +265,14 @@ export default function PatientRequestsByService({
                               <div className="text-gray-600 text-sm font-mono">{req.phonenumber}</div>
                             </td>
                             <td className="py-4 px-6">
-                              {req.attachment ? (
-                                <a
-                                  href={req.attachment}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
+                              {req.attachments && req.attachments.length > 0 ? (
+                                <button
+                                  onClick={() => openAttachments(req.attachments)}
                                   className="inline-flex items-center gap-2 text-teal-600 hover:text-teal-800 text-sm font-medium transition-colors"
                                 >
-                                  <Download size={14} />
-                                  تحميل
-                                </a>
+                                  <File size={14} />
+                                  عرض المرفقات ({req.attachments.length})
+                                </button>
                               ) : (
                                 <span className="text-gray-400 italic text-sm">لا يوجد مرفق</span>
                               )}
@@ -359,6 +383,73 @@ export default function PatientRequestsByService({
             <div className="p-6 border-t border-gray-200 bg-gray-50 flex justify-end">
               <button
                 onClick={closePopup}
+                className="bg-gradient-to-r from-teal-600 to-blue-600 text-white px-6 py-2 rounded-lg hover:from-teal-700 hover:to-blue-700 transition-all duration-200 font-medium shadow-lg hover:shadow-xl"
+              >
+                إغلاق
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add the Attachments Modal */}
+      {showAttachments && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[80vh] overflow-hidden animate-slideUp">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-teal-50 to-blue-50">
+              <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                <File size={20} className="text-teal-600" />
+                المرفقات ({currentAttachmentIndex + 1} من {currentAttachments.length})
+              </h3>
+              <button
+                onClick={closeAttachments}
+                className="w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition-colors"
+              >
+                <X size={16} />
+              </button>
+            </div>
+            
+            {/* Modal Content */}
+            <div className="p-6 relative">
+              <div className="flex items-center justify-center min-h-[400px] bg-gray-50 rounded-xl">
+                <img
+                  src={`http://localhost:5000/uploads/requests/${currentAttachments[currentAttachmentIndex]}`}
+                  alt={`Attachment ${currentAttachmentIndex + 1}`}
+                  className="max-h-[400px] max-w-full object-contain"
+                />
+              </div>
+              
+              {/* Navigation Buttons */}
+              <div className="absolute inset-y-0 left-0 right-0 flex items-center justify-between px-4">
+                <button
+                  onClick={prevAttachment}
+                  className="w-10 h-10 bg-white/80 hover:bg-white rounded-full flex items-center justify-center shadow-lg transition-all duration-200"
+                >
+                  <ChevronRight size={24} className="text-gray-700" />
+                </button>
+                <button
+                  onClick={nextAttachment}
+                  className="w-10 h-10 bg-white/80 hover:bg-white rounded-full flex items-center justify-center shadow-lg transition-all duration-200"
+                >
+                  <ChevronLeft size={24} className="text-gray-700" />
+                </button>
+              </div>
+            </div>
+            
+            {/* Modal Footer */}
+            <div className="p-6 border-t border-gray-200 bg-gray-50 flex justify-between items-center">
+              <a
+                href={`http://localhost:5000/uploads/requests/${currentAttachments[currentAttachmentIndex]}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-teal-600 hover:text-teal-800 font-medium transition-colors"
+              >
+                <Download size={16} />
+                تحميل الملف
+              </a>
+              <button
+                onClick={closeAttachments}
                 className="bg-gradient-to-r from-teal-600 to-blue-600 text-white px-6 py-2 rounded-lg hover:from-teal-700 hover:to-blue-700 transition-all duration-200 font-medium shadow-lg hover:shadow-xl"
               >
                 إغلاق

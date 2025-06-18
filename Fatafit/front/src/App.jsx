@@ -30,6 +30,21 @@ import Archive from "./Pages/Archive/Archive";
 import SuccessStories from "./Pages/SuccessStories/SuccessStories";
 import SuccessStoryDetails from "./Pages/SuccessStories/SuccessStoryDetails";
 import ArchivedArticleDetails from "./Pages/Archive/ArchivedArticleDetails";
+import SummerClubPage from "./Pages/SummerClub";
+import PaymentPage from './Pages/Payment';
+import Privacy from "./Pages/Privacy";
+import Terms from "./Pages/Terms";
+import Team from "./Pages/Team";
+import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
+
+
+
+
+
+
+
+
+
 
 function Layout() {
   const location = useLocation();
@@ -47,8 +62,23 @@ function Layout() {
         <Route path="/volunteerrequest" element={<VolunteerRequest />} />
         <Route path="/membershiprequest" element={<MembershipRequest />} />
         <Route path="/Services" element={<ServicesPage />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/dashboard/articles" element={<ArticlesManagement />} />
+
+<Route
+  path="/dashboard"
+  element={
+    <ProtectedRoute>
+      <Dashboard />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/dashboard/articles"
+  element={
+    <ProtectedRoute>
+      <ArticlesManagement />
+    </ProtectedRoute>
+  }
+/>
         <Route path="/Activities" element={<Activities />} />
         <Route path="/donation/cash" element={<DonatePage />} />
         <Route path="/donation/items" element={<InKindDonation />} />
@@ -62,6 +92,22 @@ function Layout() {
         <Route path="/success-stories" element={<SuccessStories />} />
         <Route path="/success-stories/:id" element={<SuccessStoryDetails />} />
         <Route path="/archive/:id" element={<ArchivedArticleDetails />} />
+        <Route path="/summer-club" element={<SummerClubPage />} />
+        <Route path="/payment" element={<PaymentPage />} />
+        <Route path="/privacy" element={<Privacy />} />
+        <Route path="/terms" element={<Terms />} />
+        <Route path="/team" element={<Team />} />
+
+
+
+
+
+
+
+
+
+
+
         {/* Add more routes as needed */}
       </Routes>
 

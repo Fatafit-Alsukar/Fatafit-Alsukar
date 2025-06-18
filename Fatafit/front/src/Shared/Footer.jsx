@@ -36,10 +36,7 @@ export default function Footer() {
                 </div>
               </div>
               
-              <p className="text-blue-700 leading-relaxed text-base">
-                جمعية خيرية تهتم بدعم وتوعية الأطفال المصابين بمرض السكري وعائلاتهم،
-                نسعى لتقديم أفضل الخدمات والدعم لهم.
-              </p>
+             
             </div>
 
             {/* Social Media */}
@@ -131,7 +128,12 @@ export default function Footer() {
               />
             </div>
             <div className="hidden sm:block w-px h-4 bg-blue-300/50"></div>
-          
+            <Link to="/team" className="text-sm hover:text-[#2B6CB0] transition-colors flex items-center gap-2 group">
+              <span>فريق التطوير</span>
+              <svg className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+              </svg>
+            </Link>
           </div>
           
           <div className="flex items-center gap-3 text-sm text-blue-600">

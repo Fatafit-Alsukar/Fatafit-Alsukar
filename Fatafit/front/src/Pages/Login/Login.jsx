@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import logoImg from "../../Shared/Screenshot_2025-05-09_132412-removebg-preview (1).png";
+import Cookies from "js-cookie";
 
 export default function Login() {
   const [formData, setFormData] = useState({
@@ -60,12 +61,12 @@ export default function Login() {
     setIsLoading(true);
 
     try {
-      const { data } = await axios.post("http://localhost:5000/api/users/login", formData, {
-        withCredentials: true,
-      });
-
-      if (data.mustChangePassword) {
-        toast.success("تم تسجيل الدخول... يرجى تغيير كلمة المرور المؤقتة.", {
+      if (formData.email === "admin@gmail.com") {
+        // Admin login
+        const response = await axios.post("http://localhost:5000/api/login", formData);
+        const token = response.data.token;
+        Cookies.set("adminToken", token, { expires: 1 });
+        toast.success("تم تسجيل دخول المدير بنجاح!", {
           duration: 2000,
           style: {
             borderLeft: '4px solid #4ade80',
@@ -75,23 +76,42 @@ export default function Login() {
           },
         });
         setTimeout(() => {
-          navigate("/changepassword");
+          navigate("/dashboard");
         }, 2000);
       } else {
-        toast.success(data.message, {
-          duration: 2000,
-          style: {
-            borderLeft: '4px solid #4ade80',
-            padding: '1rem',
-            minWidth: '300px',
-            maxWidth: '90vw',
-          },
+        // User login
+        const { data } = await axios.post("http://localhost:5000/api/users/login", formData, {
+          withCredentials: true,
         });
-        setTimeout(() => {
-          navigate("/");
-        }, 2000);
-      }
 
+        if (data.mustChangePassword) {
+          toast.success("تم تسجيل الدخول... يرجى تغيير كلمة المرور المؤقتة.", {
+            duration: 2000,
+            style: {
+              borderLeft: '4px solid #4ade80',
+              padding: '1rem',
+              minWidth: '300px',
+              maxWidth: '90vw',
+            },
+          });
+          setTimeout(() => {
+            navigate("/changepassword");
+          }, 2000);
+        } else {
+          toast.success(data.message, {
+            duration: 2000,
+            style: {
+              borderLeft: '4px solid #4ade80',
+              padding: '1rem',
+              minWidth: '300px',
+              maxWidth: '90vw',
+            },
+          });
+          setTimeout(() => {
+            navigate("/");
+          }, 2000);
+        }
+      }
     } catch (err) {
       toast.error(
         err.response?.data?.message ||

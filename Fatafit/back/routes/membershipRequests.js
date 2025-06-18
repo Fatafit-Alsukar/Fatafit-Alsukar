@@ -4,6 +4,7 @@ const {
   getMembershipRequestCount,
   getAllMembershipRequests,
   updateMembershipRequestStatus,
+  approveMembershipRequest,
 } = require("../controllers/membershipRequestController");
 
 // مثال على المسارات:
@@ -14,5 +15,6 @@ const {
 router.get("/count", getMembershipRequestCount); // عد الطلبات
 router.get("/", getAllMembershipRequests); // جلب الكل
 router.put("/:id", updateMembershipRequestStatus); // تحديث الحالة
+router.post("/:id/approve", approveMembershipRequest); // الموافقة أو التعليق
 
 module.exports = router;

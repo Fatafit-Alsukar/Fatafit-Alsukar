@@ -200,7 +200,9 @@ export default function MembershipRequests({
                           onClick={() =>
                             updateMembershipStatus(
                               req._id,
-                              req.status === "approved" ? "pending" : "approved"
+                              req.status === "approved" ? "pending" : "approved",
+                              req.email,
+                              req.fullName
                             )
                           }
                         >

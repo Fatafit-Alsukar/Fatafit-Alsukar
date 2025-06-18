@@ -16,6 +16,7 @@ export default function KidFriendlyNavbarArabic() {
     useState(false);
   const [donationDropdownOpen, setDonationDropdownOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userFullName, setUserFullName] = useState("");
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -37,8 +38,16 @@ export default function KidFriendlyNavbarArabic() {
       credentials: "include",
     })
       .then((res) => (res.ok ? res.json() : Promise.reject()))
-      .then((data) => setIsLoggedIn(!!data.user))
-      .catch(() => setIsLoggedIn(false));
+      .then((data) => {
+        setIsLoggedIn(!!data.user);
+        if (data.user) {
+          setUserFullName(data.user.fullName);
+        }
+      })
+      .catch(() => {
+        setIsLoggedIn(false);
+        setUserFullName("");
+      });
   }, [location]);
 
   // Update active item based on current route
@@ -101,6 +110,7 @@ export default function KidFriendlyNavbarArabic() {
     { label: "نصائح", to: "/articles" },
     { label: "قصص ملهمة", to: "/success-stories" },
     { label: "أرشيف المحتوى", to: "/archive" },
+    { label: "النادي الصيفي", to: "/summer-club" },
   ];
 
   // Add donation options array
@@ -175,6 +185,7 @@ export default function KidFriendlyNavbarArabic() {
       });
       if (res.ok) {
         setIsLoggedIn(false);
+        setUserFullName("");
         await Swal.fire({
           icon: 'success',
           title: 'تم تسجيل الخروج',
@@ -300,8 +311,8 @@ export default function KidFriendlyNavbarArabic() {
                       className={`absolute right-0 w-48 bg-white rounded-lg shadow-lg border border-blue-100 transition-all duration-300 z-50 overflow-hidden
                         ${
                           dropdownOpen
-                            ? "opacity-100 translate-y-0 pointer-events-auto"
-                            : "opacity-0 -translate-y-2 pointer-events-none"
+                            ? "opacity-100 translate-y-0"
+                            : "opacity-0 -translate-y-2 group-hover:opacity-100 group-hover:translate-y-0"
                         }
                       `}
                       style={{ transitionProperty: "opacity, transform", minWidth: '220px', whiteSpace: 'nowrap' }}
@@ -348,8 +359,8 @@ export default function KidFriendlyNavbarArabic() {
                       className={`absolute right-0 w-48 bg-white rounded-lg shadow-lg border border-blue-100 transition-all duration-300 z-50 overflow-hidden
                         ${
                           activitiesDropdownOpen
-                            ? "opacity-100 translate-y-0 pointer-events-auto"
-                            : "opacity-0 -translate-y-2 pointer-events-none"
+                            ? "opacity-100 translate-y-0"
+                            : "opacity-0 -translate-y-2 group-hover:opacity-100 group-hover:translate-y-0"
                         }
                       `}
                       style={{ transitionProperty: "opacity, transform" }}
@@ -396,8 +407,8 @@ export default function KidFriendlyNavbarArabic() {
                       className={`absolute right-0 w-48 bg-white rounded-lg shadow-lg border border-blue-100 transition-all duration-300 z-50 overflow-hidden
                         ${
                           donationDropdownOpen
-                            ? "opacity-100 translate-y-0 pointer-events-auto"
-                            : "opacity-0 -translate-y-2 pointer-events-none"
+                            ? "opacity-100 translate-y-0"
+                            : "opacity-0 -translate-y-2 group-hover:opacity-100 group-hover:translate-y-0"
                         }
                       `}
                       style={{ transitionProperty: "opacity, transform", minWidth: '220px', whiteSpace: 'nowrap' }}
@@ -465,21 +476,39 @@ export default function KidFriendlyNavbarArabic() {
               )}
               {/* Profile icon and logout button if logged in */}
               {isLoggedIn && (
-                <div className="flex items-center gap-2">
-                  <Link
-                    to="/profile"
-                    className="text-blue-500 hover:text-blue-700 px-2 py-2 rounded-full flex items-center gap-2 font-medium text-base lg:text-lg"
+                <div className="relative group flex items-center gap-2">
+                  <button
+                    type="button"
+                    className="text-blue-500 hover:text-blue-700 px-2 py-2 rounded-full flex items-center gap-2 font-medium text-base lg:text-lg focus:outline-none"
+                    tabIndex={0}
+                    style={{ position: 'relative' }}
+                    aria-haspopup="true"
+                    aria-expanded="false"
                   >
                     <User className="w-5 h-5" />
-                    <span>الملف الشخصي</span>
-                  </Link>
-                  <button
-                    onClick={handleLogout}
-                    className="text-red-500 hover:text-red-700 px-2 py-2 rounded-full flex items-center gap-2 font-medium text-base lg:text-lg hover:bg-red-50 transition-colors"
-                  >
-                    <LogOut className="w-5 h-5" />
-                    <span>تسجيل الخروج</span>
+                    <span>{userFullName || "الملف الشخصي"}</span>
                   </button>
+                  {/* Dropdown menu */}
+                  <div
+                    className="absolute left-0 top-full mt-2 min-w-[160px] bg-white rounded-lg shadow-lg border border-blue-100 z-50 transition-all duration-200 overflow-hidden opacity-0 -translate-y-2 group-hover:opacity-100 group-hover:translate-y-0"
+                    style={{ transitionProperty: 'opacity, transform' }}
+                    tabIndex={-1}
+                  >
+                    <Link
+                      to="/profile"
+                      className="block px-4 py-3 text-blue-600 hover:bg-blue-50 hover:text-[#2B6CB0] transition-all text-base"
+                      tabIndex={0}
+                    >
+                      الملف الشخصي
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="w-full text-right block px-4 py-3 text-red-500 hover:bg-red-50 hover:text-red-700 transition-all text-base"
+                      tabIndex={0}
+                    >
+                      تسجيل الخروج
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
@@ -677,7 +706,7 @@ export default function KidFriendlyNavbarArabic() {
                     className="text-lg font-medium px-4 py-3 rounded-full transition-all duration-300 relative group w-full text-right flex items-center gap-3 justify-end text-blue-500 hover:text-blue-700 hover:bg-blue-50"
                   >
                     <User className="w-5 h-5" />
-                    <span>الملف الشخصي</span>
+                    <span>{userFullName || "الملف الشخصي"}</span>
                   </Link>
                   <button
                     onClick={() => {

@@ -18,25 +18,21 @@ const requestRoutes = require("./routes/requestRoutes");
 const serviceRoutes = require("./routes/serviceRoutes")
 const activityRoutes = require("./routes/activityRoutes");
 const successStoryRoutes = require("./routes/SuccessStroyRoutes");
+const adminRoutes = require('./routes/adminRoutes');
+const authRoutes = require("./routes/authRoutes");
 
 /****************************************************************** */
 
+// CORS middleware should be here, before any routes
+app.use(cors({
+  origin: 'http://localhost:5173',
+  credentials: true
+}));
+
 app.use(express.json());
 app.use(cookieParser());
-
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      // السماح لأي Origin (أو عدم وجود origin مثل Postman / curl)
-      if (!origin || origin.startsWith("http://localhost") || origin.includes("onrender") || origin.includes("vercel")) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true,
-  })
-);
+app.use("/api", authRoutes);
+app.use('/api', adminRoutes);
 /****************************************************************** */
 
 //************************************************************************************************** */

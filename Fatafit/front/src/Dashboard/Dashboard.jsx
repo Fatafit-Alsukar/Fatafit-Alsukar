@@ -8,15 +8,13 @@ import {
   PieChart,
   Heart,
   Activity,
-
   UserPlus,
-
   AlertCircle,
-
   X,
-BookOpen,
+  BookOpen,
   ThumbsUp,
   MessageCircleIcon,
+  Sun,
 } from "lucide-react";
 import {
   BarChart,
@@ -25,8 +23,6 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
-
-
 } from "recharts";
 import {
   getServices,
@@ -48,6 +44,8 @@ import StatisticsDashboard from "./StatisticsDashboard";
 import DashboardHome from "./DashboardHome";
 import DonationDashboard from "./DonationDashboard";
 import SuccessStories from "./SuccessStories";
+import SummerClubsManagement from "./SummerClubsManagement";
+import Cookies from "js-cookie";
 
 export default function Dashboard(   
 ) {
@@ -70,27 +68,23 @@ export default function Dashboard(
   const [volunteerRequests, setVolunteerRequests] = useState([]);
   // بيانات الرسم البياني (يمكن استبدالها ببيانات ديناميكية لاحقًا)
   const [monthlyRegistrations, setMonthlyRegistrations] = useState([]);
-const [successStories, setSuccessStories] = useState([]);
-const [showForm, setShowForm] = useState(false);
+  const [successStories, setSuccessStories] = useState([]);
+  const [showForm, setShowForm] = useState(false);
 
-
-
-const [donations, setDonations] = useState([]);
-const totalDonations = donations.length;
-const fetchDonations = async () => {
-  try {
-    const res = await axios.get("http://localhost:5000/api/donations");
-    setDonations(res.data);
-  } catch (error) {
-    console.error("فشل في جلب التبرعات:", error);
-  }
-};
+  const [donations, setDonations] = useState([]);
+  const totalDonations = donations.length;
+  const fetchDonations = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/api/donations");
+      setDonations(res.data);
+    } catch (error) {
+      console.error("فشل في جلب التبرعات:", error);
+    }
+  };
   useEffect(() => {
     fetchDonations();
   }, []);
 
-
-  
   // ألوان الواجهة
   const colors = {
     skyBlue: "#87CEEB",
@@ -102,10 +96,8 @@ const fetchDonations = async () => {
     background: "#FFFCF0",
   };
 
-
   const [users, setUsers] = useState([]);
   const [events, setEvents] = useState([]);
-
 
   // حالات النماذج
   const [newService, setNewService] = useState({
@@ -132,9 +124,6 @@ const fetchDonations = async () => {
     try {
       const res = await axios.get("http://localhost:5000/api/activities");
       setEvents(res.data);
-
-
-
     } catch (err) {
       console.error("فشل في جلب الفعاليات:", err);
     }
@@ -197,11 +186,20 @@ const fetchDonations = async () => {
       console.error("فشل في جلب طلبات الانتساب:", err);
     }
   };
-  const updateMembershipStatus = async (id, newStatus) => {
+  const updateMembershipStatus = async (id, newStatus, email, fullName) => {
     try {
-      await axios.put(`http://localhost:5000/api/requests/membership/${id}`, {
-        status: newStatus,
-      });
+      if (typeof newStatus === 'string' && (newStatus === 'approved' || newStatus === 'pending')) {
+        // Use the new approve endpoint
+        await axios.post(`http://localhost:5000/api/requests/membership/${id}/approve`, {
+          email,
+          fullName,
+        });
+      } else {
+        // fallback to old PUT if needed
+        await axios.put(`http://localhost:5000/api/requests/membership/${id}`, {
+          status: newStatus,
+        });
+      }
       fetchMembershipRequests(); // إعادة التحميل بعد التحديث
     } catch (err) {
       console.error("فشل في تحديث حالة طلب الانتساب:", err);
@@ -219,11 +217,20 @@ const fetchDonations = async () => {
     }
   };
 
-  const updateVolunteerStatus = async (id, newStatus) => {
+  const updateVolunteerStatus = async (id, newStatus, email, fullName) => {
     try {
-      await axios.put(`http://localhost:5000/api/requests/volunteer/${id}`, {
-        status: newStatus,
-      });
+      if (typeof newStatus === 'string' && (newStatus === 'approved' || newStatus === 'pending')) {
+        // Use the new approve endpoint
+        await axios.post(`http://localhost:5000/api/requests/volunteer/${id}/approve`, {
+          email,
+          fullName,
+        });
+      } else {
+        // fallback to old PUT if needed
+        await axios.put(`http://localhost:5000/api/requests/volunteer/${id}`, {
+          status: newStatus,
+        });
+      }
       fetchVolunteerRequests(); // إعادة التحميل بعد التحديث
     } catch (err) {
       console.error("فشل في تحديث حالة المتطوع:", err);
@@ -242,35 +249,34 @@ const fetchDonations = async () => {
     }
   };
 
-
   const fetchSuccessStories = async () => {
-  try {
-    const res = await axios.get("http://localhost:5000/api/success-stories");
-    setSuccessStories(res.data);
-  } catch (error) {
-    console.error("فشل في جلب قصص النجاح:", error);
-  }
-};
-useEffect(() => {
-  // ... استدعاءات API الأخرى
-  fetchSuccessStories();
-}, []);
+    try {
+      const res = await axios.get("http://localhost:5000/api/success-stories");
+      setSuccessStories(res.data);
+    } catch (error) {
+      console.error("فشل في جلب قصص النجاح:", error);
+    }
+  };
+  useEffect(() => {
+    // ... استدعاءات API الأخرى
+    fetchSuccessStories();
+  }, []);
 
-const handleStorySubmit = async (data) => {
-  try {
-    await axios.post("http://localhost:5000/api/success-stories", data, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    });
-    alert("تم حفظ قصة النجاح بنجاح!");
-    setShowForm(false);
-    fetchSuccessStories(); // إعادة تحميل القصص بعد الإضافة
-  } catch (error) {
-    alert("حدث خطأ أثناء الحفظ.");
-    console.error(error);
-  }
-};
+  const handleStorySubmit = async (data) => {
+    try {
+      await axios.post("http://localhost:5000/api/success-stories", data, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      alert("تم حفظ قصة النجاح بنجاح!");
+      setShowForm(false);
+      fetchSuccessStories(); // إعادة تحميل القصص بعد الإضافة
+    } catch (error) {
+      alert("حدث خطأ أثناء الحفظ.");
+      console.error(error);
+    }
+  };
 
   // جلب البيانات عند تحميل المكون
   useEffect(() => {
@@ -454,9 +460,6 @@ const handleStorySubmit = async (data) => {
     }
   };
 
-
-
-
   // معالجة التبرع
   const handleDonation = (e) => {
     e.preventDefault();
@@ -480,13 +483,6 @@ const handleStorySubmit = async (data) => {
     </button>
   );
 
-
-
-
-
-  // بقية الكود (العناصر الأخرى والواجهة) تبقى كما هي بدون تغيير
-  // ...
-
   return (
     <div
       dir="rtl"
@@ -500,7 +496,6 @@ const handleStorySubmit = async (data) => {
         </div>
         <div className="p-2">
           <div className="flex flex-col space-y-1">
-           
             <SidebarItem
               icon={<Home />}
               text="الرئيسية"
@@ -513,7 +508,6 @@ const handleStorySubmit = async (data) => {
               active={activeTab === "users"}
               onClick={() => setActiveTab("users")}
             />
-
             <SidebarItem
               icon={<UserPlus />}
               text="طلبات الانتساب"
@@ -532,7 +526,6 @@ const handleStorySubmit = async (data) => {
               active={activeTab === "patientsByService"}
               onClick={() => setActiveTab("patientsByService")}
             />
-
             <SidebarItem
               icon={<Activity />}
               text="الخدمات"
@@ -544,6 +537,12 @@ const handleStorySubmit = async (data) => {
               text="الفعاليات"
               active={activeTab === "events"}
               onClick={() => setActiveTab("events")}
+            />
+             <SidebarItem
+              icon={<Sun />}
+              text="نوادي صيفية"
+              active={activeTab === "summerClubs"}
+              onClick={() => setActiveTab("summerClubs")}
             />
             <SidebarItem
               icon={<Newspaper />}
@@ -570,13 +569,13 @@ const handleStorySubmit = async (data) => {
               onClick={() => setActiveTab("contactmessage")}
             />
             <SidebarItem
-              icon={<BookOpen />} // أو أي أيقونة أخرى مناسبة
+              icon={<BookOpen />}
               text="قصص النجاح"
               active={activeTab === "successStories"}
               onClick={() => setActiveTab("successStories")}
             />
-
-             <div className="flex justify-center">
+           
+            <div className="flex justify-center">
               <SidebarItem
                 icon={<Home className="w-7 h-7" />}
                 text={<span className="text-lg font-extrabold">الصفحة الرئيسية للموقع</span>}
@@ -606,7 +605,18 @@ const handleStorySubmit = async (data) => {
             {activeTab === "volunteers" && "طلبات التطوع"}
             {activeTab === "patientsByService" && "طلبات المستفيدين حسب الخدمة"}
             {activeTab === "ArticlesManagement" && "إدارة المقالات"}
+            {activeTab === "successStories" && "قصص النجاح"}
+            {activeTab === "summerClubs" && "نوادي صيفية"}
           </h1>
+          <button
+            onClick={() => {
+              Cookies.remove("adminToken");
+              window.location.href = "/";
+            }}
+            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
+          >
+            تسجيل الخروج
+          </button>
         </header>
 
         {/* المحتوى الرئيسي للوحة التحكم */}
@@ -650,7 +660,7 @@ const handleStorySubmit = async (data) => {
               requestsByType={requestsByType}
               updateStatus={updateStatus}
               setSelectedServiceType={setSelectedServiceType}
-              totalDonations={totalDonations} // ✅ أضف هذا السطر
+              totalDonations={totalDonations}
             />
           )}
 
@@ -674,8 +684,6 @@ const handleStorySubmit = async (data) => {
               handleDeleteService={handleDeleteService}
             />
           )}
-
-          {/*********************************************************/}
 
           {/* صفحة طلبات المستفيدين حسب الخدمة */}
           {activeTab === "patientsByService" && (
@@ -720,7 +728,7 @@ const handleStorySubmit = async (data) => {
               userCount={userCount}
               monthlyRegistrations={monthlyRegistrations}
               colors={colors}
-              totalDonations={totalDonations} // ✅ أضف هذا السطر
+              totalDonations={totalDonations}
             />
           )}
 
@@ -728,18 +736,19 @@ const handleStorySubmit = async (data) => {
           {activeTab === "donations" && 
             <DonationDashboard 
               totalDonations={totalDonations}
-        />
-      }
+            />
+          }
 
-      {activeTab === "contactmessage" && <ContactMessage />}
-{activeTab === "successStories" && (
-  <SuccessStories
-    successStories={successStories}
-    onSubmit={handleStorySubmit}
-  />
-)}
-    </main>
-  </div>
-</div>
-);
+          {activeTab === "contactmessage" && <ContactMessage />}
+          {activeTab === "successStories" && (
+            <SuccessStories
+              successStories={successStories}
+              onSubmit={handleStorySubmit}
+            />
+          )}
+          {activeTab === "summerClubs" && <SummerClubsManagement />}
+        </main>
+      </div>
+    </div>
+  );
 }
