@@ -45,6 +45,7 @@ import DashboardHome from "./DashboardHome";
 import DonationDashboard from "./DonationDashboard";
 import SuccessStories from "./SuccessStories";
 import SummerClubsManagement from "./SummerClubsManagement";
+import Cookies from "js-cookie";
 
 export default function Dashboard(   
 ) {
@@ -607,6 +608,15 @@ export default function Dashboard(
             {activeTab === "successStories" && "قصص النجاح"}
             {activeTab === "summerClubs" && "نوادي صيفية"}
           </h1>
+          <button
+            onClick={() => {
+              Cookies.remove("adminToken");
+              window.location.href = "/";
+            }}
+            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
+          >
+            تسجيل الخروج
+          </button>
         </header>
 
         {/* المحتوى الرئيسي للوحة التحكم */}

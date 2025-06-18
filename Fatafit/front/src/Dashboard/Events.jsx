@@ -41,6 +41,7 @@ const Events = () => {
     }
   };
 
+
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();

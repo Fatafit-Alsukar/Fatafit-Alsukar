@@ -44,6 +44,7 @@ const SuccessStoryForm = ({ onSubmit }) => {
     setStory("");
   };
 
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4 mt-4">
       <input
