@@ -28,80 +28,111 @@ export default function VolunteerRequest() {
   });
   
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [privacyChecked, setPrivacyChecked] = useState(false);
+  const [termsChecked, setTermsChecked] = useState(false);
+  const [policyError, setPolicyError] = useState("");
 
-  useEffect(() => {
-    validateForm();
-  }, [formData]);
+  const validateField = (name, value) => {
+    let error = "";
+
+    switch (name) {
+      case "fullName":
+        if (!value.trim()) {
+          error = "الاسم الكامل مطلوب";
+        } else if (value.trim().length < 3) {
+          error = "يجب أن يكون الاسم على الأقل 3 أحرف";
+        } else if (value.trim().length > 100) {
+          error = "يجب أن لا يتجاوز الاسم 100 حرف";
+        } else if (!/^[A-Za-z0-0-FF\s'-]{3,100}$/.test(value.trim())) {
+          error = "يجب أن يحتوي الاسم على أحرف عربية أو إنجليزية فقط";
+        }
+        break;
+
+      case "email":
+        if (!value) {
+          error = "البريد الإلكتروني مطلوب";
+        } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value)) {
+          error = "البريد الإلكتروني غير صالح";
+        }
+        break;
+
+      case "phonenumber":
+        if (!value) {
+          error = "رقم الهاتف مطلوب";
+        } else if (!/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/.test(value)) {
+          error = "رقم الهاتف غير صالح";
+        }
+        break;
+
+      case "birthDate":
+        if (!value) {
+          error = "تاريخ الميلاد مطلوب";
+        } else {
+          const today = new Date();
+          const birthDate = new Date(value);
+          const age = today.getFullYear() - birthDate.getFullYear();
+          
+          if (birthDate > today) {
+            error = "تاريخ الميلاد لا يمكن أن يكون في المستقبل";
+          } else if (age < 18) {
+            error = "يجب أن يكون عمرك 18 سنة على الأقل";
+          }
+        }
+        break;
+
+      case "additionalInfo":
+        if (!value.trim()) {
+          error = "المعلومات الإضافية مطلوبة";
+        } else if (value.trim().length < 20) {
+          error = "يجب أن تكون المعلومات الإضافية على الأقل 20 حرفاً";
+        } else if (value.trim().length > 1000) {
+          error = "يجب أن لا تتجاوز المعلومات الإضافية 1000 حرف";
+        }
+        break;
+
+      default:
+        break;
+    }
+
+    return error;
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
     setTouched({ ...touched, [name]: true });
+    
+    // Validate field on change if it has been touched
+    if (touched[name]) {
+      const error = validateField(name, value);
+      setErrors(prev => ({ ...prev, [name]: error }));
+    }
+  };
+
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+    setTouched(prev => ({ ...prev, [name]: true }));
+    const error = validateField(name, value);
+    setErrors(prev => ({ ...prev, [name]: error }));
   };
 
   const validateForm = () => {
+    const newErrors = {};
     let isValid = true;
-    const newErrors = { ...errors };
 
-    // Validate full name
-    if (!formData.fullName.trim()) {
-      newErrors.fullName = "الاسم الكامل مطلوب";
-      isValid = false;
-    } else if (formData.fullName.trim().length < 3) {
-      newErrors.fullName = "الاسم الكامل يجب أن يكون أكثر من 3 أحرف";
-      isValid = false;
-    } else {
-      newErrors.fullName = "";
-    }
-
-    // Validate email
-    if (!formData.email) {
-      newErrors.email = "البريد الإلكتروني مطلوب";
-      isValid = false;
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = "البريد الإلكتروني غير صالح";
-      isValid = false;
-    } else {
-      newErrors.email = "";
-    }
-
-    // Validate phone number
-    if (!formData.phonenumber) {
-      newErrors.phonenumber = "رقم الهاتف مطلوب";
-      isValid = false;
-    } else if (!/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/.test(formData.phonenumber)) {
-      newErrors.phonenumber = "رقم الهاتف غير صالح";
-      isValid = false;
-    } else {
-      newErrors.phonenumber = "";
-    }
-
-    // Validate birth date
-    if (!formData.birthDate) {
-      newErrors.birthDate = "تاريخ الميلاد مطلوب";
-      isValid = false;
-    } else {
-      const today = new Date();
-      const birthDate = new Date(formData.birthDate);
-      const age = today.getFullYear() - birthDate.getFullYear();
-      
-      if (age < 18) {
-        newErrors.birthDate = "يجب أن يكون عمرك 18 سنة على الأقل";
+    Object.keys(formData).forEach(key => {
+      const error = validateField(key, formData[key]);
+      if (error) {
+        newErrors[key] = error;
         isValid = false;
-      } else {
-        newErrors.birthDate = "";
       }
-    }
+    });
 
-    // Validate additional info
-    if (!formData.additionalInfo.trim()) {
-      newErrors.additionalInfo = "هذا الحقل مطلوب";
-      isValid = false;
-    } else if (formData.additionalInfo.trim().length < 20) {
-      newErrors.additionalInfo = "يجب أن يكون النص أكثر من 20 حرفاً";
+    if (!privacyChecked || !termsChecked) {
+      setPolicyError("يجب الموافقة على سياسة الخصوصية والشروط والأحكام");
       isValid = false;
     } else {
-      newErrors.additionalInfo = "";
+      setPolicyError("");
     }
 
     setErrors(newErrors);
@@ -111,7 +142,7 @@ export default function VolunteerRequest() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Mark all fields as touched to show errors
+    // Mark all fields as touched
     setTouched({
       fullName: true,
       email: true,
@@ -120,64 +151,44 @@ export default function VolunteerRequest() {
       additionalInfo: true,
     });
 
-    const isValid = validateForm();
-    
-    if (!isValid) {
-      toast.error("الرجاء إكمال جميع الحقول المطلوبة بشكل صحيح", {
-        duration: 5000,
-        position: "top-center",
-        style: {
-          backgroundColor: '#fef2f2',
-          borderLeft: '4px solid #f87171',
-          padding: '1rem',
-          minWidth: '300px',
-          maxWidth: '90vw',
-        },
-      });
+    if (!validateForm()) {
+      toast.error("الرجاء تصحيح الأخطاء في النموذج");
       return;
     }
 
     setIsSubmitting(true);
-    
+
     try {
-      const res = await axios.post("http://localhost:5000/api/requests/volunteer", formData);
-      toast.success(res.data.message || "تم إرسال طلب التطوع بنجاح", {
-        duration: 5000,
-        position: "top-center",
-        style: {
-          backgroundColor: '#f0fdf4',
-          borderLeft: '4px solid #4ade80',
-          padding: '1rem',
-          minWidth: '300px',
-          maxWidth: '90vw',
-        },
-    });
-      setFormData({
-        fullName: "",
-        email: "",
-        phonenumber: "",
-        birthDate: "",
-        additionalInfo: "",
-      });
-      setTouched({
-        fullName: false,
-        email: false,
-        phonenumber: false,
-        birthDate: false,
-        additionalInfo: false,
-      });
-    } catch (err) {
-      toast.error(err.response?.data?.message || "حدث خطأ أثناء إرسال الطلب", {
-        duration: 5000,
-        position: "top-center",
-        style: {
-          backgroundColor: '#fef2f2',
-          borderLeft: '4px solid #f87171',
-          padding: '1rem',
-          minWidth: '300px',
-          maxWidth: '90vw',
-        },
-      });
+      const response = await axios.post(
+        "http://localhost:5000/api/requests/volunteer",
+        formData
+      );
+
+      if (response.data.message) {
+        toast.success(response.data.message);
+        // Reset form
+        setFormData({
+          fullName: "",
+          email: "",
+          phonenumber: "",
+          birthDate: "",
+          additionalInfo: "",
+        });
+        setErrors({});
+        setTouched({});
+      }
+    } catch (error) {
+      if (error.response?.data?.errors) {
+        // Handle validation errors from backend
+        const newErrors = {};
+        error.response.data.errors.forEach(err => {
+          newErrors[err.field] = err.message;
+        });
+        setErrors(newErrors);
+        toast.error("الرجاء تصحيح الأخطاء في النموذج");
+      } else {
+        toast.error(error.response?.data?.message || "حدث خطأ أثناء إرسال الطلب");
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -230,7 +241,7 @@ export default function VolunteerRequest() {
                     placeholder="الاسم الكامل"
                     required
                     onChange={handleChange}
-                    onBlur={() => setTouched({...touched, fullName: true})}
+                    onBlur={handleBlur}
                     value={formData.fullName}
                     className={`w-full border-2 ${errors.fullName && touched.fullName ? 'border-red-500' : 'border-gray-200'} px-4 py-3 rounded-lg focus:border-blue-400 focus:outline-none transition-colors duration-200 bg-gray-50 focus:bg-white`}
                   />
@@ -246,7 +257,7 @@ export default function VolunteerRequest() {
                     placeholder="رقم الهاتف"
                     required
                     onChange={handleChange}
-                    onBlur={() => setTouched({...touched, phonenumber: true})}
+                    onBlur={handleBlur}
                     value={formData.phonenumber}
                     className={`w-full border-2 ${errors.phonenumber && touched.phonenumber ? 'border-red-500' : 'border-gray-200'} px-4 py-3 rounded-lg focus:border-blue-400 focus:outline-none transition-colors duration-200 bg-gray-50 focus:bg-white`}
                   />
@@ -273,7 +284,7 @@ export default function VolunteerRequest() {
                     placeholder="البريد الإلكتروني"
                     required
                     onChange={handleChange}
-                    onBlur={() => setTouched({...touched, email: true})}
+                    onBlur={handleBlur}
                     value={formData.email}
                     className={`w-full border-2 ${errors.email && touched.email ? 'border-red-500' : 'border-gray-200'} px-4 py-3 rounded-lg focus:border-blue-400 focus:outline-none transition-colors duration-200 bg-gray-50 focus:bg-white`}
                   />
@@ -299,7 +310,7 @@ export default function VolunteerRequest() {
                     placeholder="تاريخ الميلاد"
                     required
                     onChange={handleChange}
-                    onBlur={() => setTouched({...touched, birthDate: true})}
+                    onBlur={handleBlur}
                     value={formData.birthDate}
                     className={`w-full border-2 ${errors.birthDate && touched.birthDate ? 'border-red-500' : 'border-gray-200'} px-4 py-3 rounded-lg focus:border-blue-400 focus:outline-none transition-colors duration-200 bg-gray-50 focus:bg-white text-gray-700`}
                   />
@@ -324,7 +335,7 @@ export default function VolunteerRequest() {
                 name="additionalInfo"
                 placeholder="أخبرنا عن دافعك للتطوع معنا، خبراتك السابقة، المهارات التي تملكها، والوقت المتاح لديك للتطوع..."
                 onChange={handleChange}
-                onBlur={() => setTouched({...touched, additionalInfo: true})}
+                onBlur={handleBlur}
                 value={formData.additionalInfo}
                 className={`w-full border-2 ${errors.additionalInfo && touched.additionalInfo ? 'border-red-500' : 'border-gray-200'} px-4 py-3 rounded-lg focus:border-blue-400 focus:outline-none transition-colors duration-200 bg-gray-50 focus:bg-white resize-none`}
                 rows="4"
@@ -360,6 +371,37 @@ export default function VolunteerRequest() {
                   شبكة تواصل مهنية
                 </div>
               </div>
+            </div>
+
+            {/* Privacy and Terms Checkboxes */}
+            <div className="flex flex-col gap-2 mb-4">
+              <label className="flex items-center text-right cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={privacyChecked}
+                  onChange={e => setPrivacyChecked(e.target.checked)}
+                  className="form-checkbox h-5 w-5 text-blue-600 ml-2"
+                />
+                <span>
+                  أوافق على{' '}
+                  <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">سياسة الخصوصية</a>
+                </span>
+              </label>
+              <label className="flex items-center text-right cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={termsChecked}
+                  onChange={e => setTermsChecked(e.target.checked)}
+                  className="form-checkbox h-5 w-5 text-blue-600 ml-2"
+                />
+                <span>
+                  أوافق على{' '}
+                  <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">الشروط والأحكام</a>
+                </span>
+              </label>
+              {policyError && (
+                <p className="text-sm text-red-600 text-right mt-1">{policyError}</p>
+              )}
             </div>
 
             {/* Submit Button */}

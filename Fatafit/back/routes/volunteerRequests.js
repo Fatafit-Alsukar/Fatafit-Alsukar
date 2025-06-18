@@ -4,7 +4,7 @@ const {
   getVolunteerRequestCount,
   getAllVolunteerRequests,
   updateVolunteerRequestStatus,
-  
+  approveVolunteerRequest,
 } = require("../controllers/volunteerRequestController");
 
 // Route: GET /api/requests/volunteer/count
@@ -18,4 +18,7 @@ router.get("/", getAllVolunteerRequests);
 
 // PUT لتحديث الحالة
 router.put("/:id", updateVolunteerRequestStatus);
+
+router.post("/:id/approve", approveVolunteerRequest); // الموافقة أو التعليق
+
 module.exports = router;

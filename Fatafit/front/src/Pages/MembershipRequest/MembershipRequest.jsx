@@ -29,6 +29,10 @@ export default function MembershipRequest() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const [privacyChecked, setPrivacyChecked] = useState(false);
+  const [termsChecked, setTermsChecked] = useState(false);
+  const [policyError, setPolicyError] = useState("");
+
   useEffect(() => {
     validateForm();
   }, [formData]);
@@ -102,6 +106,13 @@ export default function MembershipRequest() {
       isValid = false;
     } else {
       newErrors.additionalInfo = "";
+    }
+
+    if (!privacyChecked || !termsChecked) {
+      setPolicyError("يجب الموافقة على سياسة الخصوصية والشروط والأحكام");
+      isValid = false;
+    } else {
+      setPolicyError("");
     }
 
     setErrors(newErrors);
@@ -387,6 +398,37 @@ export default function MembershipRequest() {
                   خصومات على الأدوية والفحوصات
                 </div>
               </div>
+            </div>
+
+            {/* Privacy and Terms Checkboxes */}
+            <div className="flex flex-col gap-2 mb-4">
+              <label className="flex items-center text-right cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={privacyChecked}
+                  onChange={e => setPrivacyChecked(e.target.checked)}
+                  className="form-checkbox h-5 w-5 text-blue-600 ml-2"
+                />
+                <span>
+                  أوافق على{' '}
+                  <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">سياسة الخصوصية</a>
+                </span>
+              </label>
+              <label className="flex items-center text-right cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={termsChecked}
+                  onChange={e => setTermsChecked(e.target.checked)}
+                  className="form-checkbox h-5 w-5 text-blue-600 ml-2"
+                />
+                <span>
+                  أوافق على{' '}
+                  <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">الشروط والأحكام</a>
+                </span>
+              </label>
+              {policyError && (
+                <p className="text-sm text-red-600 text-right mt-1">{policyError}</p>
+              )}
             </div>
 
             {/* Submit Button */}

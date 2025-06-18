@@ -288,6 +288,12 @@ export default function DiabetesHomePage() {
       color: "from-teal-500 to-blue-600",
     },
     {
+      title: "رحلة تعايش آمنة",
+      description: "نساعدك في رحلة التعايش مع مرض السكري بأمان وثقة",
+      image: "/api/placeholder/800/450",
+      color: "from-blue-500 to-indigo-600",
+    },
+    {
       title: "المعرفة قوة",
       description: "نوفر لك أحدث المعلومات والنصائح للتعايش مع مرض السكري",
       image: "/api/placeholder/800/450",
@@ -570,6 +576,47 @@ export default function DiabetesHomePage() {
           </svg>
         </div>
       </motion.header>
+
+      {/* Vision & Mission Section */}
+      <section className="py-16 px-4 bg-gradient-to-br from-blue-50 via-white to-indigo-100" dir="rtl">
+        <div className="max-w-3xl mx-auto rounded-3xl shadow-xl bg-white/80 border border-blue-100 p-8 md:p-12 relative overflow-hidden">
+          {/* Decorative background shapes */}
+          <div className="absolute -top-10 -left-10 w-40 h-40 bg-blue-100 rounded-full opacity-30 z-0"></div>
+          <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-indigo-100 rounded-full opacity-20 z-0"></div>
+          {/* Content */}
+          <div className="relative z-10">
+            <h2 className="text-2xl md:text-3xl font-extrabold text-blue-700 mb-6 flex items-center gap-3 justify-center">
+              <svg className="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path d="M13 16h-1v-4h-1m1-4h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              الرؤية والرسالة - الجمعية الخيرية لأطفال السكري
+            </h2>
+            <div className="grid md:grid-cols-2 gap-8">
+              {/* Vision */}
+              <div className="bg-blue-50 rounded-2xl p-6 shadow-sm border border-blue-100 flex flex-col items-start">
+                <div className="flex items-center gap-2 mb-2">
+                  <svg className="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path d="M15 10l4.553-2.276A2 2 0 0020 6.382V5a2 2 0 00-2-2H6a2 2 0 00-2 2v1.382a2 2 0 00.447 1.342L9 10m6 0v4m0 0l-3 3m3-3l3 3" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <span className="text-lg font-bold text-blue-700">الرؤية</span>
+                </div>
+                <p className="text-gray-700 text-base leading-relaxed mb-2">.نطمح لتحسين حياة أطفال السكري</p>
+                <p className="text-gray-700 text-base leading-relaxed">.ونسعى لمستقبل صحي وآمن لكل طفل</p>
+              </div>
+              {/* Message */}
+              <div className="bg-indigo-50 rounded-2xl p-6 shadow-sm border border-indigo-100 flex flex-col items-start">
+                <div className="flex items-center gap-2 mb-2">
+                  <svg className="w-6 h-6 text-indigo-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path d="M8 10h.01M12 14h.01M16 10h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <span className="text-lg font-bold text-indigo-700">الرسالة</span>
+                </div>
+                <p className="text-gray-700 text-base leading-relaxed mb-2"> ،نقدم الدعم والرعاية لأطفال السكري وأسرهم, من خلال خدمات طبية، توعوية، ومجتمعية سهلة الوصول</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Stats Section */}
       <motion.section

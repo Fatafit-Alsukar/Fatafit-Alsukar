@@ -18,6 +18,7 @@ const requestRoutes = require("./routes/requestRoutes");
 const serviceRoutes = require("./routes/serviceRoutes")
 const activityRoutes = require("./routes/activityRoutes");
 const successStoryRoutes = require("./routes/SuccessStroyRoutes");
+const adminRoutes = require('./routes/adminRoutes');
 
 /****************************************************************** */
 
@@ -74,6 +75,7 @@ app.use('/api/contact', contactRoutes);
 
 app.use("/api/donations", donationRoutes);
 app.use("/api/success-stories", successStoryRoutes);
+app.use('/api', adminRoutes);
 
 /*******************************************************************/
 const PORT = process.env.PORT || 5000;

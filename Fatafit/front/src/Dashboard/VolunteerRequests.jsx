@@ -245,7 +245,9 @@ export default function VolunteerRequests({
                             onClick={() =>
                               updateVolunteerStatus(
                                 req._id,
-                                req.status === "approved" ? "pending" : "approved"
+                                req.status === "approved" ? "pending" : "approved",
+                                req.email,
+                                req.fullName
                               )
                             }
                           >

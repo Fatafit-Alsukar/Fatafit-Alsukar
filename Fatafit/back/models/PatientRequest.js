@@ -20,10 +20,10 @@ const requestSchema = new mongoose.Schema(
     additionalInfo: {
       type: String,
     },
-    attachment: {
-      type: String, // اسم الملف فقط
-      default: null,
-    },
+    attachments: [{
+      type: String, // اسم الملف
+      default: [],
+    }],
     status: {
       type: String,
       enum: ["pending", "approved", "rejected"],

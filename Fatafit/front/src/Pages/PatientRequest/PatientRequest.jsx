@@ -16,7 +16,7 @@ export default function PatientRequest() {
     serviceType: "",
   });
 
-  const [attachment, setAttachment] = useState(null);
+  const [attachments, setAttachments] = useState([]);
   const [message, setMessage] = useState("");
   const [success, setSuccess] = useState(false);
   const [services, setServices] = useState([]);
@@ -24,6 +24,9 @@ export default function PatientRequest() {
   const [error, setError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
+  const [privacyChecked, setPrivacyChecked] = useState(false);
+  const [termsChecked, setTermsChecked] = useState(false);
+  const [policyError, setPolicyError] = useState("");
 
   // Simulate URL params - you can replace this with your actual routing solution
   const [urlParams] = useState(new URLSearchParams(window.location.search));
@@ -100,15 +103,23 @@ export default function PatientRequest() {
           error = "الاسم الكامل مطلوب";
         } else if (value.trim().length < 3) {
           error = "يجب أن يكون الاسم على الأقل 3 أحرف";
+        } else if (value.trim().length > 100) {
+          error = "يجب أن لا يتجاوز الاسم 100 حرف";
+        } else if (!/^[\u0600-\u06FF\s]{3,100}$/.test(value.trim())) {
+          error = "يجب أن يحتوي الاسم على أحرف عربية فقط";
         }
         break;
+
       case "email":
         if (!value) {
           error = "البريد الإلكتروني مطلوب";
-        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+        } else if (
+          !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value)
+        ) {
           error = "البريد الإلكتروني غير صالح";
         }
         break;
+
       case "phonenumber":
         if (!value) {
           error = "رقم الهاتف مطلوب";
@@ -120,11 +131,19 @@ export default function PatientRequest() {
           error = "رقم الهاتف غير صالح";
         }
         break;
+
       case "serviceType":
         if (!value) {
           error = "نوع الخدمة مطلوب";
         }
         break;
+
+      case "additionalInfo":
+        if (value && value.length > 1000) {
+          error = "يجب أن لا تتجاوز المعلومات الإضافية 1000 حرف";
+        }
+        break;
+
       default:
         break;
     }
@@ -150,24 +169,42 @@ export default function PatientRequest() {
   };
 
   const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
+    const files = Array.from(e.target.files);
+    const validFiles = [];
+    const invalidFiles = [];
+
+    files.forEach((file) => {
       // Validate file type
       const validTypes = ["image/jpeg", "image/png", "application/pdf"];
       if (!validTypes.includes(file.type)) {
-        setMessage("نوع الملف غير مدعوم. يرجى إرفاق ملف بصيغة JPG, PNG أو PDF");
+        invalidFiles.push(file.name);
         return;
       }
 
       // Validate file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
-        setMessage("حجم الملف كبير جداً. الحد الأقصى هو 5MB");
+        invalidFiles.push(file.name);
         return;
       }
 
-      setAttachment(file);
-      setMessage("");
+      validFiles.push(file);
+    });
+
+    if (invalidFiles.length > 0) {
+      setMessage(
+        `الملفات التالية تم رفضها: ${invalidFiles.join(
+          ", "
+        )}. يرجى التأكد من أن الملفات بصيغة JPG, PNG أو PDF وحجمها لا يتجاوز 5MB`
+      );
+      return;
     }
+
+    setAttachments((prev) => [...prev, ...validFiles]);
+    setMessage("");
+  };
+
+  const removeFile = (index) => {
+    setAttachments((prev) => prev.filter((_, i) => i !== index));
   };
 
   const validateForm = () => {
@@ -185,6 +222,14 @@ export default function PatientRequest() {
       }
     });
 
+    // Check privacy and terms
+    if (!privacyChecked || !termsChecked) {
+      setPolicyError("يجب الموافقة على سياسة الخصوصية والشروط والأحكام");
+      isValid = false;
+    } else {
+      setPolicyError("");
+    }
+
     setErrors(newErrors);
     return isValid;
   };
@@ -201,19 +246,23 @@ export default function PatientRequest() {
 
     const data = new FormData();
 
+    // Add form fields
     Object.entries(formData).forEach(([key, value]) => {
       data.append(key, value);
     });
 
-    if (attachment) {
-      data.append("attachment", attachment);
+    // Add files
+    if (attachments.length > 0) {
+      attachments.forEach((file) => {
+        data.append("attachments", file);
+      });
     }
 
     try {
       const res = await fetch("http://localhost:5000/api/requests", {
         method: "POST",
         body: data,
-        credentials: "include", // Include cookies for authentication
+        credentials: "include",
       });
 
       const responseData = await res.json();
@@ -228,7 +277,7 @@ export default function PatientRequest() {
           serviceType: "",
           additionalInfo: "",
         });
-        setAttachment(null);
+        setAttachments([]);
         setErrors({
           fullName: "",
           email: "",
@@ -236,9 +285,20 @@ export default function PatientRequest() {
           serviceType: "",
         });
       } else {
-        throw new Error(responseData.message || "حدث خطأ أثناء إرسال الطلب");
+        // Handle validation errors from backend
+        if (responseData.errors) {
+          const newErrors = {};
+          responseData.errors.forEach((err) => {
+            newErrors[err.field] = err.message;
+          });
+          setErrors(newErrors);
+          setMessage("الرجاء تصحيح الأخطاء في النموذج");
+        } else {
+          throw new Error(responseData.message || "حدث خطأ أثناء إرسال الطلب");
+        }
       }
     } catch (err) {
+      console.error("Error submitting form:", err);
       setMessage(err.message || "حدث خطأ أثناء إرسال الطلب");
       setSuccess(false);
     } finally {
@@ -500,7 +560,7 @@ export default function PatientRequest() {
                     d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"
                   ></path>
                 </svg>
-                إرفاق ملف (اختياري)
+                إرفاق ملفات (اختياري)
               </h3>
 
               <div className="relative">
@@ -508,17 +568,93 @@ export default function PatientRequest() {
                   type="file"
                   onChange={handleFileChange}
                   accept=".jpg,.jpeg,.png,.pdf"
+                  multiple
                   className="w-full border-2 border-dashed border-gray-300 px-4 py-6 rounded-lg hover:border-blue-400 transition-colors duration-200 file:ml-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 file:cursor-pointer"
                 />
                 <p className="text-sm text-gray-500 mt-2">
                   يمكنك إرفاق التقارير الطبية أو الصور بصيغة JPG, PNG أو PDF
                 </p>
-                {attachment && (
-                  <p className="text-sm text-green-600 mt-2">
-                    تم اختيار الملف: {attachment.name}
-                  </p>
+                {attachments.length > 0 && (
+                  <div className="mt-4 space-y-2">
+                    {attachments.map((file, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center justify-between bg-gray-50 p-2 rounded-lg"
+                      >
+                        <span className="text-sm text-gray-600">
+                          {file.name}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => removeFile(index)}
+                          className="text-red-500 hover:text-red-700"
+                        >
+                          <svg
+                            className="w-5 h-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M6 18L18 6M6 6l12 12"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
                 )}
               </div>
+            </div>
+
+            {/* Privacy and Terms Checkboxes */}
+            <div className="flex flex-col gap-2 mb-4">
+              <label className="flex items-center text-right cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={privacyChecked}
+                  onChange={(e) => setPrivacyChecked(e.target.checked)}
+                  className="form-checkbox h-5 w-5 text-blue-600 ml-2"
+                />
+                <span>
+                  أوافق على{" "}
+                  <a
+                    href="/privacy"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 underline"
+                  >
+                    سياسة الخصوصية
+                  </a>
+                </span>
+              </label>
+              <label className="flex items-center text-right cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={termsChecked}
+                  onChange={(e) => setTermsChecked(e.target.checked)}
+                  className="form-checkbox h-5 w-5 text-blue-600 ml-2"
+                />
+                <span>
+                  أوافق على{" "}
+                  <a
+                    href="/terms"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 underline"
+                  >
+                    الشروط والأحكام
+                  </a>
+                </span>
+              </label>
+              {policyError && (
+                <p className="text-sm text-red-600 text-right mt-1">
+                  {policyError}
+                </p>
+              )}
             </div>
 
             {/* Submit Button */}
